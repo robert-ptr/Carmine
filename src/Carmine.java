@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Carmine {
+    Environment globalEnvironment;
+
     public static void error(String message)
     {
         System.err.println(message);
@@ -24,10 +26,13 @@ public class Carmine {
 
         Parser parser = new Parser(tokens);
 
-        Expr expr = parser.parse();
-        expr.print();
-        System.out.println();
-        System.out.println(expr.evaluate());
+        List<Stmt> statements = parser.parse();
+        for (Stmt statement : statements) {
+            statement.print();
+            System.out.println();
+            if (statement instanceof Stmt.Expression)
+                System.out.println(((Stmt.Expression)(statement)).getExpr().evaluate());
+        }
     }
 
     private static void runFile(String path) throws IOException, IOException {

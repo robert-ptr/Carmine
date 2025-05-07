@@ -1,11 +1,7 @@
 abstract class Expr {
-    Object evaluate()  // expressions return objects, because they produce values, statements don't(but they do have side effects).
-    {
-        return null;
-    };
+    abstract Object evaluate();  // expressions return objects, because they produce values, statements don't(but they do have side effects).
 
-
-    void print() {};
+    abstract void print();
 
     static class Binary extends Expr
     {

@@ -118,8 +118,26 @@ public class Parser
         return null;
     }
 
-    public Expr parse()
+    private Stmt expressionStmt()
     {
-        return expression();
+        Expr expr = expression();
+
+        return new Stmt.Expression(expr);
+    }
+
+    private Stmt statement()
+    {
+        return expressionStmt();
+    }
+
+    public List<Stmt> parse()
+    {
+        List<Stmt> statements = new ArrayList<>();
+        while (peek().type != TokenType.EOF)
+        {
+            statements.add(statement());
+        }
+
+        return statements;
     }
 }
