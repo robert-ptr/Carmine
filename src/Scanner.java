@@ -17,7 +17,6 @@ public class Scanner {
         keywords.put("or", TokenType.OR);
         keywords.put("not", TokenType.NOT);
         keywords.put("wire", TokenType.WIRE);
-        keywords.put("split", TokenType.SPLIT);
         keywords.put("def", TokenType.DEF);
         keywords.put("main", TokenType.MAIN);
         keywords.put("true", TokenType.TRUE);
@@ -51,7 +50,7 @@ public class Scanner {
         return new Token(type, code.substring(start, current), null, line);
     }
 
-    private boolean isAlphanumeric(char c)
+    private boolean isAlpha(char c)
     {
         return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
     }
@@ -63,7 +62,7 @@ public class Scanner {
 
     private Token identifier()
     {
-        while (isAlphanumeric(peek()) || isDecimal(peek()))
+        while (isAlpha(peek()) || isDecimal(peek()))
         {
             advance();
         }
@@ -82,8 +81,9 @@ public class Scanner {
         {
             advance();
         }
-
-        return makeToken(TokenType.DECIMAL);
+        Token number = makeToken(TokenType.DECIMAL);
+        number.value = Integer.parseInt(number.lexeme);
+        return number;
     }
 
     private Token scanToken()
@@ -117,7 +117,7 @@ public class Scanner {
                     return makeToken(TokenType.ARROW);
                 else // no substraction for now
                 {
-                    Carmine.error("Subtraction is not a supported operation.");
+                    Carmine.error(line + "Subtraction is not a supported operation.");
                     return null;
                 }
             case '/':
@@ -128,7 +128,7 @@ public class Scanner {
                 }
                 else // no division for now
                 {
-                    Carmine.error("Division is not a supported operation.");
+                    Carmine.error(line + " Division is not a supported operation.");
                     return null;
                 }
             case ' ':
@@ -136,7 +136,7 @@ public class Scanner {
             case '\t':
                 return null;
             default:
-                if (isAlphanumeric(c))
+                if (isAlpha(c))
                 {
                     return identifier();
                 }

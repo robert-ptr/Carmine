@@ -12,7 +12,6 @@ public class Carmine {
 
     private static void run(String code)
     {
-        System.out.println(code);
         Scanner scanner = new Scanner(code);
         List<Token> tokens = scanner.scanTokens();
 
@@ -29,6 +28,7 @@ public class Carmine {
 
     public static void main(String[] args) throws IOException {
 
+        /*
         if (args.length != 1)
         {
             System.out.println("Usage: carmine [script]");
@@ -38,5 +38,15 @@ public class Carmine {
         {
             runFile(args[0]);
         }
+         */
+
+        Expr expr = new Expr.Binary(
+                new Expr.Group(
+                    new Expr.Unary(new Token(TokenType.NOT, "not", null, 1), new Expr.Literal(true))
+                ),
+                new Token(TokenType.OR, "or", null, 1),
+                new Expr.Literal(false));
+
+        expr.print();
     }
 }
