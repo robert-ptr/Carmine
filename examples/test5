@@ -1,0 +1,7 @@
+def main() -> final {
+    var a = 1
+    var b = 0
+    var x = a and b
+    var y = a or b
+    final = x or y
+}

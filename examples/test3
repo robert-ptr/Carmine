@@ -1,0 +1,11 @@
+def NOT(a) -> out {
+    out = not a
+}
+
+def NAND(a, b) -> out {
+    out = NOT(a and b)
+}
+
+def main() -> output {
+    output = NAND(1, 0)
+}

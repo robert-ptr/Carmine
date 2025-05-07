@@ -1,0 +1,9 @@
+def OR(a, b) -> out {
+    out = a or b
+}
+
+def main() -> output {
+    var x = 0
+    var y = 1
+    output = OR(x, y)
+}

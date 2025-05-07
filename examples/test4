@@ -1,0 +1,7 @@
+def XOR(a, b) -> out {
+    out = (a or b) and not(a and b)
+}
+
+def main() -> result {
+    result = XOR(1, XOR(0, 1))
+}

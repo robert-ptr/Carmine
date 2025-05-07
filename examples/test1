@@ -1,0 +1,7 @@
+def AND(a, b) -> out {
+    out = a and b
+}
+
+def main() -> output {
+    output = AND(1, 1)
+}
