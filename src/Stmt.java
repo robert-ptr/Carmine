@@ -33,34 +33,30 @@ abstract class Stmt {
 
     static class Block extends Stmt
     {
-        final List<Expr> expressions;
+        final List<Stmt> statements;
 
-        Block(List<Expr> expressions)
+        Block(List<Stmt> statements)
         {
-            this.expressions = expressions;
+            this.statements = statements;
         }
 
         @Override
         void evaluate()
         {
-            for (Expr expr : expressions)
+            for (Stmt stmt : statements)
             {
-                expr.evaluate();
+                stmt.evaluate();
             }
         }
 
         @Override
         void print()
         {
-            for (Expr expr : expressions)
+            for (Stmt stmt : statements)
             {
-                expr.print();
+                stmt.print();
+                System.out.println();
             }
-        }
-
-        List<Expr> getExpr()
-        {
-            return expressions;
         }
     }
 

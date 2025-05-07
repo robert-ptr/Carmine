@@ -6,6 +6,12 @@ public class Parser
 {
     List<Token> tokens = new ArrayList<Token>();
     int current = 0;
+    boolean hadError = false;
+
+    private boolean isAtEnd()
+    {
+        return peek().type == TokenType.EOF;
+    }
 
     Parser(List<Token> tokens)
     {
@@ -19,6 +25,9 @@ public class Parser
 
     private Token advance()
     {
+        if (isAtEnd())
+            return null;
+
         return tokens.get(current++);
     }
 
@@ -29,7 +38,7 @@ public class Parser
 
     private boolean check(TokenType type)
     {
-        if (peek().type == TokenType.EOF)
+        if (isAtEnd())
             return false;
 
         return peek().type == type;
@@ -114,26 +123,56 @@ public class Parser
             return new Expr.Group(expr);
         }
 
-        Carmine.error(peek().line + "Unexpected token.");
+        Carmine.error(peek().line + " Unexpected token: " + peek());
+        hadError = true;
         return null;
     }
 
     private Stmt expressionStmt()
     {
         Expr expr = expression();
-
+        if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
+        {
+            hadError = true;
+            Carmine.error(peek().line + "Invalid expression.");
+        }
         return new Stmt.Expression(expr);
+    }
+
+    private Stmt varStatement()
+    {
+        return null;
+    }
+
+    private Stmt blockStatement()
+    {
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd() && !match(TokenType.RBRACE))
+        {
+            statements.add(statement());
+        }
+        match(TokenType.ENDLINE);
+        return new Stmt.Block(statements);
     }
 
     private Stmt statement()
     {
+        if (match(TokenType.VARIABLE))
+        {
+            return varStatement();
+        }
+        else if (match(TokenType.LBRACE))
+        {
+            match(TokenType.ENDLINE);
+            return blockStatement();
+        }
         return expressionStmt();
     }
 
     public List<Stmt> parse()
     {
         List<Stmt> statements = new ArrayList<>();
-        while (peek().type != TokenType.EOF)
+        while (!isAtEnd())
         {
             statements.add(statement());
         }

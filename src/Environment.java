@@ -2,6 +2,7 @@ import java.util.HashMap;
 
 public class Environment
 {
+    Environment enclosing = null;
     HashMap<String, Object> variables = new HashMap<>();
 
     void put(String name, Object value)
@@ -27,5 +28,15 @@ public class Environment
         }
 
         throw new RuntimeException(token.line + " Unknown variable: " + token.lexeme);
+    }
+
+    void addEnclosing(Environment enclosing)
+    {
+        this.enclosing = enclosing;
+    }
+
+    void encloseEnvironment(Environment env)
+    {
+        env.addEnclosing(this);
     }
 }

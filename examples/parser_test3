@@ -1,4 +1,6 @@
 {
     (true and false) or not (not false or false)
-    not(true)
+    {
+        true or false
+    }
 }

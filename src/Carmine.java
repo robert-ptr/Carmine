@@ -5,7 +5,9 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Carmine {
-    Environment globalEnvironment;
+    Environment environment;
+
+    List<Stmt.Function> statements;
 
     public static void error(String message)
     {
@@ -30,8 +32,6 @@ public class Carmine {
         for (Stmt statement : statements) {
             statement.print();
             System.out.println();
-            if (statement instanceof Stmt.Expression)
-                System.out.println(((Stmt.Expression)(statement)).getExpr().evaluate());
         }
     }
 
