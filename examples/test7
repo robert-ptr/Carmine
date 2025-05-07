@@ -6,6 +6,6 @@ def AND3(a, b, c) -> out {
     out = a and b and c
 }
 
-def main() -> output {
+def main() {
     output = INV(AND3(1, 1, 0))
 }

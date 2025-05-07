@@ -3,7 +3,7 @@ def HALF_ADDER(a, b) -> sum, carry {
     carry = a and b
 }
 
-def main() -> result {
+def main() {
     var s, c = HALF_ADDER(1, 1)
     result = s or c
 }
