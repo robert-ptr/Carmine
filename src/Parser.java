@@ -160,6 +160,7 @@ public class Parser
             hadError = true;
             Carmine.error(peek().line + "Invalid expression.");
         }
+
         return new Stmt.Expression(expr);
     }
 
@@ -170,9 +171,10 @@ public class Parser
         if (match(TokenType.EQUAL))
         {
             Expr right = expression();
-
+            match(TokenType.ENDLINE);
             if (left instanceof Expr.Variable)
             {
+
                 return new Stmt.Variable(((Expr.Variable)left).getName(), right);
             }
 
@@ -182,6 +184,7 @@ public class Parser
             return null;
         }
 
+        match(TokenType.ENDLINE);
         if (left instanceof Expr.Variable)
         {
             return new Stmt.Variable(((Expr.Variable)left).getName(), null);

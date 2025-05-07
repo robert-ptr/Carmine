@@ -125,6 +125,9 @@ public class Scanner {
                 {
                     while (!isAtEnd() && peek() != '\n')
                         advance();
+
+                    if (peek() == '\n')
+                        advance();
                 }
                 else // no division for now
                 {

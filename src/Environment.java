@@ -2,12 +2,17 @@ import java.util.HashMap;
 
 public class Environment
 {
-    Environment enclosing = null;
-    HashMap<String, Object> variables = new HashMap<>();
+    private Environment enclosing = null;
+    private HashMap<String, Object> variables = new HashMap<>();
 
     void put(String name, Object value)
     {
         variables.put(name, value);
+    }
+
+    boolean contains(Token token)
+    {
+        return variables.containsKey(token.lexeme);
     }
 
     Object get(String name)
@@ -35,8 +40,13 @@ public class Environment
         this.enclosing = enclosing;
     }
 
-    void encloseEnvironment(Environment env)
+    Environment getEnclosing()
     {
-        env.addEnclosing(this);
+        return enclosing;
+    }
+
+    HashMap<String, Object> getVariables()
+    {
+        return variables;
     }
 }

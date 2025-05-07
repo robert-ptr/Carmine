@@ -1,0 +1,6 @@
+var a
+{
+    var b = true
+    b = false
+}
+a = true

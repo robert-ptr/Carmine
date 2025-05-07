@@ -123,17 +123,23 @@ abstract class Expr {
         }
 
         @Override
-        Object evaluate() throws RuntimeException
+        Object evaluate()
         {
-            Carmine.environment.put(name.lexeme, right.evaluate());
+            if (!Carmine.environment.contains(name))
+                throw new RuntimeException(name.line + " Undefined variable: " + name);
 
-            return right.evaluate();
+            Object value = right.evaluate();
+
+            Carmine.environment.put(name.lexeme, value);
+
+            return value;
         }
 
         @Override
         void print()
         {
-            System.out.print(name.lexeme);
+            System.out.println(name.lexeme + " ");
+            right.print();
         }
     }
 

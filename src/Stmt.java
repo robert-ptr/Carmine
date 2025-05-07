@@ -43,10 +43,18 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
+            Environment blockEnvironment = new Environment();
+            blockEnvironment.addEnclosing(Carmine.environment);
+
+            Carmine.environment = blockEnvironment;
+
             for (Stmt stmt : statements)
             {
                 stmt.evaluate();
             }
+
+            Debug.environments.add(blockEnvironment);
+            Carmine.environment = blockEnvironment.getEnclosing();
         }
 
         @Override
@@ -74,20 +82,36 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
+            if (Carmine.environment.contains(name))
+                throw new RuntimeException(name.line + " Variable already exists " + name); // this shows the wrong line. Maybe add something in the environment
+
+            if (expr != null)
+                Carmine.environment.put(name.lexeme, expr.evaluate());
+            else
+                Carmine.environment.put(name.lexeme, null);
         }
 
         @Override
         void print()
         {
+            System.out.print("var " + name.lexeme + " ");
+            if (expr != null) {
+                System.out.print("= ");
+                expr.print();
+            }
+            else
+            {
+                System.out.println();
+            }
         }
     }
 
     static class Assignment extends Stmt
     {
-        final String name;
+        final Token name;
         final Expr expr;
 
-        Assignment(String name, Expr expr)
+        Assignment(Token name, Expr expr)
         {
             this.name = name;
             this.expr = expr;
@@ -96,11 +120,17 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
+            if (!Carmine.environment.contains(name))
+                throw new RuntimeException(name.line + " Undefined variable: " + name);
+
+            Carmine.environment.put(name.lexeme, expr.evaluate());
         }
 
         @Override
         void print()
         {
+            System.out.println(name.lexeme + " ");
+            expr.print();
         }
     }
 

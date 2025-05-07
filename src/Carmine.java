@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Carmine {
-    static Environment environment;
+    static Environment environment = new Environment();
 
     static List<Stmt.Function> statements;
 
@@ -35,9 +35,12 @@ public class Carmine {
 
         List<Stmt> statements = parser.parse();
         for (Stmt statement : statements) {
-            statement.print();
-            System.out.println();
+            //statement.print();
+            statement.evaluate();
+            // System.out.println();
         }
+
+        Debug.printEnvironments();
     }
 
     private static void runFile(String path) throws IOException, IOException {
