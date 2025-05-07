@@ -5,9 +5,14 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Carmine {
-    Environment environment;
+    static Environment environment;
 
-    List<Stmt.Function> statements;
+    static List<Stmt.Function> statements;
+
+    public static Environment getEnvironment()
+    {
+        return environment;
+    }
 
     public static void error(String message)
     {

@@ -62,10 +62,10 @@ abstract class Stmt {
 
     static class Variable extends Stmt
     {
-        final String name;
+        final Token name;
         final Expr expr;
 
-        Variable(String name, Expr expr)
+        Variable(Token name, Expr expr)
         {
             this.name = name;
             this.expr = expr;

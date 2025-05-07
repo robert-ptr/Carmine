@@ -56,6 +56,25 @@ public class Parser
         return false;
     }
 
+    private Expr assignment()
+    {
+        Expr left = expression();
+
+        if (match(TokenType.EQUAL))
+        {
+            Expr right = expression();
+
+            if (left instanceof Expr.Variable)
+            {
+                return new Expr.Assignment(((Expr.Variable)left).getName(), right);
+            }
+
+            Carmine.error(peek().line + " Invalid assignment target.");
+        }
+
+        return left;
+    }
+
     private Expr expression()
     {
         return or();
@@ -123,6 +142,11 @@ public class Parser
             return new Expr.Group(expr);
         }
 
+        if (match(TokenType.IDENTIFIER))
+        {
+            return new Expr.Variable(previous());
+        }
+
         Carmine.error(peek().line + " Unexpected token: " + peek());
         hadError = true;
         return null;
@@ -130,7 +154,7 @@ public class Parser
 
     private Stmt expressionStmt()
     {
-        Expr expr = expression();
+        Expr expr = assignment();
         if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
         {
             hadError = true;
@@ -141,6 +165,31 @@ public class Parser
 
     private Stmt varStatement()
     {
+        Expr left = expression();
+
+        if (match(TokenType.EQUAL))
+        {
+            Expr right = expression();
+
+            if (left instanceof Expr.Variable)
+            {
+                return new Stmt.Variable(((Expr.Variable)left).getName(), right);
+            }
+
+            Carmine.error(peek().line + "Invalid variable.");
+            hadError = true;
+
+            return null;
+        }
+
+        if (left instanceof Expr.Variable)
+        {
+            return new Stmt.Variable(((Expr.Variable)left).getName(), null);
+        }
+
+        Carmine.error(peek().line + "Invalid variable.");
+        hadError = true;
+        
         return null;
     }
 

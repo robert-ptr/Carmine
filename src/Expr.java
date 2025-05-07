@@ -79,6 +79,64 @@ abstract class Expr {
         }
     }
 
+    static class Variable extends Expr
+    {
+        final Token name;
+
+        Variable(Token name)
+        {
+            this.name = name;
+        }
+
+        public Token getName()
+        {
+            return name;
+        }
+
+        @Override
+        Object evaluate() throws RuntimeException
+        {
+            return Carmine.environment.get(name.lexeme);
+        }
+
+        @Override
+        void print()
+        {
+            System.out.print(name.lexeme);
+        }
+    }
+
+    static class Assignment extends Expr
+    {
+        final Token name;
+        final Expr right;
+
+        Assignment(Token name, Expr right)
+        {
+            this.name = name;
+            this.right = right;
+        }
+
+        public Token getName()
+        {
+            return name;
+        }
+
+        @Override
+        Object evaluate() throws RuntimeException
+        {
+            Carmine.environment.put(name.lexeme, right.evaluate());
+
+            return right.evaluate();
+        }
+
+        @Override
+        void print()
+        {
+            System.out.print(name.lexeme);
+        }
+    }
+
     static class Literal extends Expr
     {
         final Object value;
