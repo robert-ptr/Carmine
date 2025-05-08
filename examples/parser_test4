@@ -1,6 +1,6 @@
 var a
+var _absdsdc10 = false
 {
-    var b = true
-    b = false
+    var b = true and (not false)
+    a = true
 }
-a = true

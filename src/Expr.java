@@ -125,14 +125,21 @@ abstract class Expr {
         @Override
         Object evaluate()
         {
-            if (!Carmine.environment.contains(name))
+            Environment env = Carmine.environment;
+            while (env != null && !env.contains(name)) {
+                env = env.getEnclosing();
+
+            }
+
+            if (env == null)
                 throw new RuntimeException(name.line + " Undefined variable: " + name);
+            else {
+                Object value = right.evaluate();
 
-            Object value = right.evaluate();
+                env.put(name.lexeme, value);
 
-            Carmine.environment.put(name.lexeme, value);
-
-            return value;
+                return value;
+            }
         }
 
         @Override

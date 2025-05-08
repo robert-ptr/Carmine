@@ -82,8 +82,14 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
-            if (Carmine.environment.contains(name))
-                throw new RuntimeException(name.line + " Variable already exists " + name); // this shows the wrong line. Maybe add something in the environment
+            Environment env = Carmine.environment;
+            while (env != null && !env.contains(name)) {
+                env = env.getEnclosing();
+
+            }
+
+            if (env != null)
+                throw new RuntimeException("Variable " + name + " is already defined.");
 
             if (expr != null)
                 Carmine.environment.put(name.lexeme, expr.evaluate());
@@ -103,34 +109,6 @@ abstract class Stmt {
             {
                 System.out.println();
             }
-        }
-    }
-
-    static class Assignment extends Stmt
-    {
-        final Token name;
-        final Expr expr;
-
-        Assignment(Token name, Expr expr)
-        {
-            this.name = name;
-            this.expr = expr;
-        }
-
-        @Override
-        void evaluate()
-        {
-            if (!Carmine.environment.contains(name))
-                throw new RuntimeException(name.line + " Undefined variable: " + name);
-
-            Carmine.environment.put(name.lexeme, expr.evaluate());
-        }
-
-        @Override
-        void print()
-        {
-            System.out.println(name.lexeme + " ");
-            expr.print();
         }
     }
 
