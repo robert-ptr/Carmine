@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 abstract class Expr {
     abstract Object evaluate();  // expressions return objects, because they produce values, statements don't(but they do have side effects).
 
@@ -197,6 +200,58 @@ abstract class Expr {
         {
             System.out.print("(");
             expr.print();
+            System.out.print(")");
+        }
+    }
+
+    static class Call extends Expr
+    {
+        final Expr callee;
+        final List<Expr> arguments;
+
+        Call(Expr callee, List<Expr> arguments)
+        {
+            this.callee = callee;
+            this.arguments = arguments;
+        }
+
+        @Override
+        Object evaluate()
+        {
+            Object obj = callee.evaluate();
+
+            List<Object> args = new ArrayList<>();
+
+            for (Expr arg : arguments)
+            {
+                args.add(arg.evaluate());
+            }
+
+            if (!(obj instanceof CarmineCallable))
+            {
+                throw new RuntimeException("Can only call functions and classes.");
+            }
+
+            CarmineCallable function = (CarmineCallable) obj;
+
+            if (args.size() != function.arity())
+            {
+                throw new RuntimeException("Number of arguments does not match arity");
+            }
+            return function.call(args);
+        }
+
+        @Override
+        void print()
+        {
+            callee.print();
+            System.out.print("(");
+            for (Expr arg : arguments)
+            {
+                arg.print();
+                System.out.print(", ");
+            }
+
             System.out.print(")");
         }
     }

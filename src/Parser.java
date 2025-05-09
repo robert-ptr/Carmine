@@ -120,7 +120,41 @@ public class Parser
             return new Expr.Unary(op, right);
         }
 
-        return literal();
+        return call();
+    }
+
+    private List<Expr> arguments()
+    {
+        List<Expr> args = new ArrayList<>();
+
+        if (!match(TokenType.RPAREN))
+        {
+            do
+            {
+                args.add(expression());
+            } while (match(TokenType.COMMA));
+
+            if (!match(TokenType.RPAREN))
+                Carmine.error(peek().line + " Expected ')'.");
+        }
+
+        return args;
+    }
+
+    private Expr call()
+    {
+        Expr expr = literal();
+
+        if (match(TokenType.LPAREN))
+        {
+            List<Expr> args = arguments();
+
+            return new Expr.Call(expr, args);
+        }
+        else
+        {
+            return expr;
+        }
     }
 
     private Expr literal()
@@ -158,7 +192,7 @@ public class Parser
         if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
         {
             hadError = true;
-            Carmine.error(peek().line + "Invalid expression.");
+            Carmine.error(peek().line + " Invalid expression.");
         }
 
         return new Stmt.Expression(expr);
@@ -209,6 +243,7 @@ public class Parser
 
     private Stmt statement()
     {
+        while (match(TokenType.ENDLINE));
         if (match(TokenType.VARIABLE))
         {
             return varStatement();

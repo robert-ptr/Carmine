@@ -1,0 +1,14 @@
+var a
+var _absdsdc10 = false
+{
+    var b = true and (not false)
+    a = true
+}
+
+
+
+print(a)
+print(_absdsdc10)
+//print(b)
+print(not(true))
+print(0)

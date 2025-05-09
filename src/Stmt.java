@@ -85,7 +85,6 @@ abstract class Stmt {
             Environment env = Carmine.environment;
             while (env != null && !env.contains(name)) {
                 env = env.getEnclosing();
-
             }
 
             if (env != null)

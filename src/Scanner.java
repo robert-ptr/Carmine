@@ -118,7 +118,7 @@ public class Scanner {
                 else // no substraction for now
                 {
                     Carmine.error(line + "Subtraction is not a supported operation.");
-                    return null;
+                    return makeToken(TokenType.ERR);
                 }
             case '/':
                 if (advance() == '/')
@@ -132,7 +132,7 @@ public class Scanner {
                 else // no division for now
                 {
                     Carmine.error(line + " Division is not a supported operation.");
-                    return null;
+                    return makeToken(TokenType.ERR);
                 }
             case ' ':
             case '\r':
@@ -145,12 +145,24 @@ public class Scanner {
                 }
                 else if (isDecimal(c))
                 {
-                    return number();
+                    if (c == '0' && !isDecimal(peek()))
+                    {
+                        return makeToken(TokenType.FALSE);
+                    }
+                    else if (c == '1' && !isDecimal(peek()))
+                    {
+                        return makeToken(TokenType.TRUE);
+                    }
+                    else
+                    {
+                        Carmine.error(line + "Carmine does not support numbers, please use only 1s and 0s.");
+                        return makeToken(TokenType.ERR);
+                    }
                 }
                 else
                 {
                     Carmine.error("Unknown literal: '" + c + "' at line " + line) ;
-                    return null;
+                    return makeToken(TokenType.ERR);
                 }
         }
     }

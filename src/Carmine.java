@@ -9,6 +9,22 @@ public class Carmine {
 
     static List<Stmt.Function> statements;
 
+    static
+    {
+        environment.put("print", new CarmineCallable() {
+            @Override
+            public int arity() {
+                return 1;
+            }
+
+            @Override
+            public Object call(List<Object> arguments) {
+                System.out.println(arguments.get(0));
+                return null;
+            }
+        });
+    }
+
     public static Environment getEnvironment()
     {
         return environment;
@@ -40,7 +56,7 @@ public class Carmine {
             // System.out.println();
         }
 
-        Debug.printEnvironments();
+        //Debug.printEnvironments();
     }
 
     private static void runFile(String path) throws IOException, IOException {
