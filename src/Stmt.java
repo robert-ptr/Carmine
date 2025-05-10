@@ -113,6 +113,19 @@ abstract class Stmt {
 
     static class Function extends Stmt
     {
+        final Expr function;
+        final List<Token> parameters;
+        final List<Stmt> statements;
+        final List<Token> returnValues;
+
+        Function(Expr function, List<Token> parameters, List<Token> returnValues, List<Stmt> statements)
+        {
+            this.function = function;
+            this.parameters = parameters;
+            this.statements = statements;
+            this.returnValues = returnValues;
+        }
+
         @Override
         void evaluate()
         {

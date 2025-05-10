@@ -230,7 +230,7 @@ public class Parser
         return null;
     }
 
-    private Stmt blockStatement()
+    private List<Stmt> blockStatement()
     {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd() && !match(TokenType.RBRACE))
@@ -238,7 +238,41 @@ public class Parser
             statements.add(statement());
         }
         match(TokenType.ENDLINE);
-        return new Stmt.Block(statements);
+        //return new Stmt.Block(statements);
+        return statements;
+    }
+
+    private Stmt functionStatement()
+    {
+        Expr left = expression();
+
+        List<Token> params = new ArrayList<>();
+        List<Token> returnValues = new ArrayList<>();
+
+        match(TokenType.LPAREN);
+
+        if (!match(TokenType.RPAREN))
+        {
+            do
+            {
+                params.add(advance());
+            } while(match(TokenType.COMMA));
+        }
+
+        if (!match(TokenType.RPAREN))
+            Carmine.error(peek().line + "Expected ')'.");
+
+        if (match(TokenType.ARROW)) // then it returns one or multiple values
+        {
+            do
+            {
+                returnValues.add(advance());
+            } while(match(TokenType.COMMA));
+        }
+
+        List<Stmt> statements = blockStatement();
+
+        return new Stmt.Function(left, params, returnValues, statements);
     }
 
     private Stmt statement()
@@ -251,7 +285,11 @@ public class Parser
         else if (match(TokenType.LBRACE))
         {
             match(TokenType.ENDLINE);
-            return blockStatement();
+            return new Stmt.Block(blockStatement());
+        }
+        else if (match(TokenType.DEF))
+        {
+            return functionStatement();
         }
         return expressionStmt();
     }
