@@ -287,9 +287,7 @@ public class Parser
             Carmine.error(peek().line + "Redefinition of main statement is not allowed.");
             return null;
         }
-
-        List<Token> returnValues = new ArrayList<>();
-
+        
         match(TokenType.LPAREN);
 
         if (!match(TokenType.RPAREN))
