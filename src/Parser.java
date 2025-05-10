@@ -4,6 +4,7 @@ import java.util.logging.LoggingPermission;
 
 public class Parser
 {
+    private boolean mainFound = false;
     List<Token> tokens = new ArrayList<Token>();
     int current = 0;
     boolean hadError = false;
@@ -277,6 +278,16 @@ public class Parser
 
     private Stmt mainStatement()
     {
+        if (!mainFound)
+        {
+            mainFound = true;
+        }
+        else
+        {
+            Carmine.error(peek().line + "Redefinition of main statement is not allowed.");
+            return null;
+        }
+
         List<Token> returnValues = new ArrayList<>();
 
         match(TokenType.LPAREN);
