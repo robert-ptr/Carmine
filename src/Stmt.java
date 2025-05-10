@@ -115,8 +115,8 @@ abstract class Stmt {
     {
         final Expr function;
         final List<Token> parameters;
-        final List<Stmt> statements;
         final List<Token> returnValues;
+        final List<Stmt> statements;
 
         Function(Expr function, List<Token> parameters, List<Token> returnValues, List<Stmt> statements)
         {
@@ -139,6 +139,13 @@ abstract class Stmt {
 
     static class Main extends Stmt
     {
+        final List<Stmt> statements;
+
+        Main(List<Stmt> statements)
+        {
+            this.statements = statements;
+        }
+
         @Override
         void evaluate()
         {

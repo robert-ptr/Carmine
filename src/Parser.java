@@ -275,6 +275,30 @@ public class Parser
         return new Stmt.Function(left, params, returnValues, statements);
     }
 
+    private Stmt mainStatement()
+    {
+        List<Token> returnValues = new ArrayList<>();
+
+        match(TokenType.LPAREN);
+
+        if (!match(TokenType.RPAREN))
+        {
+            Carmine.error(peek().line + "The main function does not have parameters.");
+        }
+
+        if (!match(TokenType.RPAREN))
+            Carmine.error(peek().line + "Expected ')'.");
+
+        if (match(TokenType.ARROW)) // then it returns one or multiple values
+        {
+            Carmine.error(peek().line + "The main function does not have return values.");
+        }
+
+        List<Stmt> statements = blockStatement();
+
+        return new Stmt.Main(statements);
+    }
+
     private Stmt statement()
     {
         while (match(TokenType.ENDLINE));
@@ -289,6 +313,11 @@ public class Parser
         }
         else if (match(TokenType.DEF))
         {
+            if (match(TokenType.MAIN))
+            {
+                return mainStatement();
+            }
+
             return functionStatement();
         }
         return expressionStmt();
