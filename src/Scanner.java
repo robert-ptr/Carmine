@@ -65,6 +65,10 @@ public class Scanner {
         return c >= '0' && c <= '9';
     }
 
+    private boolean isHexadecimal(char c) { return isDecimal(c) || (c >= 'a') && (c <= 'f') || (c >= 'A') && (c <= 'F'); }
+
+    private boolean isBinary(char c) { return c == '0' || c == '1'; }
+
     private Token identifier()
     {
         while (isAlpha(peek()) || isDecimal(peek()))
@@ -89,6 +93,26 @@ public class Scanner {
         Token number = makeToken(TokenType.DECIMAL);
         number.value = Integer.parseInt(number.lexeme);
         return number;
+    }
+
+    private Token binary()
+    {
+        while (isBinary(peek()))
+        {
+            advance();
+        }
+
+        return makeToken(TokenType.BINARY);
+    }
+
+    private Token hexadecimal()
+    {
+        while (isHexadecimal(peek()))
+        {
+            advance();
+        }
+
+        return makeToken(TokenType.HEXADECIMAL);
     }
 
     private Token scanToken()
@@ -153,6 +177,15 @@ public class Scanner {
             case '\r':
             case '\t':
                 return null;
+            case '0':
+                if (advance() == 'b')
+                {
+                    return binary();
+                }
+                else if (advance() == 'X')
+                {
+                    return hexadecimal();
+                }
             default:
                 if (isAlpha(c))
                 {
@@ -160,19 +193,7 @@ public class Scanner {
                 }
                 else if (isDecimal(c))
                 {
-                    if (c == '0' && !isDecimal(peek()))
-                    {
-                        return makeToken(TokenType.FALSE);
-                    }
-                    else if (c == '1' && !isDecimal(peek()))
-                    {
-                        return makeToken(TokenType.TRUE);
-                    }
-                    else
-                    {
-                        Carmine.error(line + "Carmine does not support numbers, please use only 1s and 0s.");
-                        return makeToken(TokenType.ERR);
-                    }
+                    return number();
                 }
                 else
                 {
