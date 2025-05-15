@@ -43,18 +43,18 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
-            Environment blockEnvironment = new Environment();
-            blockEnvironment.addEnclosing(Carmine.environment);
+            ConstEnvironment blockConstEnvironment = new ConstEnvironment();
+            blockConstEnvironment.addEnclosing(Carmine.constEnvironment);
 
-            Carmine.environment = blockEnvironment;
+            Carmine.constEnvironment = blockConstEnvironment;
 
             for (Stmt stmt : statements)
             {
                 stmt.evaluate();
             }
 
-            Debug.environments.add(blockEnvironment);
-            Carmine.environment = blockEnvironment.getEnclosing();
+            Debug.environments.add(blockConstEnvironment);
+            Carmine.constEnvironment = blockConstEnvironment.getEnclosing();
         }
 
         @Override
@@ -82,7 +82,7 @@ abstract class Stmt {
         @Override
         void evaluate()
         {
-            Environment env = Carmine.environment;
+            ConstEnvironment env = Carmine.constEnvironment;
             while (env != null && !env.contains(name)) {
                 env = env.getEnclosing();
             }
@@ -91,9 +91,52 @@ abstract class Stmt {
                 throw new RuntimeException("Variable " + name + " is already defined.");
 
             if (expr != null)
-                Carmine.environment.put(name.lexeme, expr.evaluate());
+                Carmine.constEnvironment.put(name.lexeme, expr.evaluate());
             else
-                Carmine.environment.put(name.lexeme, null);
+                Carmine.constEnvironment.put(name.lexeme, null);
+        }
+
+        @Override
+        void print()
+        {
+            System.out.print("var " + name.lexeme + " ");
+            if (expr != null) {
+                System.out.print("= ");
+                expr.print();
+            }
+            else
+            {
+                System.out.println();
+            }
+        }
+    }
+
+    static class Module extends Stmt
+    {
+        final Token name;
+        final Expr expr;
+
+        Module(Token name, Expr expr)
+        {
+            this.name = name;
+            this.expr = expr;
+        }
+
+        @Override
+        void evaluate()
+        {
+            ModuleEnvironment env = Carmine.moduleEnvironment;
+            while (env != null && !env.contains(name)) {
+                env = env.getEnclosing();
+            }
+
+            if (env != null)
+                throw new RuntimeException("Variable " + name + " is already defined.");
+
+            if (expr != null)
+                Carmine.constEnvironment.put(name.lexeme, expr.evaluate());
+            else
+                Carmine.constEnvironment.put(name.lexeme, null);
         }
 
         @Override

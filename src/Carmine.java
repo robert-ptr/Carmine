@@ -5,13 +5,13 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Carmine {
-    static Environment environment = new Environment();
-
-    static List<Stmt.Function> statements;
+    static ConstEnvironment constEnvironment = new ConstEnvironment(); // used for the first parse where we evaluate all arithmetic expressions
+    static ModuleEnvironment moduleEnvironment = new ModuleEnvironment(); // used to save modules
+    //static List<Stmt.Function> statements;
 
     static
     {
-        environment.put("print", new CarmineCallable() {
+        constEnvironment.put("print", new CarmineCallable() {
             @Override
             public int arity() {
                 return 1;
@@ -23,11 +23,35 @@ public class Carmine {
                 return null;
             }
         });
+
+        constEnvironment.put("true", new CarmineCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(List<Object> arguments) {
+                return null;
+            }
+        });
+
+        constEnvironment.put("false", new CarmineCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(List<Object> arguments) {
+                return null;
+            }
+        });
     }
 
-    public static Environment getEnvironment()
+    public static ConstEnvironment getEnvironment()
     {
-        return environment;
+        return constEnvironment;
     }
 
     public static void error(String message)
@@ -74,16 +98,5 @@ public class Carmine {
         {
             runFile(args[0]);
         }
-
-        /*
-        Expr expr = new Expr.Binary(
-                new Expr.Group(
-                    new Expr.Unary(new Token(TokenType.NOT, "not", null, 1), new Expr.Literal(true))
-                ),
-                new Token(TokenType.OR, "or", null, 1),
-                new Expr.Literal(false));
-
-        expr.print();
-         */
     }
 }

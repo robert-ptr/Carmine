@@ -13,15 +13,20 @@ public class Scanner {
     static
     {
         keywords = new HashMap<>();
-        keywords.put("and", TokenType.AND);
-        keywords.put("or", TokenType.OR);
-        keywords.put("not", TokenType.NOT);
+        //keywords.put("and", TokenType.AND);
+        //keywords.put("or", TokenType.OR);
+        //keywords.put("not", TokenType.NOT);
         keywords.put("wire", TokenType.WIRE);
         keywords.put("def", TokenType.DEF);
         keywords.put("main", TokenType.MAIN);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
-        keywords.put("var", TokenType.VARIABLE);
+        keywords.put("module", TokenType.MODULE);
+        keywords.put("const", TokenType.CONST);
+        keywords.put("if", TokenType.IF);
+        keywords.put("else", TokenType.ELSE);
+        keywords.put("for", TokenType.FOR);
+        keywords.put("while", TokenType.WHILE);
     }
 
     private char peek()
@@ -111,15 +116,25 @@ public class Scanner {
                 line++;
                 return token;
             case '=':
-                return makeToken(TokenType.EQUAL);
+                if (peek() == '=')
+                    return makeToken(TokenType.EQUAL);
+                return makeToken(TokenType.ASSIGN);
+            case '<':
+                return makeToken(TokenType.LESS);
+            case '>':
+                return makeToken(TokenType.GREATER);
+            case '&':
+                return makeToken(TokenType.AND);
+            case '|':
+                return makeToken(TokenType.OR);
+            case '!':
+                if (peek() == '=')
+                    return makeToken(TokenType.NOTEQUAL);
+                return makeToken(TokenType.NOT);
             case '-':
-                if (advance() == '>')
+                if (peek() == '>')
                     return makeToken(TokenType.ARROW);
-                else // no substraction for now
-                {
-                    Carmine.error(line + "Subtraction is not a supported operation.");
-                    return makeToken(TokenType.ERR);
-                }
+                return makeToken(TokenType.MINUS);
             case '/':
                 if (advance() == '/')
                 {

@@ -1,11 +1,9 @@
-var a
-var _absdsdc10 = false
+module a
+const _absdsdc10 = false
 {
-    var b = true and (not false)
-    a = true
+    module b = true() and (not false())
+    a = true()
 }
-
-
 
 print(a)
 print(_absdsdc10)

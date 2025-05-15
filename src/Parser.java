@@ -61,7 +61,7 @@ public class Parser
     {
         Expr left = expression();
 
-        if (match(TokenType.EQUAL))
+        if (match(TokenType.ASSIGN))
         {
             Expr right = expression();
 
@@ -199,11 +199,11 @@ public class Parser
         return new Stmt.Expression(expr);
     }
 
-    private Stmt varStatement()
+    private Stmt moduleStatement()
     {
         Expr left = expression();
 
-        if (match(TokenType.EQUAL))
+        if (match(TokenType.ASSIGN))
         {
             Expr right = expression();
             match(TokenType.ENDLINE);
@@ -308,12 +308,47 @@ public class Parser
         return new Stmt.Main(statements);
     }
 
+    private Stmt constStatement()
+    {
+        Expr left = expression();
+
+        if (match(TokenType.ASSIGN))
+        {
+            Expr right = expression();
+            match(TokenType.ENDLINE);
+            if (left instanceof Expr.Variable)
+            {
+                return new Stmt.Variable(((Expr.Variable)left).getName(), right);
+            }
+
+            Carmine.error(peek().line + "Invalid variable.");
+            hadError = true;
+
+            return null;
+        }
+
+        match(TokenType.ENDLINE);
+        if (left instanceof Expr.Variable)
+        {
+            return new Stmt.Variable(((Expr.Variable)left).getName(), null);
+        }
+
+        Carmine.error(peek().line + "Invalid variable.");
+        hadError = true;
+
+        return null;
+    }
+
     private Stmt statement()
     {
         while (match(TokenType.ENDLINE));
-        if (match(TokenType.VARIABLE))
+        if (match(TokenType.MODULE))
         {
-            return varStatement();
+            return moduleStatement();
+        }
+        else if (match(TokenType.CONST))
+        {
+            return constStatement();
         }
         else if (match(TokenType.LBRACE))
         {

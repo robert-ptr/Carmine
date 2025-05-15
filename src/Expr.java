@@ -99,7 +99,7 @@ abstract class Expr {
         @Override
         Object evaluate() throws RuntimeException
         {
-            return Carmine.environment.get(name.lexeme);
+            return Carmine.constEnvironment.get(name.lexeme);
         }
 
         @Override
@@ -128,7 +128,7 @@ abstract class Expr {
         @Override
         Object evaluate()
         {
-            Environment env = Carmine.environment;
+            ConstEnvironment env = Carmine.constEnvironment;
             while (env != null && !env.contains(name)) {
                 env = env.getEnclosing();
 
