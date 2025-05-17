@@ -1,16 +1,16 @@
 def XOR(a, b) -> out
 {
-    out = (a or b) and not(a and b)
+    out = and(or(a, b), not(and(a, b)))
 }
 
 def NAND(a, b) -> out
 {
-    out = not(a and b)
+    out = not(and(a, b))
 }
 
-def main() // this outputs to stdout
+def main() // main function
 {
-    var operand1 = 1, operand2 = 0
+    module operand1 = 1, operand2 = 0
 
-    output = XOR(NAND(operand1, operand2), 1)
+    module output = XOR(NAND(operand1, operand2), 1)
 }

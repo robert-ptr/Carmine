@@ -1,6 +1,6 @@
 import java.util.HashMap;
 
-public class ConstEnvironment implements Environment
+public class ConstEnvironment implements Environment<ConstEnvironment>
 {
     private ConstEnvironment enclosing = null;
     private HashMap<String, Object> variables = new HashMap<>();

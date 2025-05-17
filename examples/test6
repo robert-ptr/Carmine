@@ -1,9 +1,9 @@
 def HALF_ADDER(a, b) -> sum, carry {
-    sum = (a or b) and not(a and b)
-    carry = a and b
+    sum = and(or(a, b), not(and(a, b)))
+    carry = and(a, b)
 }
 
 def main() {
-    var s, c = HALF_ADDER(1, 1)
-    result = s or c
+    module s, c = HALF_ADDER(1, 1)
+    result = or(s, c)
 }

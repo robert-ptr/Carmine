@@ -13,9 +13,9 @@ public class Scanner {
     static
     {
         keywords = new HashMap<>();
-        //keywords.put("and", TokenType.AND);
-        //keywords.put("or", TokenType.OR);
-        //keywords.put("not", TokenType.NOT);
+        // keywords.put("and", TokenType.AND); //
+        // keywords.put("or", TokenType.OR);   //
+        // keywords.put("not", TokenType.NOT); //
         keywords.put("wire", TokenType.WIRE);
         keywords.put("def", TokenType.DEF);
         keywords.put("main", TokenType.MAIN);
@@ -27,6 +27,9 @@ public class Scanner {
         keywords.put("else", TokenType.ELSE);
         keywords.put("for", TokenType.FOR);
         keywords.put("while", TokenType.WHILE);
+        keywords.put("enum", TokenType.ENUM);
+        keywords.put("null", TokenType.NULL);
+        keywords.put("input", TokenType.INPUT);
     }
 
     private char peek()
@@ -180,18 +183,26 @@ public class Scanner {
                 if (peek() == '*')
                     return makeToken(TokenType.EXP);
                 return makeToken(TokenType.MUL);
+            //case ';':
+            //    return makeToken(TokenType.SEMICOLON);
+            case '.':
+                return makeToken(TokenType.DOT);
             case ' ':
             case '\r':
             case '\t':
                 return null;
             case '0':
-                if (advance() == 'b')
+                if (peek() == 'b')
                 {
                     return binary();
                 }
-                else if (advance() == 'X')
+                else if (peek() == 'X')
                 {
                     return hexadecimal();
+                }
+                else
+                {
+                    return number();
                 }
             default:
                 if (isAlpha(c))

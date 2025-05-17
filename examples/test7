@@ -1,9 +1,9 @@
 def INV(a) -> out {
-    out = not a
+    out = not(a)
 }
 
 def AND3(a, b, c) -> out {
-    out = a and b and c
+    out = and(a, and(b, c))
 }
 
 def main() {

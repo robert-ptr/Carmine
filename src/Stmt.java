@@ -54,7 +54,7 @@ abstract class Stmt {
             }
 
             Debug.environments.add(blockConstEnvironment);
-            Carmine.constEnvironment = blockConstEnvironment.getEnclosing();
+            Carmine.constEnvironment = (ConstEnvironment) blockConstEnvironment.getEnclosing();
         }
 
         @Override
@@ -84,7 +84,7 @@ abstract class Stmt {
         {
             ConstEnvironment env = Carmine.constEnvironment;
             while (env != null && !env.contains(name)) {
-                env = env.getEnclosing();
+                env = (ConstEnvironment)env.getEnclosing();
             }
 
             if (env != null)
@@ -127,7 +127,7 @@ abstract class Stmt {
         {
             ModuleEnvironment env = Carmine.moduleEnvironment;
             while (env != null && !env.contains(name)) {
-                env = env.getEnclosing();
+                env = (ModuleEnvironment)env.getEnclosing();
             }
 
             if (env != null)

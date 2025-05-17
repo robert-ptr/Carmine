@@ -1,7 +1,7 @@
 def main() {
-    var a = 1
-    var b = 0
-    var x = a and b
-    var y = a or b
-    final = x or y
+    module a = 1
+    module b = 0
+    module x = a and b
+    module y = a or b
+    module final = x or y
 }

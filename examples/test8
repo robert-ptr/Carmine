@@ -1,0 +1,32 @@
+enum
+{
+    MAX = 10,
+    MIN = 2,
+    MEDIUM = 5,
+}
+
+const val = null
+
+def xor10(a[10], b[10]) -> out[10]
+{
+    for (const i = 0..10, 2)
+        out[i] = and(or(a[i], b[i]), not(and(a[i], b[i])))
+}
+
+def xorc(a[10], b[10], c) -> out[10]
+{
+    if (3 + 4 > 5)
+        out[c] = and(or(a[c], b[c]), not(and(a[c], b[c])))
+}
+
+def xor1(a[10], b[10]) -> out[10]
+{
+    out = and( or(a[0], b[0]), not(and(a[0], b[0])))
+}
+
+def main()
+{
+    print(xor(1, 0)) // this should print the structure
+
+    module a = xor(0, 1)
+}
