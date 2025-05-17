@@ -144,8 +144,12 @@ public class Scanner {
                     return makeToken(TokenType.EQUAL);
                 return makeToken(TokenType.ASSIGN);
             case '<':
+                if (peek() == '=')
+                    return makeToken(TokenType.LESS_EQUAL);
                 return makeToken(TokenType.LESS);
             case '>':
+                if (peek() == '=')
+                    return makeToken(TokenType.GREATER_EQUAL);
                 return makeToken(TokenType.GREATER);
             case '&':
                 return makeToken(TokenType.AND);
@@ -155,6 +159,8 @@ public class Scanner {
                 if (peek() == '=')
                     return makeToken(TokenType.NOTEQUAL);
                 return makeToken(TokenType.NOT);
+            case '+':
+                return makeToken(TokenType.PLUS);
             case '-':
                 if (peek() == '>')
                     return makeToken(TokenType.ARROW);
@@ -168,11 +174,12 @@ public class Scanner {
                     if (peek() == '\n')
                         advance();
                 }
-                else // no division for now
-                {
-                    Carmine.error(line + " Division is not a supported operation.");
-                    return makeToken(TokenType.ERR);
-                }
+            case '%':
+                return makeToken(TokenType.MOD);
+            case '*':
+                if (peek() == '*')
+                    return makeToken(TokenType.EXP);
+                return makeToken(TokenType.MUL);
             case ' ':
             case '\r':
             case '\t':
