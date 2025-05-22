@@ -4,26 +4,28 @@ Carmine is a description language made with the end-goal of generating redstone 
 ## Language Features
 
 ## Language Grammar
-program -> statement* EOF  
-statement -> mainStatement | moduleStatement | blockStatement | constStatement | enumStatement | expressionStatement ;  
-mainStatement -> "def main()" block ;  
-moduleStatement -> "def" IDENTIFIER "(" arguments ")" block ;  
-blockStatement -> block ;  
-constStatement -> "const" IDENTIFIER ( " = " expression)? ;  
-enumStatement -> enum IDENTIFIER "{" assignment* "}" ;  
-expressionStatement -> expression;  
+| **Rule**              | **Definition**                                                                                                                          |           |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `program`             | `{ statement } EOF`                                                                                                                     |           |
+| `statement`           | `mainStatement`<br>`\| moduleStatement`<br>`\| blockStatement`<br>`\| constStatement`<br>`\| enumStatement`<br>`\| expressionStatement` |           |
+| `mainStatement`       | `"def main()" block`                                                                                                                    |           |
+| `moduleStatement`     | `"def" IDENTIFIER "(" arguments ")" block`                                                                                              |           |
+| `blockStatement`      | `block`                                                                                                                                 |           |
+| `constStatement`      | `"const" IDENTIFIER [ "=" expression ]`                                                                                                 |           |
+| `enumStatement`       | `"enum" IDENTIFIER "{" { assignment } "}"`                                                                                              |           |
+| `expressionStatement` | `expression`                                                                                                                            |           |
+| `expression`          | `IDENTIFIER "=" expression`<br>`\| or`                                                                                                  |           |
+| `or`                  | `and { "\|" and }`                                                                                                                      |           |
+| `and`                 | `equality { "&" equality }`                                                                                                             |           |
+| `equality`            | `comparison { ( "!=" \| "==" ) comparison }`                                                                                            |           |
+| `comparison`          | `term { ( ">" \| "<" \| ">=" \| "<=" ) term }`                                                                                          |           |
+| `term`                | `factor { ( "+" \| "-" ) factor }`                                                                                                      |           |
+| `factor`              | `unary { ( "*" \| "/" ) unary }`                                                                                                        |           |
+| `unary`               | `( "!" \| "-" ) unary`<br>`\| call`                                                                                                     |           |
+| `call`                | `primary [ "(" arguments ")" ]`                                                                                                         |           |
+| `primary`             | `"true"`<br>`\| "false"`<br>`\| "null"`<br>`\| IDENTIFIER`<br>`\| "(" expression ")"`                                                   |           |
+| `arguments`           | `expression { "," expression }`                                                                                                         |           |
 
-expression ->   IDENTIFIER "=" expression | or;  
-or -> or ("|" or)* ;   
-and -> equality ("&" equality)* ;  
-equality -> comparison (( "!=" | "==" ) comparison)* ;  
-comparison -> term (( ">" | "<" | ">=" | "<=" ) term)* ;  
-term -> factor (( "+" | "-" ) factor )* ;  
-factor -> unary (( "*" | "/" ) unary)* ;  
-unary -> ( "!" | "-" ) unary | call ;  
-call -> primary ( "(" arguments ")" )? ;  
-primary -> true | false | null | IDENTIFIER | "(" expression ")" ;  
-arguments -> expression ( "," expression )*;  
 
 ## Project Status 🚧
 This project is currently **unfinished** and is very much a **work in progress**.
