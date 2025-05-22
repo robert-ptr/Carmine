@@ -8,9 +8,9 @@ Carmine is a description language made with the end-goal of generating redstone 
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------- |
 | `program`             | `{ statement } EOF`                                                                                                                     |           |
 | `statement`           | `mainStatement`<br>`\| moduleStatement`<br>`\| blockStatement`<br>`\| constStatement`<br>`\| enumStatement`<br>`\| expressionStatement` |           |
-| `mainStatement`       | `"def main()" block`                                                                                                                    |           |
-| `moduleStatement`     | `"def" IDENTIFIER "(" arguments ")" block`                                                                                              |           |
-| `blockStatement`      | `block`                                                                                                                                 |           |
+| `mainStatement`       | `"def main()" blockStatement`                                                                                                           |           |
+| `moduleStatement`     | `"def" IDENTIFIER "(" arguments ")" "->" arguments blockStatement`                                                                      |           |
+| `blockStatement`      | `"{" { statement } "}"`                                                                                                                 |           |
 | `constStatement`      | `"const" IDENTIFIER [ "=" expression ]`                                                                                                 |           |
 | `enumStatement`       | `"enum" IDENTIFIER "{" { assignment } "}"`                                                                                              |           |
 | `expressionStatement` | `expression`                                                                                                                            |           |
