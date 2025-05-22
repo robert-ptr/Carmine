@@ -13,8 +13,14 @@ constStatement -> "const" IDENTIFIER ( " = " expression)? ;
 enumStatement -> enum IDENTIFIER "{" assignment* "}" ;  
 expressionStatement -> expression;  
 
-expression ->   
-
+expression ->   IDENTIFIER "=" expression | or;  
+or -> or ("|" or)* ;   
+and -> equality ("&" equality)* ;  
+equality -> comparison (( "!=" | "==" ) comparison)* ;  
+comparison -> term (( ">" | "<" | ">=" | "<=" ) term)* ;  
+term -> factor (( "+" | "-" ) factor )* ;  
+factor -> unary (( "*" | "/" ) unary)* ;  
+unary -> ( "!" | "-" ) unary | call ;  
 call -> primary ( "(" arguments ")" )? ;  
 primary -> true | false | null | IDENTIFIER | "(" expression ")" ;  
 arguments -> expression ( "," expression )*;  
