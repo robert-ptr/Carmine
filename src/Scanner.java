@@ -161,7 +161,9 @@ public class Scanner {
             case '!':
                 if (peek() == '=')
                     return makeToken(TokenType.NOTEQUAL);
-                return makeToken(TokenType.NOT);
+                //return makeToken(TokenType.NOT);
+                Carmine.error("Unknown literal: '" + c + "' at line " + line) ;
+                return makeToken(TokenType.ERR);
             case '+':
                 return makeToken(TokenType.PLUS);
             case '-':

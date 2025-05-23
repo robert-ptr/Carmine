@@ -57,11 +57,11 @@ public class Parser
         return false;
     }
 
-    private Expr assignment()
+    private Expr expression()
     {
-        Expr left = expression();
+        Expr left = or();
 
-        if (match(TokenType.ASSIGN))
+        while (match(TokenType.ASSIGN))
         {
             Expr right = expression();
 
@@ -74,11 +74,6 @@ public class Parser
         }
 
         return left;
-    }
-
-    private Expr expression()
-    {
-        return or();
     }
 
     private Expr or()
@@ -98,9 +93,69 @@ public class Parser
 
     private Expr and()
     {
-        Expr expr = unary();
+        Expr expr = equality();
 
         while (match(TokenType.AND))
+        {
+            Token op = previous();
+            Expr right = equality();
+
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr equality()
+    {
+        Expr expr = comparison();
+
+        while (match(TokenType.EQUAL) || match(TokenType.NOTEQUAL))
+        {
+            Token op = previous();
+            Expr right = comparison();
+
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr comparison()
+    {
+        Expr expr = term();
+
+        while (match(TokenType.GREATER) || match(TokenType.LESS) || match(TokenType.GREATER_EQUAL) || match(TokenType.LESS_EQUAL))
+        {
+            Token op = previous();
+            Expr right = term();
+
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr term()
+    {
+        Expr expr = factor();
+
+        while (match(TokenType.MINUS) || match(TokenType.PLUS))
+        {
+            Token op = previous();
+            Expr right = factor();
+
+            expr = new Expr.Binary(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private Expr factor()
+    {
+        Expr expr = unary();
+
+        while (match(TokenType.DIV) || match(TokenType.MOD) || match(TokenType.MUL))
         {
             Token op = previous();
             Expr right = unary();
@@ -189,7 +244,7 @@ public class Parser
 
     private Stmt expressionStmt()
     {
-        Expr expr = assignment();
+        Expr expr = expression();
         if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
         {
             hadError = true;
