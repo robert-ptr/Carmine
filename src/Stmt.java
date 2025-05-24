@@ -69,12 +69,12 @@ abstract class Stmt {
         }
     }
 
-    static class Variable extends Stmt
+    static class Const extends Stmt
     {
         final Token name;
         final Expr expr;
 
-        Variable(Token name, Expr expr)
+        Const(Token name, Expr expr)
         {
             this.name = name;
             this.expr = expr;
@@ -89,7 +89,7 @@ abstract class Stmt {
             }
 
             if (env != null)
-                throw new RuntimeException("Variable " + name + " is already defined.");
+                throw new RuntimeException("Const " + name + " is already defined.");
 
             if (expr != null)
                 Carmine.constEnvironment.put(name.lexeme, expr.evaluate());
@@ -100,7 +100,7 @@ abstract class Stmt {
         @Override
         void print()
         {
-            System.out.print("var " + name.lexeme + " ");
+            System.out.print("const " + name.lexeme + " ");
             if (expr != null) {
                 System.out.print("= ");
                 expr.print();
@@ -132,7 +132,7 @@ abstract class Stmt {
             }
 
             if (env != null)
-                throw new RuntimeException("Variable " + name + " is already defined.");
+                throw new RuntimeException("Module " + name + " is already defined.");
 
             if (expr != null)
                 Carmine.constEnvironment.put(name.lexeme, expr.evaluate());
@@ -143,7 +143,7 @@ abstract class Stmt {
         @Override
         void print()
         {
-            System.out.print("var " + name.lexeme + " ");
+            System.out.print("module " + name.lexeme + " ");
             if (expr != null) {
                 System.out.print("= ");
                 expr.print();
@@ -178,6 +178,25 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.print("def ");
+            function.print();
+            System.out.printf("(");
+
+            for (int i = 0; i < parameters.size(); i++)
+            {
+                System.out.print(parameters.get(i).lexeme);
+            }
+
+            System.out.print(") ");
+
+            if (returnValues.size() > 0)
+                System.out.print("->");
+
+            for (int i = 0; i < returnValues.size(); i++)
+                System.out.print(returnValues.get(i).lexeme);
+            System.out.println();
+            for (int i = 0; i < statements.size(); i++)
+                statements.get(i).print();
         }
     }
 
@@ -198,6 +217,11 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.println("enum ");
+            System.out.println("{");
+            for (int i = 0; i < assignments.size(); i++)
+                assignments.get(i).print();
+            System.out.println("}");
         }
     }
 
@@ -222,6 +246,16 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.print("if (");
+            condition.print();
+            System.out.println(") ");
+            thenStmt.print();
+
+            if (elseStmt != null)
+            {
+                System.out.print("else ");
+                elseStmt.print();
+            }
         }
     }
 
@@ -244,6 +278,10 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.print("while (");
+            condition.print();
+            System.out.print(") ");
+            body.print();
         }
     }
 
@@ -262,6 +300,7 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.println("for ");
         }
     }
 

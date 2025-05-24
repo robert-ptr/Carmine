@@ -16,7 +16,7 @@ public class Scanner {
         // keywords.put("and", TokenType.AND); //
         // keywords.put("or", TokenType.OR);   //
         // keywords.put("not", TokenType.NOT); //
-        keywords.put("wire", TokenType.WIRE);
+        //keywords.put("wire", TokenType.WIRE);
         keywords.put("def", TokenType.DEF);
         keywords.put("main", TokenType.MAIN);
         keywords.put("true", TokenType.TRUE);
@@ -29,7 +29,7 @@ public class Scanner {
         keywords.put("while", TokenType.WHILE);
         keywords.put("enum", TokenType.ENUM);
         keywords.put("null", TokenType.NULL);
-        keywords.put("input", TokenType.INPUT);
+        //keywords.put("input", TokenType.INPUT);
         keywords.put("enum", TokenType.ENUM);
     }
 

@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.LoggingPermission;
 
 public class Parser
 {
@@ -199,7 +198,7 @@ public class Parser
 
     private Expr call()
     {
-        Expr expr = literal();
+        Expr expr = primary();
 
         if (match(TokenType.LPAREN))
         {
@@ -213,7 +212,7 @@ public class Parser
         }
     }
 
-    private Expr literal()
+    private Expr primary()
     {
         if (match(TokenType.TRUE))
             return new Expr.Literal(true);
@@ -265,7 +264,7 @@ public class Parser
             if (left instanceof Expr.Variable)
             {
 
-                return new Stmt.Variable(((Expr.Variable)left).getName(), right);
+                return new Stmt.Module(((Expr.Variable)left).getName(), right);
             }
 
             Carmine.error(peek().line + "Invalid variable.");
@@ -277,7 +276,7 @@ public class Parser
         match(TokenType.ENDLINE);
         if (left instanceof Expr.Variable)
         {
-            return new Stmt.Variable(((Expr.Variable)left).getName(), null);
+            return new Stmt.Module(((Expr.Variable)left).getName(), null);
         }
 
         Carmine.error(peek().line + "Invalid variable.");
@@ -373,7 +372,7 @@ public class Parser
             match(TokenType.ENDLINE);
             if (left instanceof Expr.Variable)
             {
-                return new Stmt.Variable(((Expr.Variable)left).getName(), right);
+                return new Stmt.Const(((Expr.Variable)left).getName(), right);
             }
 
             Carmine.error(peek().line + "Invalid variable.");
@@ -385,7 +384,7 @@ public class Parser
         match(TokenType.ENDLINE);
         if (left instanceof Expr.Variable)
         {
-            return new Stmt.Variable(((Expr.Variable)left).getName(), null);
+            return new Stmt.Const(((Expr.Variable)left).getName(), null);
         }
 
         Carmine.error(peek().line + "Invalid variable.");

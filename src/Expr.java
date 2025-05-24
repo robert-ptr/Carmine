@@ -66,8 +66,6 @@ abstract class Expr {
             {
                 case NOT:
                     return !(boolean)op;
-                case WIRE: // WIP
-                    return null;
                 default:
                     Carmine.error("Unknown unary operator: " + operator);
                     return null;
@@ -128,7 +126,7 @@ abstract class Expr {
         @Override
         Object evaluate()
         {
-            ConstEnvironment env = Carmine.constEnvironment;
+            ModuleEnvironment env = Carmine.moduleEnvironment;
             while (env != null && !env.contains(name)) {
                 env = env.getEnclosing();
 
