@@ -22,7 +22,6 @@ public class Token {
     String lexeme;
     Object value;
     int line;
-
     Token(TokenType type, String lexeme, Object value, int line)
     {
         this.type = type;

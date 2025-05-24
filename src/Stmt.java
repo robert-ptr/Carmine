@@ -158,11 +158,11 @@ abstract class Stmt {
     static class Function extends Stmt
     {
         final Expr function;
-        final List<Token> parameters;
-        final List<Token> returnValues;
+        final List<Expr> parameters;
+        final List<Expr> returnValues;
         final List<Stmt> statements;
 
-        Function(Expr function, List<Token> parameters, List<Token> returnValues, List<Stmt> statements)
+        Function(Expr function, List<Expr> parameters, List<Expr> returnValues, List<Stmt> statements)
         {
             this.function = function;
             this.parameters = parameters;
@@ -184,7 +184,7 @@ abstract class Stmt {
 
             for (int i = 0; i < parameters.size(); i++)
             {
-                System.out.print(parameters.get(i).lexeme);
+                parameters.get(i).print();
             }
 
             System.out.print(") ");
@@ -193,7 +193,8 @@ abstract class Stmt {
                 System.out.print("->");
 
             for (int i = 0; i < returnValues.size(); i++)
-                System.out.print(returnValues.get(i).lexeme);
+                returnValues.get(i).print();
+
             System.out.println();
             for (int i = 0; i < statements.size(); i++)
                 statements.get(i).print();
@@ -246,9 +247,9 @@ abstract class Stmt {
         @Override
         void print()
         {
-            System.out.print("if (");
+            System.out.print("if ");
             condition.print();
-            System.out.println(") ");
+            System.out.println();
             thenStmt.print();
 
             if (elseStmt != null)
@@ -278,18 +279,25 @@ abstract class Stmt {
         @Override
         void print()
         {
-            System.out.print("while (");
+            System.out.print("while ");
             condition.print();
-            System.out.print(") ");
+            System.out.println();
             body.print();
         }
     }
 
     static class For extends Stmt
     {
-        For()
+        Expr init;
+        Expr minValue;
+        Expr maxValue;
+        Stmt body;
+        For(Expr init, Expr minValue, Expr maxValue, Stmt body)
         {
-
+            this.init = init;
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+            this.body = body;
         }
 
         @Override
@@ -301,6 +309,13 @@ abstract class Stmt {
         void print()
         {
             System.out.println("for ");
+            init.print();
+            System.out.print("" );
+            minValue.print();
+            System.out.print("..");
+            maxValue.print();
+            System.out.println();
+            body.print();
         }
     }
 

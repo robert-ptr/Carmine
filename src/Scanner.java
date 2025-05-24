@@ -127,6 +127,8 @@ public class Scanner {
         {
             case ',':
                 return makeToken(TokenType.COMMA);
+            case ';':
+                return makeToken(TokenType.SEMICOLON);
             case '(':
                 return makeToken(TokenType.LPAREN);
             case ')':

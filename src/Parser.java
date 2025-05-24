@@ -411,17 +411,7 @@ public class Parser
 
     private Stmt ifStatement()
     {
-        if (!match(TokenType.LPAREN))
-        {
-            Carmine.error(peek().line + "Expected '('.");
-        }
-
         Expr condition = expression();
-
-        if (!match(TokenType.RPAREN))
-        {
-            Carmine.error(peek().line + "Expected ')'.");
-        }
 
         Stmt thenBranch = statement();
         if (match(TokenType.ELSE))
@@ -444,17 +434,7 @@ public class Parser
 
     private Stmt whileStatement()
     {
-        if (!match(TokenType.LPAREN))
-        {
-            Carmine.error(peek().line + "Expected '('.");
-        }
-
         Expr condition = expression();
-
-        if (!match(TokenType.RPAREN))
-        {
-            Carmine.error(peek().line + "Expected ')'.");
-        }
 
         Stmt body = statement();
 
@@ -463,7 +443,33 @@ public class Parser
 
     private Stmt forStatement() // unused right now, still unsure about for syntax
     {
-        return new Stmt.For();
+        Expr init = expression();
+
+        if (!(init instanceof Expr.Variable))
+        {
+            Carmine.error(peek().line + "Invalid variable.");
+        }
+
+        if (!(peek().lexeme.contentEquals("in")))
+            Carmine.error(peek().line + "Missing 'in' keyword.");
+
+        advance();
+
+        Expr minValue = expression();
+
+        if (!match(TokenType.DOT))
+        {
+
+        }
+        if (!match(TokenType.DOT))
+        {
+            Carmine.error(peek().line + "Missing '..' keyword.");
+        }
+
+        Expr maxValue = expression();
+
+        Stmt body = statement();
+        return new Stmt.For(init, minValue, maxValue, body);
     }
 
     private Stmt declaration()
