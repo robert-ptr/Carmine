@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 abstract class Stmt {
@@ -167,6 +168,90 @@ abstract class Stmt {
             this.parameters = parameters;
             this.statements = statements;
             this.returnValues = returnValues;
+        }
+
+        @Override
+        void evaluate()
+        {
+        }
+
+        @Override
+        void print()
+        {
+        }
+    }
+
+    static class Enum extends Stmt
+    {
+        final ArrayList<Expr> assignments;
+
+        Enum(ArrayList<Expr> assignments)
+        {
+            this.assignments = assignments;
+        }
+
+        @Override
+        void evaluate()
+        {
+        }
+
+        @Override
+        void print()
+        {
+        }
+    }
+
+    static class If extends Stmt
+    {
+        Expr condition;
+        Stmt thenStmt;
+        Stmt elseStmt;
+
+        If(Expr condition, Stmt thenStmt, Stmt elseStmt)
+        {
+            this.condition = condition;
+            this.thenStmt = thenStmt;
+            this.elseStmt = elseStmt;
+        }
+
+        @Override
+        void evaluate()
+        {
+        }
+
+        @Override
+        void print()
+        {
+        }
+    }
+
+    static class While extends Stmt
+    {
+        Expr condition;
+        Stmt body;
+
+        While(Expr condition, Stmt body)
+        {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        @Override
+        void evaluate()
+        {
+        }
+
+        @Override
+        void print()
+        {
+        }
+    }
+
+    static class For extends Stmt
+    {
+        For()
+        {
+
         }
 
         @Override

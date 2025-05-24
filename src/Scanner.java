@@ -30,6 +30,7 @@ public class Scanner {
         keywords.put("enum", TokenType.ENUM);
         keywords.put("null", TokenType.NULL);
         keywords.put("input", TokenType.INPUT);
+        keywords.put("enum", TokenType.ENUM);
     }
 
     private char peek()

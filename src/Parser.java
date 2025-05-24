@@ -394,21 +394,88 @@ public class Parser
         return null;
     }
 
-    private Stmt statement()
+    private Stmt enumStatement()
     {
-        while (match(TokenType.ENDLINE));
+        ArrayList<Expr> assignments = new ArrayList<>();
+        while (match(TokenType.COMMA))
+        {
+            Expr assignment = expression();
+            if (assignment instanceof Expr.Assignment)
+            {
+                Carmine.error(peek().line + "Invalid assignment.");
+            }
+            assignments.add(assignment);
+        }
+
+        return new Stmt.Enum(assignments);
+    }
+
+    private Stmt ifStatement()
+    {
+        if (!match(TokenType.LPAREN))
+        {
+            Carmine.error(peek().line + "Expected '('.");
+        }
+
+        Expr condition = expression();
+
+        if (!match(TokenType.RPAREN))
+        {
+            Carmine.error(peek().line + "Expected ')'.");
+        }
+
+        Stmt thenBranch = statement();
+        if (match(TokenType.ELSE))
+        {
+            Stmt elseBranch;
+            if (match(TokenType.IF))
+            {
+                elseBranch = ifStatement();
+            }
+            else
+            {
+                elseBranch = statement();
+            }
+
+            return new Stmt.If(condition, thenBranch, elseBranch);
+        }
+
+        return new Stmt.If(condition, thenBranch, null);
+    }
+
+    private Stmt whileStatement()
+    {
+        if (!match(TokenType.LPAREN))
+        {
+            Carmine.error(peek().line + "Expected '('.");
+        }
+
+        Expr condition = expression();
+
+        if (!match(TokenType.RPAREN))
+        {
+            Carmine.error(peek().line + "Expected ')'.");
+        }
+
+        Stmt body = statement();
+
+        return new Stmt.While(condition, body);
+    }
+
+    private Stmt forStatement() // unused right now, still unsure about for syntax
+    {
+        return new Stmt.For();
+    }
+
+    private Stmt declaration()
+    {
+        while (match(TokenType.ENDLINE)) ;
         if (match(TokenType.MODULE))
         {
             return moduleStatement();
-        }
-        else if (match(TokenType.CONST))
+        } else if (match(TokenType.CONST))
         {
             return constStatement();
-        }
-        else if (match(TokenType.LBRACE))
-        {
-            match(TokenType.ENDLINE);
-            return new Stmt.Block(blockStatement());
         }
         else if (match(TokenType.DEF))
         {
@@ -418,7 +485,32 @@ public class Parser
             }
 
             return functionStatement();
+        } else if (match(TokenType.ENUM))
+        {
+            return enumStatement();
         }
+        else
+            return statement();
+    }
+
+    private Stmt statement() {
+        if (match(TokenType.LBRACE))
+        {
+            match(TokenType.ENDLINE);
+            return new Stmt.Block(blockStatement());
+        }
+        else if (match(TokenType.IF))
+        {
+            return ifStatement();
+        } else if (match(TokenType.WHILE))
+        {
+            return whileStatement();
+        }
+        else if (match(TokenType.FOR))
+        {
+            return forStatement();
+        }
+
         return expressionStmt();
     }
 
