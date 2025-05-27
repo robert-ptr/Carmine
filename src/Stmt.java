@@ -158,11 +158,11 @@ abstract class Stmt {
     static class Function extends Stmt
     {
         final Expr function;
-        final List<Expr> parameters;
-        final List<Expr> returnValues;
+        final List<Token> parameters;
+        final List<Token> returnValues;
         final List<Stmt> statements;
 
-        Function(Expr function, List<Expr> parameters, List<Expr> returnValues, List<Stmt> statements)
+        Function(Expr function, List<Token> parameters, List<Token> returnValues, List<Stmt> statements)
         {
             this.function = function;
             this.parameters = parameters;
@@ -184,7 +184,10 @@ abstract class Stmt {
 
             for (int i = 0; i < parameters.size(); i++)
             {
-                parameters.get(i).print();
+                System.out.printf(parameters.get(i).lexeme);
+
+                if (i < parameters.size() - 1)
+                    System.out.print(", ");
             }
 
             System.out.print(") ");
@@ -193,7 +196,12 @@ abstract class Stmt {
                 System.out.print("->");
 
             for (int i = 0; i < returnValues.size(); i++)
-                returnValues.get(i).print();
+            {
+                System.out.print(returnValues.get(i).lexeme);
+
+                if (i < returnValues.size() - 1)
+                    System.out.print(", ");
+            }
 
             System.out.println();
             for (int i = 0; i < statements.size(); i++)

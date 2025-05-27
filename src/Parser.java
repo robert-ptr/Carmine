@@ -231,6 +231,21 @@ public class Parser
             return new Expr.Group(expr);
         }
 
+        if (match(TokenType.DECIMAL))
+        {
+            return new Expr.Literal(Integer.parseInt(previous().lexeme));
+        }
+
+        if (match(TokenType.HEXADECIMAL))
+        {
+            return new Expr.Literal(Integer.parseInt(previous().lexeme, 16));
+        }
+
+        if (match(TokenType.BINARY))
+        {
+            return new Expr.Literal(Integer.parseInt(previous().lexeme, 2));
+        }
+
         if (match(TokenType.IDENTIFIER))
         {
             return new Expr.Variable(previous());
@@ -244,11 +259,13 @@ public class Parser
     private Stmt expressionStmt()
     {
         Expr expr = expression();
+        /*
         if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
         {
             hadError = true;
             Carmine.error(peek().line + " Invalid expression.");
         }
+         */
 
         return new Stmt.Expression(expr);
     }
@@ -395,16 +412,29 @@ public class Parser
 
     private Stmt enumStatement()
     {
+        boolean found_brace = false;
+        match(TokenType.ENDLINE);
+        if (!match(TokenType.LBRACE))
+            Carmine.error(peek().line + " Expected '{'.");
+
         ArrayList<Expr> assignments = new ArrayList<>();
-        while (match(TokenType.COMMA))
+        do
         {
+            match(TokenType.ENDLINE);
+            if (match(TokenType.RBRACE)) {
+                found_brace = true;
+                break;
+            }
             Expr assignment = expression();
-            if (assignment instanceof Expr.Assignment)
+            if (!(assignment instanceof Expr.Assignment))
             {
-                Carmine.error(peek().line + "Invalid assignment.");
+                Carmine.error(peek().line + " Invalid assignment.");
             }
             assignments.add(assignment);
-        }
+        } while (match(TokenType.COMMA));
+
+        if (!match(TokenType.RBRACE) && !found_brace)
+            Carmine.error(peek().line + " Expected '}'.");
 
         return new Stmt.Enum(assignments);
     }
@@ -475,13 +505,11 @@ public class Parser
     private Stmt declaration()
     {
         while (match(TokenType.ENDLINE)) ;
+
         if (match(TokenType.MODULE))
-        {
             return moduleStatement();
-        } else if (match(TokenType.CONST))
-        {
+        else if (match(TokenType.CONST))
             return constStatement();
-        }
         else if (match(TokenType.DEF))
         {
             if (match(TokenType.MAIN))
@@ -490,12 +518,11 @@ public class Parser
             }
 
             return functionStatement();
-        } else if (match(TokenType.ENUM))
-        {
-            return enumStatement();
         }
+        else if (match(TokenType.ENUM))
+            return enumStatement();
         else
-            return statement();
+            return null;
     }
 
     private Stmt statement() {
@@ -524,7 +551,7 @@ public class Parser
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd())
         {
-            statements.add(statement());
+            statements.add(declaration());
         }
 
         return statements;

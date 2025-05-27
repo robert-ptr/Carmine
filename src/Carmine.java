@@ -64,21 +64,21 @@ public class Carmine {
         Scanner scanner = new Scanner(code);
         List<Token> tokens = scanner.scanTokens();
 
-        /*
         for (Token token : tokens)
         {
             System.out.println(token);
         }
-        */
 
         Parser parser = new Parser(tokens);
 
         List<Stmt> statements = parser.parse();
+        /*
         for (Stmt statement : statements) {
             statement.print();
             //statement.evaluate();
             System.out.println();
         }
+        */
         //Debug.printEnvironments();
     }
 
