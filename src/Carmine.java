@@ -58,7 +58,7 @@ public class Carmine {
     {
         System.err.println(message);
     }
-
+    public static void error(Token token, String message) { System.err.println(token.line + " " + message); }
     private static void run(String code)
     {
         Scanner scanner = new Scanner(code);

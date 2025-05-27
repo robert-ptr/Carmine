@@ -155,10 +155,12 @@ abstract class Expr {
     {
         final Object value;
 
+        /*
         Literal(Token value)
         {
             this.value = value.value;
         }
+        */
 
         Literal(Object value)
         {

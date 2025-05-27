@@ -36,6 +36,11 @@ public class Parser
         return tokens.get(current - 1);
     }
 
+    private void errorAtCurrent(String message)
+    {
+         Carmine.error(peek(), message);
+    }
+
     private boolean check(TokenType type)
     {
         if (isAtEnd())
@@ -69,7 +74,7 @@ public class Parser
                 return new Expr.Assignment(((Expr.Variable)left).getName(), right);
             }
 
-            Carmine.error(peek().line + " Invalid assignment target.");
+            errorAtCurrent("Invalid assignment target.");
         }
 
         return left;
@@ -190,7 +195,7 @@ public class Parser
             } while (match(TokenType.COMMA));
 
             if (!match(TokenType.RPAREN))
-                Carmine.error(peek().line + " Expected ')'.");
+                errorAtCurrent("Expected ')'.");
         }
 
         return args;
@@ -224,34 +229,27 @@ public class Parser
         {
             Expr expr = expression();
             if (!match(TokenType.RPAREN))
-            {
-                Carmine.error(peek().line + "Expected matching ')' for '('.");
-            }
+                errorAtCurrent("Expected matching ')' for '('.");
 
             return new Expr.Group(expr);
         }
 
         if (match(TokenType.DECIMAL))
-        {
             return new Expr.Literal(Integer.parseInt(previous().lexeme));
-        }
 
         if (match(TokenType.HEXADECIMAL))
-        {
             return new Expr.Literal(Integer.parseInt(previous().lexeme, 16));
-        }
 
         if (match(TokenType.BINARY))
-        {
             return new Expr.Literal(Integer.parseInt(previous().lexeme, 2));
-        }
+
+        if (match(TokenType.NULL))
+            return new Expr.Literal(null);
 
         if (match(TokenType.IDENTIFIER))
-        {
             return new Expr.Variable(previous());
-        }
 
-        Carmine.error(peek().line + " Unexpected token: " + peek());
+        errorAtCurrent("Unexpected token: " + peek());
         hadError = true;
         return null;
     }
@@ -284,7 +282,7 @@ public class Parser
                 return new Stmt.Module(((Expr.Variable)left).getName(), right);
             }
 
-            Carmine.error(peek().line + "Invalid variable.");
+            errorAtCurrent("Invalid variable.");
             hadError = true;
 
             return null;
@@ -296,7 +294,7 @@ public class Parser
             return new Stmt.Module(((Expr.Variable)left).getName(), null);
         }
 
-        Carmine.error(peek().line + "Invalid variable.");
+        errorAtCurrent("Invalid variable.");
         hadError = true;
         
         return null;
@@ -332,7 +330,7 @@ public class Parser
         }
 
         if (!match(TokenType.RPAREN))
-            Carmine.error(peek().line + "Expected ')'.");
+            errorAtCurrent("Expected ')'.");
 
         if (match(TokenType.ARROW)) // then it returns one or multiple values
         {
@@ -355,24 +353,26 @@ public class Parser
         }
         else
         {
-            Carmine.error(peek().line + "Redefinition of main statement is not allowed.");
+            errorAtCurrent("Redefinition of main statement is not allowed.");
             return null;
         }
-        
+
+
         match(TokenType.LPAREN);
 
-        if (!match(TokenType.RPAREN))
+        if (match(TokenType.IDENTIFIER))
         {
-            Carmine.error(peek().line + "The main function does not have parameters.");
+            errorAtCurrent("The main function does not have parameters.");
         }
-
-        if (!match(TokenType.RPAREN))
-            Carmine.error(peek().line + "Expected ')'.");
+        else if (!match(TokenType.RPAREN))
+            errorAtCurrent("Expected ')'.");
 
         if (match(TokenType.ARROW)) // then it returns one or multiple values
         {
-            Carmine.error(peek().line + "The main function does not have return values.");
+            errorAtCurrent("The main function does not have return values.");
         }
+
+        match(TokenType.ENDLINE);
 
         List<Stmt> statements = blockStatement();
 
@@ -392,7 +392,7 @@ public class Parser
                 return new Stmt.Const(((Expr.Variable)left).getName(), right);
             }
 
-            Carmine.error(peek().line + "Invalid variable.");
+            errorAtCurrent("Invalid variable.");
             hadError = true;
 
             return null;
@@ -404,7 +404,7 @@ public class Parser
             return new Stmt.Const(((Expr.Variable)left).getName(), null);
         }
 
-        Carmine.error(peek().line + "Invalid variable.");
+        errorAtCurrent("Invalid variable.");
         hadError = true;
 
         return null;
@@ -413,11 +413,17 @@ public class Parser
     private Stmt enumStatement()
     {
         boolean found_brace = false;
+        Token name = null;
+
+        if (match(TokenType.IDENTIFIER))
+            name = previous();
+
         match(TokenType.ENDLINE);
         if (!match(TokenType.LBRACE))
-            Carmine.error(peek().line + " Expected '{'.");
+             errorAtCurrent("Expected '{'.");
 
         ArrayList<Expr> assignments = new ArrayList<>();
+
         do
         {
             match(TokenType.ENDLINE);
@@ -428,15 +434,15 @@ public class Parser
             Expr assignment = expression();
             if (!(assignment instanceof Expr.Assignment))
             {
-                Carmine.error(peek().line + " Invalid assignment.");
+                 errorAtCurrent("Invalid assignment.");
             }
             assignments.add(assignment);
         } while (match(TokenType.COMMA));
 
         if (!match(TokenType.RBRACE) && !found_brace)
-            Carmine.error(peek().line + " Expected '}'.");
+             errorAtCurrent("Expected '}'.");
 
-        return new Stmt.Enum(assignments);
+        return new Stmt.Enum(name, assignments);
     }
 
     private Stmt ifStatement()
@@ -477,11 +483,11 @@ public class Parser
 
         if (!(init instanceof Expr.Variable))
         {
-            Carmine.error(peek().line + "Invalid variable.");
+             errorAtCurrent("Invalid variable.");
         }
 
         if (!(peek().lexeme.contentEquals("in")))
-            Carmine.error(peek().line + "Missing 'in' keyword.");
+             errorAtCurrent("Missing 'in' keyword.");
 
         advance();
 
@@ -493,7 +499,7 @@ public class Parser
         }
         if (!match(TokenType.DOT))
         {
-            Carmine.error(peek().line + "Missing '..' keyword.");
+             errorAtCurrent("Missing '..' keyword.");
         }
 
         Expr maxValue = expression();
@@ -526,6 +532,8 @@ public class Parser
     }
 
     private Stmt statement() {
+        while (match(TokenType.ENDLINE));
+
         if (match(TokenType.LBRACE))
         {
             match(TokenType.ENDLINE);

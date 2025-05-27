@@ -211,10 +211,12 @@ abstract class Stmt {
 
     static class Enum extends Stmt
     {
+        Token name;
         final ArrayList<Expr> assignments;
 
-        Enum(ArrayList<Expr> assignments)
+        Enum(Token name, ArrayList<Expr> assignments)
         {
+            this.name = name;
             this.assignments = assignments;
         }
 
@@ -226,7 +228,9 @@ abstract class Stmt {
         @Override
         void print()
         {
-            System.out.println("enum ");
+            System.out.print("enum ");
+            if (this.name != null)
+                System.out.println(this.name.lexeme);
             System.out.println("{");
             for (int i = 0; i < assignments.size(); i++)
                 assignments.get(i).print();

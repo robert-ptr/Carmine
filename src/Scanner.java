@@ -182,6 +182,7 @@ public class Scanner {
                     if (peek() == '\n')
                         advance();
                 }
+                return scanToken();
             case '%':
                 return makeToken(TokenType.MOD);
             case '*':
