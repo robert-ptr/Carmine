@@ -1,11 +1,11 @@
 def NOT(a) -> out {
-    out = not(a)
+    out = not(a);
 }
 
 def NAND(a, b) -> out {
-    out = NOT(and(a, b))
+    out = NOT(and(a, b));
 }
 
 def main() {
-    module output = NAND(true, false)
+    module output = NAND(true, false);
 }

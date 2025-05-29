@@ -1,16 +1,16 @@
 def XOR(a, b) -> out
 {
-    out = and(or(a, b), not(and(a, b)))
+    out = and(or(a, b), not(and(a, b)));
 }
 
 def NAND(a, b) -> out
 {
-    out = not(and(a, b))
+    out = not(and(a, b));
 }
 
 def main() // main function
 {
-    module operand1 = 1, operand2 = 0
+    module operand1 = 1, operand2 = 0;
 
-    module output = XOR(NAND(operand1, operand2), 1)
+    module output = XOR(NAND(operand1, operand2), 1);
 }

@@ -1,7 +1,7 @@
 def main() {
-    module a = 1
-    module b = 0
-    module x = a and b
-    module y = a or b
-    module final = x or y
+    module a = 1;
+    module b = 0;
+    module x = a and b;
+    module y = a or b;
+    module final = x or y;
 }

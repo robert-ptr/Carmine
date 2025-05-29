@@ -1,9 +1,9 @@
 def OR(a, b) -> out {
-    out = or(a, b)
+    out = or(a, b);
 }
 
 def main() {
-    module x = false
-    module y = true
-    module output = OR(x, y)
+    module x = false;
+    module y = true;
+    module output = OR(x, y);
 }

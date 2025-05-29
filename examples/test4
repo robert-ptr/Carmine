@@ -1,7 +1,7 @@
 def XOR(a, b) -> out {
-    out = and(or(a, b), not(and(a, b)))
+    out = and(or(a, b), not(and(a, b)));
 }
 
 def main() {
-    module result = XOR(true, XOR(false, true))
+    module result = XOR(true, XOR(false, true));
 }

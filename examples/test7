@@ -1,11 +1,11 @@
-def INV(a) -> out {
-    out = not(a)
+def INV() -> out
+{
 }
 
-def AND3(a, b, c) -> out {
-    out = and(a, and(b, c))
+def AND3() -> out
+{
 }
 
 def main() {
-    output = INV(AND3(1, 1, 0))
+    output = INV(AND3(1, 1, 0));
 }

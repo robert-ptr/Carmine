@@ -1,12 +1,12 @@
-module a
-const _absdsdc10 = false
+module a;
+const _absdsdc10 = false;
 {
-    module b = true() and (not false())
-    a = true()
+    module b = true() and (not false());
+    a = true();
 }
 
-print(a)
-print(_absdsdc10)
+print(a);
+print(_absdsdc10);
 //print(b)
-print(not(true))
-print(0)
+print(not(true));
+print(0);

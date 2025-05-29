@@ -1,6 +1,6 @@
 def xor(a, b) -> out
 {
-    out = (a or b) and not(a and b)
+    out = (a or b) and not(a and b);
 }
 
-print(xor(1, 0)) // this should print the structure
+print(xor(1, 0)); // this should print the structure

@@ -1,0 +1,9 @@
+enum INTENSITY
+{
+    MAX = 10,
+    MIN = 2,
+    MEDIUM = 5,
+};
+
+const val = null;
+module mod1 = null;

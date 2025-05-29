@@ -1,6 +1,6 @@
-var a
-var _var_name10 = false
+var a;
+var _var_name10 = false;
 {
-    var b = true and (not false)
-    a = true
+    var b = true and (not false);
+    a = true;
 }

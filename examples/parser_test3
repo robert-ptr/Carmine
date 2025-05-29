@@ -1,6 +1,6 @@
 {
-    (true and false) or not (not false or false)
+    (true and false) or not (not false or false);
     {
-        true or false
+        true or false;
     }
 }
