@@ -250,10 +250,11 @@ abstract class Expr {
         {
             callee.print();
             System.out.print("(");
-            for (Expr arg : arguments)
+            for (int i = 0; i < arguments.size(); i++)
             {
-                arg.print();
-                System.out.print(", ");
+                arguments.get(i).print();
+                if (i < arguments.size() - 1)
+                    System.out.print(", ");
             }
 
             System.out.print(")");

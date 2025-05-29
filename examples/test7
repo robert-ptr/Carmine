@@ -5,7 +5,3 @@ def INV() -> out
 def AND3() -> out
 {
 }
-
-def main() {
-    output = INV(AND3(1, 1, 0));
-}

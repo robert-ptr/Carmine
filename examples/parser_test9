@@ -20,9 +20,6 @@ def xor1(a[10], b[10]) -> out[10]
     out = (a[0] or b[0]) and not(a[0] and b[0]);
 }
 
-def main()
-{
     print(xor(1, 0)); // this should print the structure
 
     a = xor(0, 1);
-}

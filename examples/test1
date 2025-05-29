@@ -2,6 +2,4 @@ def AND(a, b) -> out {
     out = and(a, b);
 }
 
-def main() -> output {
     module output = AND(1, 1);
-}

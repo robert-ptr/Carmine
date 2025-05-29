@@ -3,7 +3,6 @@ def HALF_ADDER(a, b) -> sum, carry {
     carry = and(a, b);
 }
 
-def main() {
     module s, c = HALF_ADDER(1, 1);
     result = or(s, c);
-}
+

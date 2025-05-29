@@ -6,6 +6,4 @@ def NAND(a, b) -> out {
     out = NOT(and(a, b));
 }
 
-def main() {
     module output = NAND(true, false);
-}

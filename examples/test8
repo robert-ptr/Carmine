@@ -27,10 +27,3 @@ def xor1(a[10], b[10]) -> out[10]
 {
     out = and( or(a[0], b[0]), not(and(a[0], b[0])));
 }
-
-def main()
-{
-    //print(xor(1, 0)) // this should print the structure
-
-    //module a = xor(0, 1)
-}

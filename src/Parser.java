@@ -3,7 +3,6 @@ import java.util.List;
 
 public class Parser
 {
-    private boolean mainFound = false;
     List<Token> tokens = new ArrayList<Token>();
     int current = 0;
     boolean hadError = false;
@@ -371,48 +370,6 @@ public class Parser
         return null;
     }
 
-    private Stmt mainStatement()
-    {
-        if (!mainFound)
-        {
-            mainFound = true;
-        }
-        else
-        {
-            errorAtCurrent("Redefinition of main statement is not allowed.");
-            return null;
-        }
-
-
-        match(TokenType.LPAREN);
-
-        if (match(TokenType.IDENTIFIER))
-        {
-            errorAtCurrent("The main function does not have parameters.");
-        }
-        else if (!match(TokenType.RPAREN))
-            errorAtCurrent("Expected ')'.");
-
-        if (match(TokenType.ARROW)) // then it returns one or multiple values
-        {
-            errorAtCurrent("The main function does not have return values.");
-        }
-
-        //match(TokenType.ENDLINE);
-
-        if (!match(TokenType.LBRACE))
-            errorAtCurrent("Expected '{'.");
-
-        Stmt statements = blockStatement();
-
-        if (statements instanceof Stmt.Block)
-            return new Stmt.Main((Stmt.Block)statements);
-        else
-            errorAtCurrent("Expected block statement.");
-
-        return null;
-    }
-
     private Stmt constStatement()
     {
         Token name = null;
@@ -561,14 +518,7 @@ public class Parser
         else if (match(TokenType.CONST))
             return constStatement();
         else if (match(TokenType.DEF))
-        {
-            if (match(TokenType.MAIN))
-            {
-                return mainStatement();
-            }
-
             return functionStatement();
-        }
         else if (match(TokenType.ENUM))
             return enumStatement();
         else
