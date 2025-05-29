@@ -142,36 +142,46 @@ public class Scanner {
             case ']':
                 return makeToken(TokenType.RBRACKET);
             case '\n':
-                Token token = makeToken(TokenType.ENDLINE);
+                //Token token = makeToken(TokenType.ENDLINE);
                 line++;
-                return token;
+                return null;
             case '=':
-                if (peek() == '=')
+                if (peek() == '=') {
+                    advance();
                     return makeToken(TokenType.EQUAL);
+                }
                 return makeToken(TokenType.ASSIGN);
             case '<':
-                if (peek() == '=')
+                if (peek() == '=') {
+                    advance();
                     return makeToken(TokenType.LESS_EQUAL);
+                }
                 return makeToken(TokenType.LESS);
             case '>':
-                if (peek() == '=')
+                if (peek() == '=') {
+                    advance();
                     return makeToken(TokenType.GREATER_EQUAL);
+                }
                 return makeToken(TokenType.GREATER);
             case '&':
                 return makeToken(TokenType.AND);
             case '|':
                 return makeToken(TokenType.OR);
             case '!':
-                if (peek() == '=')
+                if (peek() == '=') {
+                    advance();
                     return makeToken(TokenType.NOTEQUAL);
+                }
                 //return makeToken(TokenType.NOT);
                 Carmine.error("Unknown literal: '" + c + "' at line " + line) ;
                 return makeToken(TokenType.ERR);
             case '+':
                 return makeToken(TokenType.PLUS);
             case '-':
-                if (peek() == '>')
+                if (peek() == '>') {
+                    advance();
                     return makeToken(TokenType.ARROW);
+                }
                 return makeToken(TokenType.MINUS);
             case '/':
                 if (advance() == '/')
@@ -186,8 +196,10 @@ public class Scanner {
             case '%':
                 return makeToken(TokenType.MOD);
             case '*':
-                if (peek() == '*')
+                if (peek() == '*') {
+                    advance();
                     return makeToken(TokenType.EXP);
+                }
                 return makeToken(TokenType.MUL);
             //case ';':
             //    return makeToken(TokenType.SEMICOLON);
@@ -200,10 +212,12 @@ public class Scanner {
             case '0':
                 if (peek() == 'b')
                 {
+                    advance();
                     return binary();
                 }
                 else if (peek() == 'X')
                 {
+                    advance();
                     return hexadecimal();
                 }
                 else

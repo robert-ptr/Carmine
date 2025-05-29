@@ -146,8 +146,9 @@ abstract class Expr {
         @Override
         void print()
         {
-            System.out.println(name.lexeme + " ");
+            System.out.print(name.lexeme + " = ");
             right.print();
+            System.out.println();
         }
     }
 
@@ -176,7 +177,10 @@ abstract class Expr {
         @Override
         void print()
         {
-            System.out.print(value.toString());
+            if (value != null)
+                System.out.print(value.toString());
+            else
+                System.out.print("null");
         }
     }
 

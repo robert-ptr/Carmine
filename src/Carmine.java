@@ -24,7 +24,7 @@ public class Carmine {
             }
         });
 
-        constEnvironment.put("true", new CarmineCallable() {
+        moduleEnvironment.put("true", new CarmineCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -36,7 +36,7 @@ public class Carmine {
             }
         });
 
-        constEnvironment.put("false", new CarmineCallable() {
+        moduleEnvironment.put("false", new CarmineCallable() {
             @Override
             public int arity() {
                 return 0;
@@ -44,6 +44,28 @@ public class Carmine {
 
             @Override
             public Object call(List<Object> arguments) {
+                return null;
+            }
+        });
+
+        constEnvironment.put("import", new CarmineCallable() {
+            @Override
+            public int arity() { return 1;}
+
+            @Override
+            public Object call(List<Object> arguments)
+            {
+                return null;
+            }
+        });
+
+        constEnvironment.put("export", new CarmineCallable() {
+            @Override
+            public int arity() { return 1;}
+
+            @Override
+            public Object call(List<Object> arguments)
+            {
                 return null;
             }
         });
@@ -71,14 +93,14 @@ public class Carmine {
 
         Parser parser = new Parser(tokens);
 
+        System.out.println("________________\n");
+
         List<Stmt> statements = parser.parse();
-        /*
         for (Stmt statement : statements) {
             statement.print();
-            //statement.evaluate();
+            statement.evaluate();
             System.out.println();
         }
-        */
         //Debug.printEnvironments();
     }
 

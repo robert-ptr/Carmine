@@ -61,11 +61,13 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.println("{");
             for (Stmt stmt : statements)
             {
                 stmt.print();
                 System.out.println();
             }
+            System.out.println("}");
         }
     }
 
@@ -104,10 +106,11 @@ abstract class Stmt {
             if (expr != null) {
                 System.out.print("= ");
                 expr.print();
+                System.out.print(";");
             }
             else
             {
-                System.out.println();
+                System.out.println(";");
             }
         }
     }
@@ -147,24 +150,25 @@ abstract class Stmt {
             if (expr != null) {
                 System.out.print("= ");
                 expr.print();
+                System.out.print(";");
             }
             else
             {
-                System.out.println();
+                System.out.println(";");
             }
         }
     }
 
     static class Function extends Stmt
     {
-        final Expr function;
+        final Token name;
         final List<Token> parameters;
         final List<Token> returnValues;
-        final List<Stmt> statements;
+        final Stmt.Block statements;
 
-        Function(Expr function, List<Token> parameters, List<Token> returnValues, List<Stmt> statements)
+        Function(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements)
         {
-            this.function = function;
+            this.name = name;
             this.parameters = parameters;
             this.statements = statements;
             this.returnValues = returnValues;
@@ -179,7 +183,7 @@ abstract class Stmt {
         void print()
         {
             System.out.print("def ");
-            function.print();
+            System.out.print(name.lexeme);
             System.out.printf("(");
 
             for (int i = 0; i < parameters.size(); i++)
@@ -204,8 +208,7 @@ abstract class Stmt {
             }
 
             System.out.println();
-            for (int i = 0; i < statements.size(); i++)
-                statements.get(i).print();
+            statements.print();
         }
     }
 
@@ -234,7 +237,7 @@ abstract class Stmt {
             System.out.println("{");
             for (int i = 0; i < assignments.size(); i++)
                 assignments.get(i).print();
-            System.out.println("}");
+            System.out.println("};");
         }
     }
 
@@ -333,9 +336,9 @@ abstract class Stmt {
 
     static class Main extends Stmt
     {
-        final List<Stmt> statements;
+        final Stmt.Block statements;
 
-        Main(List<Stmt> statements)
+        Main(Stmt.Block statements)
         {
             this.statements = statements;
         }
@@ -348,6 +351,8 @@ abstract class Stmt {
         @Override
         void print()
         {
+            System.out.print("main ");
+            statements.print();
         }
     }
 }

@@ -265,63 +265,81 @@ public class Parser
         }
          */
 
+        if (!match(TokenType.SEMICOLON))
+        {
+            errorAtCurrent("Expected ';' at end of statement.");
+            return null;
+        }
+
         return new Stmt.Expression(expr);
     }
 
     private Stmt moduleStatement()
     {
-        Expr left = expression();
+        Token name = null;
+
+        if(!match(TokenType.IDENTIFIER))
+        {
+            errorAtCurrent("Unexpected token in moduleStatement: " + peek());
+
+            return null;
+        }
+        else
+        {
+            name = previous();
+        }
 
         if (match(TokenType.ASSIGN))
         {
             Expr right = expression();
-            match(TokenType.ENDLINE);
-            if (left instanceof Expr.Variable)
-            {
-
-                return new Stmt.Module(((Expr.Variable)left).getName(), right);
+           // match(TokenType.ENDLINE);
+            if (!match(TokenType.SEMICOLON)) {
+                errorAtCurrent("Expected ';' at end of statement.");
+                return null;
             }
 
-            errorAtCurrent("Invalid variable.");
-            hadError = true;
+            return new Stmt.Module(name, right);
+        }
 
+        //match(TokenType.ENDLINE);
+        if (!match(TokenType.SEMICOLON)) {
+            errorAtCurrent("Expected ';' at end of statement.");
             return null;
         }
 
-        match(TokenType.ENDLINE);
-        if (left instanceof Expr.Variable)
-        {
-            return new Stmt.Module(((Expr.Variable)left).getName(), null);
-        }
-
-        errorAtCurrent("Invalid variable.");
-        hadError = true;
-        
-        return null;
+        return new Stmt.Module(name, null);
     }
 
-    private List<Stmt> blockStatement()
+    private Stmt blockStatement()
     {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd() && !match(TokenType.RBRACE))
         {
             statements.add(statement());
         }
-        match(TokenType.ENDLINE);
-        //return new Stmt.Block(statements);
-        return statements;
+        //match(TokenType.ENDLINE);
+        return new Stmt.Block(statements);
     }
 
     private Stmt functionStatement()
     {
-        Expr left = expression();
+        Token name = null;
+
+        if (!match(TokenType.IDENTIFIER))
+        {
+            errorAtCurrent("Unexpected token in functionStatement(): " + peek());
+            return null;
+        }
+        else
+            name = previous();
 
         List<Token> params = new ArrayList<>();
         List<Token> returnValues = new ArrayList<>();
 
-        match(TokenType.LPAREN);
+        if (!match(TokenType.LPAREN))
+            errorAtCurrent("Expected '('.");
 
-        if (!match(TokenType.RPAREN))
+        if (!check(TokenType.RPAREN))
         {
             do
             {
@@ -340,9 +358,17 @@ public class Parser
             } while(match(TokenType.COMMA));
         }
 
-        List<Stmt> statements = blockStatement();
+        if (!match(TokenType.LBRACE))
+            errorAtCurrent("Expected '{'.");
 
-        return new Stmt.Function(left, params, returnValues, statements);
+        Stmt statements = blockStatement();
+
+        if (statements instanceof Stmt.Block)
+            return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
+        else
+            errorAtCurrent("Expected block statement.");
+
+        return null;
     }
 
     private Stmt mainStatement()
@@ -372,42 +398,55 @@ public class Parser
             errorAtCurrent("The main function does not have return values.");
         }
 
-        match(TokenType.ENDLINE);
+        //match(TokenType.ENDLINE);
 
-        List<Stmt> statements = blockStatement();
+        if (!match(TokenType.LBRACE))
+            errorAtCurrent("Expected '{'.");
 
-        return new Stmt.Main(statements);
+        Stmt statements = blockStatement();
+
+        if (statements instanceof Stmt.Block)
+            return new Stmt.Main((Stmt.Block)statements);
+        else
+            errorAtCurrent("Expected block statement.");
+
+        return null;
     }
 
     private Stmt constStatement()
     {
-        Expr left = expression();
+        Token name = null;
+
+        if(!match(TokenType.IDENTIFIER))
+        {
+            errorAtCurrent("Unexpected token: " + peek());
+
+            return null;
+        }
+        else
+        {
+            name = previous();
+        }
 
         if (match(TokenType.ASSIGN))
         {
             Expr right = expression();
-            match(TokenType.ENDLINE);
-            if (left instanceof Expr.Variable)
-            {
-                return new Stmt.Const(((Expr.Variable)left).getName(), right);
+           // match(TokenType.ENDLINE);
+            if (!match(TokenType.SEMICOLON)) {
+                errorAtCurrent("Expected ';' at end of statement.");
+                return null;
             }
 
-            errorAtCurrent("Invalid variable.");
-            hadError = true;
+            return new Stmt.Const(name, right);
+        }
 
+        //match(TokenType.ENDLINE);
+        if (!match(TokenType.SEMICOLON)) {
+            errorAtCurrent("Expected ';' at end of statement.");
             return null;
         }
 
-        match(TokenType.ENDLINE);
-        if (left instanceof Expr.Variable)
-        {
-            return new Stmt.Const(((Expr.Variable)left).getName(), null);
-        }
-
-        errorAtCurrent("Invalid variable.");
-        hadError = true;
-
-        return null;
+        return new Stmt.Const(name, null);
     }
 
     private Stmt enumStatement()
@@ -418,7 +457,7 @@ public class Parser
         if (match(TokenType.IDENTIFIER))
             name = previous();
 
-        match(TokenType.ENDLINE);
+       // match(TokenType.ENDLINE);
         if (!match(TokenType.LBRACE))
              errorAtCurrent("Expected '{'.");
 
@@ -426,7 +465,7 @@ public class Parser
 
         do
         {
-            match(TokenType.ENDLINE);
+           // match(TokenType.ENDLINE);
             if (match(TokenType.RBRACE)) {
                 found_brace = true;
                 break;
@@ -441,6 +480,11 @@ public class Parser
 
         if (!match(TokenType.RBRACE) && !found_brace)
              errorAtCurrent("Expected '}'.");
+
+        if (!match(TokenType.SEMICOLON)) {
+            errorAtCurrent("Expected ';' at end of statement.");
+            return null;
+        }
 
         return new Stmt.Enum(name, assignments);
     }
@@ -510,7 +554,7 @@ public class Parser
 
     private Stmt declaration()
     {
-        while (match(TokenType.ENDLINE)) ;
+       // while (match(TokenType.ENDLINE)) ;
 
         if (match(TokenType.MODULE))
             return moduleStatement();
@@ -532,24 +576,16 @@ public class Parser
     }
 
     private Stmt statement() {
-        while (match(TokenType.ENDLINE));
+       // while (match(TokenType.ENDLINE));
 
         if (match(TokenType.LBRACE))
-        {
-            match(TokenType.ENDLINE);
-            return new Stmt.Block(blockStatement());
-        }
+            return blockStatement();
         else if (match(TokenType.IF))
-        {
             return ifStatement();
-        } else if (match(TokenType.WHILE))
-        {
+        else if (match(TokenType.WHILE))
             return whileStatement();
-        }
         else if (match(TokenType.FOR))
-        {
             return forStatement();
-        }
 
         return expressionStmt();
     }
