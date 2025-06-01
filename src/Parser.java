@@ -3,9 +3,9 @@ import java.util.List;
 
 public class Parser
 {
-    List<Token> tokens = new ArrayList<Token>();
-    int current = 0;
-    boolean hadError = false;
+    private List<Token> tokens = new ArrayList<Token>();
+    private int current = 0;
+    private boolean hadError = false;
 
     private boolean isAtEnd()
     {
@@ -273,48 +273,12 @@ public class Parser
         return new Stmt.Expression(expr);
     }
 
-    private Stmt moduleStatement()
-    {
-        Token name = null;
-
-        if(!match(TokenType.IDENTIFIER))
-        {
-            errorAtCurrent("Unexpected token in moduleStatement: " + peek());
-
-            return null;
-        }
-        else
-        {
-            name = previous();
-        }
-
-        if (match(TokenType.ASSIGN))
-        {
-            Expr right = expression();
-           // match(TokenType.ENDLINE);
-            if (!match(TokenType.SEMICOLON)) {
-                errorAtCurrent("Expected ';' at end of statement.");
-                return null;
-            }
-
-            return new Stmt.Module(name, right);
-        }
-
-        //match(TokenType.ENDLINE);
-        if (!match(TokenType.SEMICOLON)) {
-            errorAtCurrent("Expected ';' at end of statement.");
-            return null;
-        }
-
-        return new Stmt.Module(name, null);
-    }
-
     private Stmt blockStatement()
     {
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd() && !match(TokenType.RBRACE))
         {
-            statements.add(statement());
+            statements.add(declaration());
         }
         //match(TokenType.ENDLINE);
         return new Stmt.Block(statements);
@@ -370,7 +334,79 @@ public class Parser
         return null;
     }
 
-    private Stmt constStatement()
+    private Stmt moduleStatement() // could either be a variable or a function
+    {
+        Token name = null;
+
+        if(!match(TokenType.IDENTIFIER))
+        {
+            errorAtCurrent("Unexpected token in moduleStatement: " + peek());
+
+            return null;
+        }
+        else
+        {
+            name = previous();
+        }
+
+        if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a module
+        {
+            List<Token> params = new ArrayList<>();
+            List<Token> returnValues = new ArrayList<>();
+            if (!check(TokenType.RPAREN))
+            {
+                do
+                {
+                    params.add(advance());
+                } while(match(TokenType.COMMA));
+            }
+
+            if (!match(TokenType.RPAREN))
+                errorAtCurrent("Expected ')'.");
+
+            if (match(TokenType.ARROW)) // then it returns one or multiple values
+            {
+                do
+                {
+                    returnValues.add(advance());
+                } while(match(TokenType.COMMA));
+            }
+
+            if (!match(TokenType.LBRACE))
+                errorAtCurrent("Expected '{'.");
+
+            Stmt statements = blockStatement();
+
+            if (statements instanceof Stmt.Block)
+                return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
+            else
+                errorAtCurrent("Expected block statement.");
+
+            return null;
+        }
+
+        if (match(TokenType.ASSIGN))
+        {
+            Expr right = expression();
+            // match(TokenType.ENDLINE);
+            if (!match(TokenType.SEMICOLON)) {
+                errorAtCurrent("Expected ';' at end of statement.");
+                return null;
+            }
+
+            return new Stmt.Module(name, right);
+        }
+
+        //match(TokenType.ENDLINE);
+        if (!match(TokenType.SEMICOLON)) {
+            errorAtCurrent("Expected ';' at end of statement.");
+            return null;
+        }
+
+        return new Stmt.Module(name, null);
+    }
+
+    private Stmt constStatement() // could either be a variable or a function
     {
         Token name = null;
 
@@ -383,6 +419,42 @@ public class Parser
         else
         {
             name = previous();
+        }
+
+        if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a const
+        {
+            List<Token> params = new ArrayList<>();
+            List<Token> returnValues = new ArrayList<>();
+            if (!check(TokenType.RPAREN))
+            {
+                do
+                {
+                    params.add(advance());
+                } while(match(TokenType.COMMA));
+            }
+
+            if (!match(TokenType.RPAREN))
+                errorAtCurrent("Expected ')'.");
+
+            if (match(TokenType.ARROW)) // then it returns one or multiple values
+            {
+                do
+                {
+                    returnValues.add(advance());
+                } while(match(TokenType.COMMA));
+            }
+
+            if (!match(TokenType.LBRACE))
+                errorAtCurrent("Expected '{'.");
+
+            Stmt statements = blockStatement();
+
+            if (statements instanceof Stmt.Block)
+                return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
+            else
+                errorAtCurrent("Expected block statement.");
+
+            return null;
         }
 
         if (match(TokenType.ASSIGN))
@@ -517,12 +589,10 @@ public class Parser
             return moduleStatement();
         else if (match(TokenType.CONST))
             return constStatement();
-        else if (match(TokenType.DEF))
-            return functionStatement();
         else if (match(TokenType.ENUM))
             return enumStatement();
         else
-            return null;
+            return statement();
     }
 
     private Stmt statement() {

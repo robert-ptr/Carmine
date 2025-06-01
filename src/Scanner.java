@@ -17,7 +17,7 @@ public class Scanner {
         // keywords.put("or", TokenType.OR);   //
         // keywords.put("not", TokenType.NOT); //
         //keywords.put("wire", TokenType.WIRE);
-        keywords.put("def", TokenType.DEF);
+        //keywords.put("def", TokenType.DEF);
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
         keywords.put("module", TokenType.MODULE);

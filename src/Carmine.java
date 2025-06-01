@@ -98,7 +98,7 @@ public class Carmine {
         List<Stmt> statements = parser.parse();
         for (Stmt statement : statements) {
             statement.print();
-            statement.evaluate();
+            //statement.evaluate();
             System.out.println();
         }
         //Debug.printEnvironments();

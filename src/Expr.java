@@ -6,6 +6,8 @@ abstract class Expr {
 
     abstract void print();
 
+    abstract void dotWalk(StringBuilder builder, int parentId); // used for generating graphviz graph
+
     static class Binary extends Expr
     {
         final Expr left;
@@ -27,6 +29,30 @@ abstract class Expr {
 
             switch(operator.type)
             {
+                case PLUS:
+                    return (double)op1 + (double)op2;
+                case MINUS:
+                    return (double)op1 - (double)op2;
+                case MUL:
+                    return (double)op1 * (double)op2;
+                case DIV:
+                    return (double)op1 / (double)op2;
+                case MOD:
+                    return (double)op1 % (double)op2;
+                case EXP:
+                    return Math.pow((double)op1, (double)op2);
+                case EQUAL:
+                    return op1.equals(op2); // will need to test this later
+                case NOTEQUAL:
+                    return !op1.equals(op2);
+                case GREATER:
+                    return (double)op1 > (double)op2;
+                case LESS:
+                    return (double)op1 < (double)op2;
+                case GREATER_EQUAL:
+                    return (double)op1 >= (double)op2;
+                case LESS_EQUAL:
+                    return (double)op1 <= (double)op2;
                 case OR:
                     return (boolean)op1 || (boolean)op2;
                 case AND:
@@ -35,6 +61,12 @@ abstract class Expr {
                     Carmine.error("Unknown binary operator: " + operator);
                     return null;
             }
+        }
+
+        @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
         }
 
         @Override
@@ -66,10 +98,18 @@ abstract class Expr {
             {
                 case NOT:
                     return !(boolean)op;
+                case MINUS:
+                    return -(double)op;
                 default:
                     Carmine.error("Unknown unary operator: " + operator);
                     return null;
             }
+        }
+
+        @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
         }
 
         @Override
@@ -98,6 +138,12 @@ abstract class Expr {
         Object evaluate() throws RuntimeException
         {
             return Carmine.constEnvironment.get(name.lexeme);
+        }
+
+        @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
         }
 
         @Override
@@ -144,6 +190,12 @@ abstract class Expr {
         }
 
         @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
+        }
+
+        @Override
         void print()
         {
             System.out.print(name.lexeme + " = ");
@@ -175,6 +227,12 @@ abstract class Expr {
         }
 
         @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
+        }
+
+        @Override
         void print()
         {
             if (value != null)
@@ -197,6 +255,12 @@ abstract class Expr {
         Object evaluate()
         {
             return expr.evaluate();
+        }
+
+        @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
         }
 
         @Override
@@ -243,6 +307,12 @@ abstract class Expr {
                 throw new RuntimeException("Number of arguments does not match arity");
             }
             return function.call(args);
+        }
+
+        @Override
+        void dotWalk(StringBuilder builder, int parentId)
+        {
+
         }
 
         @Override

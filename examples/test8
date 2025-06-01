@@ -7,23 +7,23 @@ enum
 
 const val = null;
 
-def xor10(a[10], b[10]) -> out[10]
+module xor10(a, b) -> out
 {
     const i = 0;
     while i < 10
     {
-        out[i] = and(or(a[i], b[i]), not(and(a[i], b[i])));
+        out = and(or(a, b), not(and(a, b)));
         i = i + 1;
     }
 }
 
-def xorc(a[10], b[10], c) -> out[10]
+module xorc(a, b, c) -> out
 {
     if 3 + 4 > 5
-        out[c] = and(or(a[c], b[c]), not(and(a[c], b[c])));
+        out = and(or(a, b), not(and(a, b)));
 }
 
-def xor1(a[10], b[10]) -> out[10]
+module xor1(a, b) -> out
 {
-    out = and( or(a[0], b[0]), not(and(a[0], b[0])));
+    out = and( or(a, b), not(and(a, b)));
 }
