@@ -171,10 +171,10 @@ public class Parser
 
     private Expr unary()
     {
-        if (match(TokenType.NOT))
+        if (match(TokenType.NOT) || match(TokenType.MINUS))
         {
             Token op = previous();
-            Expr right = expression();
+            Expr right = call();
 
             return new Expr.Unary(op, right);
         }

@@ -7,6 +7,7 @@ abstract class Stmt {
     abstract void print();
 
     abstract public <T> T accept(ConstVisitor<T> visitor);
+    abstract public <T> T accept(GraphVisitor<T> visitor);
 
     static class Expression extends Stmt {
         Expr expr;
@@ -27,6 +28,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitExpressionStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
 
@@ -69,6 +74,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitBlockStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitBlockStmt(this);
         }
     }
@@ -114,6 +123,10 @@ abstract class Stmt {
         public <T> T accept(ConstVisitor<T> visitor) {
             return visitor.visitConstStmt(this);
         }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
+            return visitor.visitConstStmt(this);
+        }
     }
 
     static class Module extends Stmt {
@@ -155,6 +168,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitModuleStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitModuleStmt(this);
         }
     }
@@ -209,6 +226,10 @@ abstract class Stmt {
         public <T> T accept(ConstVisitor<T> visitor) {
             return visitor.visitModuleFunctionStmt(this);
         }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
+            return visitor.visitModuleFunctionStmt(this);
+        }
     }
 
     static class ConstFunction extends Stmt {
@@ -261,6 +282,10 @@ abstract class Stmt {
         public <T> T accept(ConstVisitor<T> visitor) {
             return visitor.visitConstFunctionStmt(this);
         }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
+            return visitor.visitConstFunctionStmt(this);
+        }
     }
 
     static class Enum extends Stmt {
@@ -289,6 +314,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitEnumStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitEnumStmt(this);
         }
     }
@@ -325,6 +354,10 @@ abstract class Stmt {
         public <T> T accept(ConstVisitor<T> visitor) {
             return visitor.visitIfStmt(this);
         }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
+            return visitor.visitIfStmt(this);
+        }
     }
 
     static class While extends Stmt {
@@ -350,6 +383,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitWhileStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitWhileStmt(this);
         }
     }
@@ -385,6 +422,10 @@ abstract class Stmt {
 
         @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitForStmt(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitForStmt(this);
         }
     }

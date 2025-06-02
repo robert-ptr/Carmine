@@ -1,7 +1,9 @@
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
@@ -96,12 +98,31 @@ public class Carmine {
         System.out.println("________________\n");
 
         List<Stmt> statements = parser.parse();
+        /*
         for (Stmt statement : statements) {
-            statement.print();
+            //statement.print();
             //statement.evaluate();
-            System.out.println();
+            //System.out.println();
         }
         //Debug.printEnvironments();
+         */
+
+        Debug debugger = new Debug();
+
+        String dotContent = debugger.visualizeAST(statements);
+        System.out.println(dotContent);
+
+        try {
+            Files.writeString(
+                    Path.of("graph.dot"),
+                    dotContent,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+            System.out.println("Saved to graph.dot");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void runFile(String path) throws IOException, IOException {

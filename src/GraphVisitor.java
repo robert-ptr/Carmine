@@ -1,5 +1,6 @@
-public interface ConstVisitor<T> {
+public interface GraphVisitor<T> {
     T visitLiteralExpr(Expr.Literal expr);
+    T visitIdentifierExpr(Expr.Variable expr);
     T visitUnaryExpr(Expr.Unary expr);
     T visitBinaryExpr(Expr.Binary expr);
     T visitCallExpr(Expr.Call call);

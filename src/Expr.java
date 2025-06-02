@@ -6,9 +6,8 @@ abstract class Expr {
 
     abstract void print();
 
-    abstract void dotWalk(StringBuilder builder, int parentId); // used for generating graphviz graph
-
     public abstract <T> T accept(ConstVisitor<T> visitor);
+    public abstract <T> T accept(GraphVisitor<T> visitor);
 
     static class Binary extends Expr
     {
@@ -66,13 +65,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitBinaryExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
 
@@ -114,13 +111,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitUnaryExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
 
@@ -153,13 +148,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
 
@@ -207,13 +200,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
 
@@ -249,13 +240,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitLiteralExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
 
@@ -285,13 +274,11 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
-        }
-
-        @Override
         public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitGroupExpr(this);
+        }
+        @Override
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
 
@@ -342,13 +329,12 @@ abstract class Expr {
         }
 
         @Override
-        void dotWalk(StringBuilder builder, int parentId)
-        {
-
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitCallExpr(this);
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T accept(GraphVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
 
