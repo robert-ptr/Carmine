@@ -8,6 +8,8 @@ abstract class Expr {
 
     abstract void dotWalk(StringBuilder builder, int parentId); // used for generating graphviz graph
 
+    public abstract <T> T accept(ConstVisitor<T> visitor);
+
     static class Binary extends Expr
     {
         final Expr left;
@@ -70,6 +72,11 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitBinaryExpr(this);
+        }
+
+        @Override
         void print()
         {
             left.print();
@@ -113,6 +120,11 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitUnaryExpr(this);
+        }
+
+        @Override
         void print()
         {
             System.out.print(operator.lexeme + " ");
@@ -144,6 +156,11 @@ abstract class Expr {
         void dotWalk(StringBuilder builder, int parentId)
         {
 
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitVariableExpr(this);
         }
 
         @Override
@@ -196,6 +213,11 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+
+        @Override
         void print()
         {
             System.out.print(name.lexeme + " = ");
@@ -233,6 +255,11 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitLiteralExpr(this);
+        }
+
+        @Override
         void print()
         {
             if (value != null)
@@ -264,6 +291,11 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitGroupExpr(this);
+        }
+
+        @Override
         void print()
         {
             System.out.print("(");
@@ -274,7 +306,7 @@ abstract class Expr {
 
     static class Call extends Expr
     {
-        final Expr callee;
+        final Expr callee; // test this
         final List<Expr> arguments;
 
         Call(Expr callee, List<Expr> arguments)
@@ -313,6 +345,11 @@ abstract class Expr {
         void dotWalk(StringBuilder builder, int parentId)
         {
 
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitCallExpr(this);
         }
 
         @Override

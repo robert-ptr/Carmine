@@ -284,70 +284,17 @@ public class Parser
         return new Stmt.Block(statements);
     }
 
-    private Stmt functionStatement()
-    {
-        Token name = null;
-
-        if (!match(TokenType.IDENTIFIER))
-        {
-            errorAtCurrent("Unexpected token in functionStatement(): " + peek());
-            return null;
-        }
-        else
-            name = previous();
-
-        List<Token> params = new ArrayList<>();
-        List<Token> returnValues = new ArrayList<>();
-
-        if (!match(TokenType.LPAREN))
-            errorAtCurrent("Expected '('.");
-
-        if (!check(TokenType.RPAREN))
-        {
-            do
-            {
-                params.add(advance());
-            } while(match(TokenType.COMMA));
-        }
-
-        if (!match(TokenType.RPAREN))
-            errorAtCurrent("Expected ')'.");
-
-        if (match(TokenType.ARROW)) // then it returns one or multiple values
-        {
-            do
-            {
-                returnValues.add(advance());
-            } while(match(TokenType.COMMA));
-        }
-
-        if (!match(TokenType.LBRACE))
-            errorAtCurrent("Expected '{'.");
-
-        Stmt statements = blockStatement();
-
-        if (statements instanceof Stmt.Block)
-            return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
-        else
-            errorAtCurrent("Expected block statement.");
-
-        return null;
-    }
-
     private Stmt moduleStatement() // could either be a variable or a function
     {
-        Token name = null;
-
         if(!match(TokenType.IDENTIFIER))
         {
             errorAtCurrent("Unexpected token in moduleStatement: " + peek());
 
             return null;
         }
-        else
-        {
-            name = previous();
-        }
+
+        Token name = previous();
+
 
         if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a module
         {
@@ -378,7 +325,7 @@ public class Parser
             Stmt statements = blockStatement();
 
             if (statements instanceof Stmt.Block)
-                return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
+                return new Stmt.ModuleFunction(name, params, returnValues, (Stmt.Block)statements);
             else
                 errorAtCurrent("Expected block statement.");
 
@@ -408,18 +355,14 @@ public class Parser
 
     private Stmt constStatement() // could either be a variable or a function
     {
-        Token name = null;
-
         if(!match(TokenType.IDENTIFIER))
         {
             errorAtCurrent("Unexpected token: " + peek());
 
             return null;
         }
-        else
-        {
-            name = previous();
-        }
+
+        Token name = previous();
 
         if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a const
         {
@@ -450,7 +393,7 @@ public class Parser
             Stmt statements = blockStatement();
 
             if (statements instanceof Stmt.Block)
-                return new Stmt.Function(name, params, returnValues, (Stmt.Block)statements);
+                return new Stmt.ConstFunction(name, params, returnValues, (Stmt.Block)statements);
             else
                 errorAtCurrent("Expected block statement.");
 

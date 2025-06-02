@@ -6,8 +6,10 @@ abstract class Stmt {
 
     abstract void print();
 
+    abstract public <T> T accept(ConstVisitor<T> visitor);
+
     static class Expression extends Stmt {
-        final Expr expr;
+        Expr expr;
 
         Expression(Expr expr) {
             this.expr = expr;
@@ -21,6 +23,11 @@ abstract class Stmt {
         @Override
         void print() {
             expr.print();
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitExpressionStmt(this);
         }
 
         Expr getExpr() {
@@ -59,11 +66,16 @@ abstract class Stmt {
             }
             System.out.println("}");
         }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitBlockStmt(this);
+        }
     }
 
     static class Const extends Stmt {
         final Token name;
-        final Expr expr;
+        Expr expr;
 
         Const(Token name, Expr expr) {
             this.name = name;
@@ -96,6 +108,11 @@ abstract class Stmt {
             } else {
                 System.out.println(";");
             }
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitConstStmt(this);
         }
     }
 
@@ -135,15 +152,20 @@ abstract class Stmt {
                 System.out.println(";");
             }
         }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitModuleStmt(this);
+        }
     }
 
-    static class Function extends Stmt {
+    static class ModuleFunction extends Stmt {
         final Token name;
         final List<Token> parameters;
         final List<Token> returnValues;
         final Stmt.Block statements;
 
-        Function(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
+        ModuleFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
             this.name = name;
             this.parameters = parameters;
             this.statements = statements;
@@ -182,6 +204,63 @@ abstract class Stmt {
             System.out.println();
             statements.print();
         }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitModuleFunctionStmt(this);
+        }
+    }
+
+    static class ConstFunction extends Stmt {
+        final Token name;
+        final List<Token> parameters;
+        final List<Token> returnValues;
+        final Stmt.Block statements;
+
+        ConstFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
+            this.name = name;
+            this.parameters = parameters;
+            this.statements = statements;
+            this.returnValues = returnValues;
+        }
+
+        @Override
+        void evaluate() {
+        }
+
+        @Override
+        void print() {
+            System.out.print("def ");
+            System.out.print(name.lexeme);
+            System.out.printf("(");
+
+            for (int i = 0; i < parameters.size(); i++) {
+                System.out.printf(parameters.get(i).lexeme);
+
+                if (i < parameters.size() - 1)
+                    System.out.print(", ");
+            }
+
+            System.out.print(") ");
+
+            if (returnValues.size() > 0)
+                System.out.print("-> ");
+
+            for (int i = 0; i < returnValues.size(); i++) {
+                System.out.print(returnValues.get(i).lexeme);
+
+                if (i < returnValues.size() - 1)
+                    System.out.print(", ");
+            }
+
+            System.out.println();
+            statements.print();
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitConstFunctionStmt(this);
+        }
     }
 
     static class Enum extends Stmt {
@@ -206,6 +285,11 @@ abstract class Stmt {
             for (int i = 0; i < assignments.size(); i++)
                 assignments.get(i).print();
             System.out.println("};");
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitEnumStmt(this);
         }
     }
 
@@ -236,6 +320,11 @@ abstract class Stmt {
                 elseStmt.print();
             }
         }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitIfStmt(this);
+        }
     }
 
     static class While extends Stmt {
@@ -257,6 +346,11 @@ abstract class Stmt {
             condition.print();
             System.out.println();
             body.print();
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitWhileStmt(this);
         }
     }
 
@@ -287,6 +381,11 @@ abstract class Stmt {
             maxValue.print();
             System.out.println();
             body.print();
+        }
+
+        @Override
+        public <T> T accept(ConstVisitor<T> visitor) {
+            return visitor.visitForStmt(this);
         }
     }
 }
