@@ -1,5 +1,5 @@
-def XOR(a, b) -> out {
+module XOR(a, b) -> out {
     out = and(or(a, b), not(and(a, b)));
 }
 
-    module result = XOR(true, XOR(false, true));
+module result = XOR(true, XOR(false, true));

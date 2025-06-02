@@ -1,7 +1,7 @@
-def INV() -> out
+module INV() -> out
 {
 }
 
-def AND3() -> out
+module AND3() -> out
 {
 }

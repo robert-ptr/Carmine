@@ -1,8 +1,7 @@
-def xor(a, b) -> out
+module xor(a, b) -> out
 {
-    out = (a or b) and not(a and b);
+    out = and((a or b) not(a and b));
 }
 
-    print(xor(1, 0)); // this should print the structure
-
-    a = xor(0, 1);
+print(xor(1, 0)); // this should print the structure
+a = xor(0, 1);

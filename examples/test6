@@ -1,8 +1,8 @@
-def HALF_ADDER(a, b) -> sum, carry {
+module HALF_ADDER(a, b) -> sum, carry {
     sum = and(or(a, b), not(and(a, b)));
     carry = and(a, b);
 }
 
-    module s, c = HALF_ADDER(1, 1);
-    result = or(s, c);
+module s, c = HALF_ADDER(1, 1);
+result = or(s, c);
 

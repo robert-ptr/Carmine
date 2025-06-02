@@ -56,12 +56,14 @@ public class Debug implements GraphVisitor<Void> {
     @Override
     public Void visitLiteralExpr(Expr.Literal expr) {
         createNode(expr);
+
         return null;
     }
 
     @Override
     public Void visitIdentifierExpr(Expr.Variable expr) {
         createNode(expr.name);
+
         return null;
     }
 
@@ -89,6 +91,16 @@ public class Debug implements GraphVisitor<Void> {
 
     @Override
     public Void visitCallExpr(Expr.Call call) {
+        int initialId = nodeId;
+
+        createNode(call.callee);
+
+        for (Expr argument : call.arguments)
+        {
+            createConnection(initialId, nodeId);
+            createNode(argument);
+        }
+
         return null;
     }
 
@@ -174,18 +186,60 @@ public class Debug implements GraphVisitor<Void> {
     @Override
     public Void visitConstFunctionStmt(Stmt.ConstFunction constFunction)
     {
+        int initialId = nodeId;
+        createNode("CONST FUNC " + constFunction.name);
+
+        for (Token paramter : constFunction.parameters)
+        {
+            createConnection(initialId, nodeId);
+            createNode(paramter);
+        }
+
+        for (Token returnValue : constFunction.returnValues)
+        {
+            createConnection(initialId, nodeId);
+            createNode(returnValue);
+        }
+
+        createConnection(initialId, nodeId);
+        constFunction.statements.accept(this);
+
         return null;
     }
 
     @Override
     public Void visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
+        int initialId = nodeId;
+        createNode("CONST FUNC " + moduleFunction.name);
+
+        for (Token paramter : moduleFunction.parameters)
+        {
+            createConnection(initialId, nodeId);
+            createNode(paramter);
+        }
+
+        for (Token returnValue: moduleFunction.returnValues)
+        {
+            createConnection(initialId, nodeId);
+            createNode(returnValue);
+        }
+
+        createConnection(initialId, nodeId);
+        moduleFunction.statements.accept(this);
+
         return null;
     }
 
     @Override
     public Void visitModuleStmt(Stmt.Module module)
     {
+        int initialId = nodeId;
+
+        createNode("MODULE " + module.name);
+        createConnection(initialId, nodeId);
+        module.expr.accept(this);
+
         return null;
     }
 
@@ -204,12 +258,25 @@ public class Debug implements GraphVisitor<Void> {
     @Override
     public Void visitBlockStmt(Stmt.Block block)
     {
+        int initialId = nodeId;
+        createNode("BLOCK");
+
+        for (Stmt stmt : block.statements)
+        {
+            createConnection(initialId, nodeId);
+            stmt.accept(this);
+        }
+
         return null;
     }
 
     @Override
     public Void visitExpressionStmt(Stmt.Expression expression)
     {
+        createNode("EXPRESSION");
+        createConnection(nodeId - 1, nodeId);
+        expression.expr.accept(this);
+
         return null;
     }
 }

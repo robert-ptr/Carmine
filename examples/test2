@@ -1,8 +1,8 @@
-def OR(a, b) -> out {
+module OR(a, b) -> out {
     out = or(a, b);
 }
 
-    module x = false;
-    module y = true;
-    module output = OR(x, y);
+module x = false();
+module y = true();
+module output = OR(x, y);
 
