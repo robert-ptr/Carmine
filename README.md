@@ -1,5 +1,5 @@
-# CarmineHDL
-Carmine is a description language made with the end-goal of generating redstone circuits in Minecraft.
+# Carmine
+Carmine is a hardware description language made with the end-goal of generating redstone circuits in Minecraft.
 
 ## Language Features
 
