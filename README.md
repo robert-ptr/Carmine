@@ -1,5 +1,5 @@
 # Carmine
-Carmine is a hardware description language made with the end-goal of generating redstone circuits in Minecraft.
+Is a hardware description language made with the end-goal of generating redstone circuits in Minecraft.
 
 ## Language Features
 
