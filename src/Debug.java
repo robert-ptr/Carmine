@@ -35,7 +35,7 @@ public class Debug implements GraphVisitor<Void> {
 
     public void createNode(Expr expr)
     {
-        createNode(expr.evaluate().toString());
+        createNode(expr.toString());
     }
 
     public void createNode(Token expr)

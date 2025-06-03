@@ -26,6 +26,30 @@ public class Carmine {
             }
         });
 
+        constEnvironment.put("and", new CarmineCallable() {
+           @Override
+           public int arity() { return 2; }
+
+           @Override
+           public Object call(List<Object> arguments)
+           {
+               System.out.println(arguments.get(0));
+               return null;
+           }
+        });
+
+        constEnvironment.put("or", new CarmineCallable() {
+            @Override
+            public int arity() { return 2; }
+
+            @Override
+            public Object call(List<Object> arguments)
+            {
+                System.out.println(arguments.get(0));
+                return null;
+            }
+        });
+
         moduleEnvironment.put("true", new CarmineCallable() {
             @Override
             public int arity() {
@@ -110,7 +134,7 @@ public class Carmine {
         Debug debugger = new Debug();
 
         String dotContent = debugger.visualizeAST(statements);
-        System.out.println(dotContent);
+        //System.out.println(dotContent);
 
         try {
             Files.writeString(
@@ -123,6 +147,19 @@ public class Carmine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        DatabaseService database = DatabaseService.getInstance("jdbc:postgresql://localhost:5432/postgres",
+                "postgres",
+                "your_new_password",
+                "java",
+                "circuits");
+        AuditService audit = AuditService.getInstance();
+
+        database.connect();
+        //database.writeString(dotContent);
+        System.out.println(database.readString(1));
+
+        database.closeConnection();
     }
 
     private static void runFile(String path) throws IOException, IOException {

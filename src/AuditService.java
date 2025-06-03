@@ -1,8 +1,6 @@
 import java.io.FileWriter;
-import java.io.IO;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 public class AuditService {
     private static AuditService instance;

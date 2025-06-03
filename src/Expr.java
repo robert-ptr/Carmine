@@ -144,7 +144,10 @@ abstract class Expr {
         @Override
         Object evaluate() throws RuntimeException
         {
-            return Carmine.constEnvironment.get(name.lexeme);
+            if (Carmine.constEnvironment.contains(name))
+                return Carmine.constEnvironment.get(name);
+            else
+                return Carmine.moduleEnvironment.get(name);
         }
 
         @Override
