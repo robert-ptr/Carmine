@@ -159,6 +159,9 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("IF");
         createConnection(initialId, nodeId);
+        ifStmt.condition.accept(this);
+
+        createConnection(initialId, nodeId);
         ifStmt.thenStmt.accept(this);
 
         if (ifStmt.elseStmt != null) {
@@ -211,7 +214,7 @@ public class Debug implements GraphVisitor<Void> {
     public Void visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
         int initialId = nodeId;
-        createNode("CONST FUNC " + moduleFunction.name);
+        createNode("MODULE FUNC " + moduleFunction.name);
 
         for (Token paramter : moduleFunction.parameters)
         {
