@@ -152,13 +152,12 @@ public class Carmine {
                 "postgres",
                 "your_new_password",
                 "java",
-                "circuits");
-        AuditService audit = AuditService.getInstance();
+                "circuits_test");
 
         database.connect();
-        //database.writeString(dotContent);
-        System.out.println(database.readString(1));
-
+        database.writeCircuit("circuit_test", dotContent);
+        System.out.println(database.readCircuit("circuit_test"));
+        database.deleteCircuit("circuit_test");
         database.closeConnection();
     }
 
