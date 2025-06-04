@@ -1,4 +1,8 @@
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class DatabaseService {
@@ -200,6 +204,34 @@ public class DatabaseService {
         }
     }
 
+    public List<String> getAllCircuitsSorted() {
+        List<Circuit> circuits = new ArrayList<>();
+        String sql = "SELECT * FROM " + SCHEMA + "." + TABLE;
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String id = rs.getString("id");
+                String specStr = rs.getString("specification");
+                circuits.add(new Circuit(id, specStr));
+            }
+
+            Collections.sort(circuits, (c1, c2) -> c1.getId().compareToIgnoreCase(c2.getId()));
+            AuditService.logAction("Successfully retrieved and sorted " + circuits.size() + " circuits");
+
+            return circuits.stream()
+                    .map(Circuit::getSpecification)
+                    .collect(Collectors.toList());
+
+        } catch (SQLException e) {
+            System.err.println("Error reading all circuits!");
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+    }
+
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -208,6 +240,24 @@ public class DatabaseService {
         } catch (SQLException e) {
             System.err.println("Error closing connection!");
             e.printStackTrace();
+        }
+    }
+
+    private static class Circuit {
+        private final String id;
+        private final String specification;
+
+        public Circuit(String id, String specification) {
+            this.id = id;
+            this.specification = specification;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getSpecification() {
+            return specification;
         }
     }
 }
