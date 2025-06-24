@@ -295,7 +295,6 @@ public class Parser
 
         Token name = previous();
 
-
         if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a module
         {
             List<Token> params = new ArrayList<>();

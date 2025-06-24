@@ -147,18 +147,6 @@ public class Carmine {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        DatabaseService database = DatabaseService.getInstance("jdbc:postgresql://localhost:5432/postgres",
-                "postgres",
-                "your_new_password",
-                "java",
-                "circuits_test");
-
-        database.connect();
-        database.writeCircuit("circuit_test", dotContent);
-        System.out.println(database.readCircuit("circuit_test"));
-        database.deleteCircuit("circuit_test");
-        database.closeConnection();
     }
 
     private static void runFile(String path) throws IOException, IOException {

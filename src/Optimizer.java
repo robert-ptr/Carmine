@@ -1,9 +1,9 @@
 import java.util.List;
 
-public class Preprocessor implements ConstVisitor<Object> { // travels the AST graph and evaluates arithmetic expressions
+public class Optimizer implements ConstVisitor<Object> { // travels the AST graph and evaluates arithmetic expressions
                             // these are: Expr.Binary, Expr.Unary, Expr.Literal, Expr.Group and maybe Expr.Variable and Expr.Call
     final List<Stmt> statements;
-    Preprocessor(List<Stmt> statements) // traverse all the statements and search for the expressions
+    Optimizer(List<Stmt> statements) // traverse all the statements and search for the expressions
     {
         this.statements = statements;
     }
