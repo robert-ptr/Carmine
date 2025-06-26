@@ -1,7 +1,13 @@
-# Carmine
-Is a hardware description language made with the end-goal of generating redstone circuits in Minecraft.
+# 🧱 Carmine
+Is a hardware description language made with the end-goal of generating **working 3D redstone circuits in Minecraft**.
 
 ## Language Features
+- **Custom language syntax** for defining logic gates, modules, and control flow
+- **Compile-time constructs** like loops and if-statements
+- **Preprocessor** to evaluate constant expressions
+- **Graph-based IR** representing digital logic flow
+- **Circuit placer/router** (WIP) for 3D Minecraft redstone layout
+- **.dot graph visualization** support for AST and circuit structure
 
 ## Language Grammar
 ```text
