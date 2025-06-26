@@ -2,8 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class Expr {
-    abstract void print();
-
+    public abstract <T> T print(ASTVisitor<T> visitor);
     public abstract <T> T evaluate(ASTVisitor<T> visitor);
     public abstract <T> T buildTree(ASTVisitor<T> visitor);
 
@@ -64,21 +63,16 @@ abstract class Expr {
         }
 */
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitBinaryExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            left.print();
-            System.out.print(" " + operator.lexeme + " ");
-            right.print();
-            System.out.print(" ");
         }
     }
 
@@ -111,19 +105,16 @@ abstract class Expr {
         }
 */
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitUnaryExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            System.out.print(operator.lexeme + " ");
-            right.print();
         }
     }
 
@@ -152,18 +143,16 @@ abstract class Expr {
         }*/
 
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            System.out.print(name.lexeme);
         }
     }
 
@@ -205,20 +194,16 @@ abstract class Expr {
         }*/
 
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            System.out.print(name.lexeme + " = ");
-            right.print();
-            System.out.println();
         }
     }
 
@@ -239,21 +224,16 @@ abstract class Expr {
         }
 
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitLiteralExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            if (value != null)
-                System.out.print(value.toString());
-            else
-                System.out.print("null");
         }
     }
 
@@ -275,20 +255,16 @@ abstract class Expr {
     */
 
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitGroupExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            System.out.print("(");
-            expr.print();
-            System.out.print(")");
         }
     }
 
@@ -331,28 +307,16 @@ abstract class Expr {
         }*/
 
         @Override
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitCallExpr(this);
+        }
+        @Override
         public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
-
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
-        }
-
-        @Override
-        void print()
-        {
-            callee.print();
-            System.out.print("(");
-            for (int i = 0; i < arguments.size(); i++)
-            {
-                arguments.get(i).print();
-                if (i < arguments.size() - 1)
-                    System.out.print(", ");
-            }
-
-            System.out.print(")");
         }
     }
 }

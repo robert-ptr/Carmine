@@ -16,7 +16,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            expr.print();
+
         }
 
         @Override
@@ -59,12 +59,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.println("{");
-            for (Stmt stmt : statements) {
-                stmt.print();
-                System.out.println();
-            }
-            System.out.println("}");
+
         }
 
         @Override
@@ -106,14 +101,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("const " + name.lexeme + " ");
-            if (expr != null) {
-                System.out.print("= ");
-                expr.print();
-                System.out.print(";");
-            } else {
-                System.out.println(";");
-            }
+
         }
 
         @Override
@@ -154,14 +142,7 @@ abstract class Stmt {
 */
         @Override
         void print() {
-            System.out.print("module " + name.lexeme + " ");
-            if (expr != null) {
-                System.out.print("= ");
-                expr.print();
-                System.out.print(";");
-            } else {
-                System.out.println(";");
-            }
+
         }
 
         @Override
@@ -195,31 +176,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("def ");
-            System.out.print(name.lexeme);
-            System.out.printf("(");
 
-            for (int i = 0; i < parameters.size(); i++) {
-                System.out.printf(parameters.get(i).lexeme);
-
-                if (i < parameters.size() - 1)
-                    System.out.print(", ");
-            }
-
-            System.out.print(") ");
-
-            if (returnValues.size() > 0)
-                System.out.print("-> ");
-
-            for (int i = 0; i < returnValues.size(); i++) {
-                System.out.print(returnValues.get(i).lexeme);
-
-                if (i < returnValues.size() - 1)
-                    System.out.print(", ");
-            }
-
-            System.out.println();
-            statements.print();
         }
 
         @Override
@@ -252,31 +209,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("def ");
-            System.out.print(name.lexeme);
-            System.out.printf("(");
 
-            for (int i = 0; i < parameters.size(); i++) {
-                System.out.printf(parameters.get(i).lexeme);
-
-                if (i < parameters.size() - 1)
-                    System.out.print(", ");
-            }
-
-            System.out.print(") ");
-
-            if (returnValues.size() > 0)
-                System.out.print("-> ");
-
-            for (int i = 0; i < returnValues.size(); i++) {
-                System.out.print(returnValues.get(i).lexeme);
-
-                if (i < returnValues.size() - 1)
-                    System.out.print(", ");
-            }
-
-            System.out.println();
-            statements.print();
         }
 
         @Override
@@ -305,13 +238,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("enum ");
-            if (this.name != null)
-                System.out.println(this.name.lexeme);
-            System.out.println("{");
-            for (int i = 0; i < assignments.size(); i++)
-                assignments.get(i).print();
-            System.out.println("};");
+
         }
 
         @Override
@@ -342,15 +269,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("if ");
-            condition.print();
-            System.out.println();
-            thenStmt.print();
 
-            if (elseStmt != null) {
-                System.out.print("else ");
-                elseStmt.print();
-            }
         }
 
         @Override
@@ -379,10 +298,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.print("while ");
-            condition.print();
-            System.out.println();
-            body.print();
+
         }
 
         @Override
@@ -415,14 +331,7 @@ abstract class Stmt {
 
         @Override
         void print() {
-            System.out.println("for ");
-            init.print();
-            System.out.print("");
-            minValue.print();
-            System.out.print("..");
-            maxValue.print();
-            System.out.println();
-            body.print();
+
         }
 
         @Override
