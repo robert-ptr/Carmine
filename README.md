@@ -9,6 +9,15 @@ Is a hardware description language made with the end-goal of generating **workin
 - **Circuit placer/router** (WIP) for 3D Minecraft redstone layout
 - **.dot graph visualization** support for AST and circuit structure
 
+## Roadmap
+
+- [x] Lexer & Parser
+- [x] AST + Expression evaluation
+- [x] .dot output of AST
+- [ ] Module connection logic
+- [ ] Placement & routing
+- [ ] Redstone layout generation
+
 ## Language Grammar
 ```text
 program → { declaration } EOF ;
