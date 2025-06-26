@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class Debug implements GraphVisitor<Void> {
+public class TreeVisualizer implements ASTVisitor<Void> {
     public static List<ConstEnvironment> environments = new ArrayList<ConstEnvironment>();
 
     private int nodeId = 0;
@@ -26,7 +26,7 @@ public class Debug implements GraphVisitor<Void> {
 
         for (Stmt stmt : statements)
         {
-            stmt.accept(this);
+            stmt.buildTree(this);
         }
 
         builder.append("}\n");
@@ -71,7 +71,7 @@ public class Debug implements GraphVisitor<Void> {
     public Void visitUnaryExpr(Expr.Unary expr) {
         createNode(expr.operator);
         createConnection(nodeId - 1, nodeId);
-        expr.right.accept(this);
+        expr.right.buildTree(this);
         return null;
     }
 
@@ -82,9 +82,9 @@ public class Debug implements GraphVisitor<Void> {
 
         createConnection(initialId, nodeId);
 
-        expr.left.accept(this);
+        expr.left.buildTree(this);
         createConnection(initialId, nodeId);
-        expr.right.accept(this);
+        expr.right.buildTree(this);
 
         return null;
     }
@@ -108,7 +108,7 @@ public class Debug implements GraphVisitor<Void> {
     public Void visitGroupExpr(Expr.Group group) {
         createNode("GROUP");
         createConnection(nodeId - 1, nodeId);
-        group.expr.accept(this);
+        group.expr.buildTree(this);
 
         return null;
     }
@@ -117,7 +117,7 @@ public class Debug implements GraphVisitor<Void> {
     public Void visitAssignmentExpr(Expr.Assignment assignment) {
         createNode("ASSIGNMENT " + assignment.name);
         createConnection(nodeId - 1, nodeId);
-        assignment.right.accept(this);
+        assignment.right.buildTree(this);
 
         return null;
     }
@@ -135,7 +135,7 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("FOR");
         createConnection(initialId, nodeId);
-        forStmt.body.accept(this);
+        forStmt.body.buildTree(this);
 
         return null;
     }
@@ -146,9 +146,9 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("WHILE");
         createConnection(initialId, nodeId);
-        whileStmt.condition.accept(this);
+        whileStmt.condition.buildTree(this);
         createConnection(initialId, nodeId);
-        whileStmt.body.accept(this);
+        whileStmt.body.buildTree(this);
 
         return null;
     }
@@ -159,14 +159,14 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("IF");
         createConnection(initialId, nodeId);
-        ifStmt.condition.accept(this);
+        ifStmt.condition.buildTree(this);
 
         createConnection(initialId, nodeId);
-        ifStmt.thenStmt.accept(this);
+        ifStmt.thenStmt.buildTree(this);
 
         if (ifStmt.elseStmt != null) {
             createConnection(initialId, nodeId);
-            ifStmt.elseStmt.accept(this);
+            ifStmt.elseStmt.buildTree(this);
         }
 
         return null;
@@ -180,7 +180,7 @@ public class Debug implements GraphVisitor<Void> {
         for (Expr assignment : enumStmt.assignments)
         {
             createConnection(initialId, nodeId);
-            assignment.accept(this);
+            assignment.buildTree(this);
         }
 
         return null;
@@ -205,7 +205,7 @@ public class Debug implements GraphVisitor<Void> {
         }
 
         createConnection(initialId, nodeId);
-        constFunction.statements.accept(this);
+        constFunction.statements.buildTree(this);
 
         return null;
     }
@@ -229,7 +229,7 @@ public class Debug implements GraphVisitor<Void> {
         }
 
         createConnection(initialId, nodeId);
-        moduleFunction.statements.accept(this);
+        moduleFunction.statements.buildTree(this);
 
         return null;
     }
@@ -241,7 +241,7 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("MODULE " + module.name);
         createConnection(initialId, nodeId);
-        module.expr.accept(this);
+        module.expr.buildTree(this);
 
         return null;
     }
@@ -253,7 +253,7 @@ public class Debug implements GraphVisitor<Void> {
 
         createNode("CONST " + constStmt.name);
         createConnection(initialId, nodeId);
-        constStmt.expr.accept(this);
+        constStmt.expr.buildTree(this);
 
         return null;
     }
@@ -267,7 +267,7 @@ public class Debug implements GraphVisitor<Void> {
         for (Stmt stmt : block.statements)
         {
             createConnection(initialId, nodeId);
-            stmt.accept(this);
+            stmt.buildTree(this);
         }
 
         return null;
@@ -278,7 +278,7 @@ public class Debug implements GraphVisitor<Void> {
     {
         createNode("EXPRESSION");
         createConnection(nodeId - 1, nodeId);
-        expression.expr.accept(this);
+        expression.expr.buildTree(this);
 
         return null;
     }

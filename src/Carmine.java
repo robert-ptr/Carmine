@@ -131,9 +131,9 @@ public class Carmine {
         //Debug.printEnvironments();
          */
 
-        Debug debugger = new Debug();
+        TreeVisualizer visualizer = new TreeVisualizer();
 
-        String dotContent = debugger.visualizeAST(statements);
+        String dotContent = visualizer.visualizeAST(statements);
         //System.out.println(dotContent);
 
         try {

@@ -1,4 +1,4 @@
-public interface GraphVisitor<T> {
+public interface ASTVisitor<T> {
     T visitLiteralExpr(Expr.Literal expr);
     T visitIdentifierExpr(Expr.Variable expr);
     T visitUnaryExpr(Expr.Unary expr);

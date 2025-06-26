@@ -2,12 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class Expr {
-    abstract Object evaluate();  // expressions return objects, because they produce values, statements don't(but they do have side effects).
-
     abstract void print();
 
-    public abstract <T> T accept(ConstVisitor<T> visitor);
-    public abstract <T> T accept(GraphVisitor<T> visitor);
+    public abstract <T> T evaluate(ASTVisitor<T> visitor);
+    public abstract <T> T buildTree(ASTVisitor<T> visitor);
 
     static class Binary extends Expr
     {
@@ -22,6 +20,7 @@ abstract class Expr {
             this.right = right;
         }
 
+        /*
         @Override
         Object evaluate()
         {
@@ -63,13 +62,13 @@ abstract class Expr {
                     return null;
             }
         }
-
+*/
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
 
@@ -94,6 +93,7 @@ abstract class Expr {
             this.right = right;
         }
 
+        /*
         @Override
         Object evaluate()
         {
@@ -109,13 +109,13 @@ abstract class Expr {
                     return null;
             }
         }
-
+*/
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
 
@@ -141,6 +141,7 @@ abstract class Expr {
             return name;
         }
 
+        /*
         @Override
         Object evaluate() throws RuntimeException
         {
@@ -148,14 +149,14 @@ abstract class Expr {
                 return Carmine.constEnvironment.get(name);
             else
                 return Carmine.moduleEnvironment.get(name);
-        }
+        }*/
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
 
@@ -182,6 +183,7 @@ abstract class Expr {
             return name;
         }
 
+        /*
         @Override
         Object evaluate()
         {
@@ -200,14 +202,14 @@ abstract class Expr {
 
                 return value;
             }
-        }
+        }*/
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
 
@@ -237,17 +239,11 @@ abstract class Expr {
         }
 
         @Override
-        Object evaluate()
-        {
-            return value;
-        }
-
-        @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
 
@@ -270,18 +266,20 @@ abstract class Expr {
             this.expr = expr;
         }
 
+        /*
         @Override
         Object evaluate()
         {
             return expr.evaluate();
         }
+    */
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
 
@@ -305,6 +303,7 @@ abstract class Expr {
             this.arguments = arguments;
         }
 
+        /*
         @Override
         Object evaluate()
         {
@@ -329,15 +328,15 @@ abstract class Expr {
                 throw new RuntimeException("Number of arguments does not match arity");
             }
             return function.call(args);
-        }
+        }*/
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
 
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
 

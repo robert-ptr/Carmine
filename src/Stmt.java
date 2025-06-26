@@ -2,12 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class Stmt {
-    abstract void evaluate();
-
     abstract void print();
 
-    abstract public <T> T accept(ConstVisitor<T> visitor);
-    abstract public <T> T accept(GraphVisitor<T> visitor);
+    abstract public <T> T evaluate(ASTVisitor<T> visitor);
+    abstract public <T> T buildTree(ASTVisitor<T> visitor);
 
     static class Expression extends Stmt {
         Expr expr;
@@ -17,21 +15,16 @@ abstract class Stmt {
         }
 
         @Override
-        void evaluate() {
-            expr.evaluate();
-        }
-
-        @Override
         void print() {
             expr.print();
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
 
@@ -47,6 +40,7 @@ abstract class Stmt {
             this.statements = statements;
         }
 
+        /*
         @Override
         void evaluate() {
             ConstEnvironment blockConstEnvironment = new ConstEnvironment();
@@ -61,6 +55,7 @@ abstract class Stmt {
             Debug.environments.add(blockConstEnvironment);
             Carmine.constEnvironment = (ConstEnvironment) blockConstEnvironment.getEnclosing();
         }
+         */
 
         @Override
         void print() {
@@ -73,11 +68,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitBlockStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitBlockStmt(this);
         }
     }
@@ -91,6 +86,7 @@ abstract class Stmt {
             this.expr = expr;
         }
 
+        /*
         @Override
         void evaluate() {
             ConstEnvironment env = Carmine.constEnvironment;
@@ -106,6 +102,7 @@ abstract class Stmt {
             else
                 Carmine.constEnvironment.put(name.lexeme, null);
         }
+        */
 
         @Override
         void print() {
@@ -120,11 +117,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitConstStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitConstStmt(this);
         }
     }
@@ -138,6 +135,7 @@ abstract class Stmt {
             this.expr = expr;
         }
 
+        /*
         @Override
         void evaluate() {
             ModuleEnvironment env = Carmine.moduleEnvironment;
@@ -153,7 +151,7 @@ abstract class Stmt {
             else
                 Carmine.constEnvironment.put(name.lexeme, null);
         }
-
+*/
         @Override
         void print() {
             System.out.print("module " + name.lexeme + " ");
@@ -167,11 +165,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitModuleStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitModuleStmt(this);
         }
     }
@@ -189,9 +187,11 @@ abstract class Stmt {
             this.returnValues = returnValues;
         }
 
+        /*
         @Override
         void evaluate() {
         }
+         */
 
         @Override
         void print() {
@@ -223,11 +223,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitModuleFunctionStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitModuleFunctionStmt(this);
         }
     }
@@ -245,9 +245,10 @@ abstract class Stmt {
             this.returnValues = returnValues;
         }
 
+        /*
         @Override
         void evaluate() {
-        }
+        }*/
 
         @Override
         void print() {
@@ -279,11 +280,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitConstFunctionStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitConstFunctionStmt(this);
         }
     }
@@ -297,9 +298,10 @@ abstract class Stmt {
             this.assignments = assignments;
         }
 
+        /*
         @Override
         void evaluate() {
-        }
+        }*/
 
         @Override
         void print() {
@@ -313,11 +315,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitEnumStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitEnumStmt(this);
         }
     }
@@ -333,9 +335,10 @@ abstract class Stmt {
             this.elseStmt = elseStmt;
         }
 
+        /*
         @Override
         void evaluate() {
-        }
+        }*/
 
         @Override
         void print() {
@@ -351,11 +354,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitIfStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitIfStmt(this);
         }
     }
@@ -369,9 +372,10 @@ abstract class Stmt {
             this.body = body;
         }
 
+        /*
         @Override
         void evaluate() {
-        }
+        }*/
 
         @Override
         void print() {
@@ -382,11 +386,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitWhileStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitWhileStmt(this);
         }
     }
@@ -404,9 +408,10 @@ abstract class Stmt {
             this.body = body;
         }
 
+        /*
         @Override
         void evaluate() {
-        }
+        }*/
 
         @Override
         void print() {
@@ -421,11 +426,11 @@ abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ConstVisitor<T> visitor) {
+        public <T> T evaluate(ASTVisitor<T> visitor) {
             return visitor.visitForStmt(this);
         }
         @Override
-        public <T> T accept(GraphVisitor<T> visitor) {
+        public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitForStmt(this);
         }
     }

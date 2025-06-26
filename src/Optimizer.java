@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class Optimizer implements ConstVisitor<Object> { // travels the AST graph and evaluates arithmetic expressions
+public class Optimizer implements ASTVisitor<Object> { // travels the AST graph and evaluates arithmetic expressions
                             // these are: Expr.Binary, Expr.Unary, Expr.Literal, Expr.Group and maybe Expr.Variable and Expr.Call
     final List<Stmt> statements;
     Optimizer(List<Stmt> statements) // traverse all the statements and search for the expressions
@@ -12,7 +12,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     {
         for (Stmt statement : statements)
         {
-            statement.accept(this);
+            statement.evaluate(this);
         }
     }
     @Override
@@ -34,12 +34,18 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     }
 
     @Override
+    public Object visitIdentifierExpr(Expr.Variable expr)
+    {
+        return expr;
+    }
+
+    @Override
     public Object visitUnaryExpr(Expr.Unary expr)
     {
-        Expr right = (Expr) expr.right.accept(this);
+        Expr right = (Expr) expr.right.evaluate(this);
         if (right instanceof Expr.Literal)
         {
-            return new Expr.Literal(expr.evaluate());
+            return new Expr.Literal(expr.evaluate(this));
         }
         else
         {
@@ -51,12 +57,12 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitBinaryExpr(Expr.Binary expr)
     {
-        Expr left = (Expr) expr.left.accept(this);
-        Expr right = (Expr) expr.right.accept(this);
+        Expr left = (Expr) expr.left.evaluate(this);
+        Expr right = (Expr) expr.right.evaluate(this);
 
         if (left instanceof Expr.Literal && right instanceof Expr.Literal)
         {
-            return new Expr.Literal(expr.evaluate());
+            return new Expr.Literal(expr.evaluate(this));
         }
         else
         {
@@ -74,13 +80,13 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitGroupExpr(Expr.Group group)
     {
-        return group.expr.accept(this);
+        return group.expr.evaluate(this);
     }
 
     @Override
     public Object visitAssignmentExpr(Expr.Assignment assignment)
     {
-        Expr right = (Expr) assignment.right.accept(this);
+        Expr right = (Expr) assignment.right.evaluate(this);
 
         if (right instanceof Expr.Literal) // !!will have to check for exception later, in loops!!
         {
@@ -100,7 +106,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitWhileStmt(Stmt.While whileStmt)
     {
-        Expr condition = (Expr)whileStmt.condition.accept(this);
+        Expr condition = (Expr)whileStmt.condition.evaluate(this);
 
         if (!(condition instanceof Expr.Literal))
         {
@@ -109,7 +115,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
         }
 
         whileStmt.condition = condition; // change condition to the new evaluated value
-        whileStmt.body.accept(this); // this will evaluate all the expressions in the body
+        whileStmt.body.evaluate(this); // this will evaluate all the expressions in the body
 
         return null;
     }
@@ -117,7 +123,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitIfStmt(Stmt.If ifStmt)
     {
-        Expr condition = (Expr)ifStmt.condition.accept(this);
+        Expr condition = (Expr)ifStmt.condition.evaluate(this);
 
         if (!(condition instanceof Expr.Literal))
         {
@@ -127,8 +133,8 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
 
         ifStmt.condition = condition; // change condition to the new evaluated value
 
-        ifStmt.thenStmt.accept(this);
-        ifStmt.elseStmt.accept(this);
+        ifStmt.thenStmt.evaluate(this);
+        ifStmt.elseStmt.evaluate(this);
 
         return null;
     }
@@ -138,7 +144,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     {
         for (Expr assignment : enumStmt.assignments)
         {
-            assignment = (Expr.Assignment)assignment.accept(this); // test this out
+            assignment = (Expr.Assignment)assignment.evaluate(this); // test this out
         }
 
         return null;
@@ -147,7 +153,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitConstFunctionStmt(Stmt.ConstFunction constFunction)
     {
-        constFunction.statements.accept(this);
+        constFunction.statements.evaluate(this);
 
         return null;
     }
@@ -156,7 +162,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
-        moduleFunction.statements.accept(this);
+        moduleFunction.statements.evaluate(this);
 
         return null;
     }
@@ -164,7 +170,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitModuleStmt(Stmt.Module module)
     {
-        Expr right = (Expr)module.expr.accept(this);
+        Expr right = (Expr)module.expr.evaluate(this);
 
         if (right instanceof Expr.Literal)
         {
@@ -177,7 +183,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitConstStmt(Stmt.Const constStmt)
     {
-        Expr right = (Expr)constStmt.expr.accept(this);
+        Expr right = (Expr)constStmt.expr.evaluate(this);
 
         if (!(right instanceof Expr.Literal))
         {
@@ -195,7 +201,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     public Object visitBlockStmt(Stmt.Block block)
     {
         for (Stmt stmt : block.statements)
-            stmt.accept(this);
+            stmt.evaluate(this);
 
         return null;
     }
@@ -203,7 +209,7 @@ public class Optimizer implements ConstVisitor<Object> { // travels the AST grap
     @Override
     public Object visitExpressionStmt(Stmt.Expression expression)
     {
-        expression.expr = (Expr) expression.expr.accept(this); // if expr is an arithmetic expression, evaluate it and save it
+        expression.expr = (Expr) expression.expr.evaluate(this); // if expr is an arithmetic expression, evaluate it and save it
 
         return null;
     }
