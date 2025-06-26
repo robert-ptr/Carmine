@@ -12,8 +12,8 @@ Is a hardware description language made with the end-goal of generating **workin
 ## Roadmap
 
 - [x] Lexer & Parser
-- [x] AST + Expression evaluation
 - [x] .dot output of AST
+- [ ] AST optimization (loop unrolling, constant folding) - WIP
 - [ ] Module connection logic
 - [ ] Placement & routing
 - [ ] Redstone layout generation
