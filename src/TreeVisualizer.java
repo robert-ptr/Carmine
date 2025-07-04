@@ -48,6 +48,8 @@ public class TreeVisualizer implements ASTVisitor<Void> {
         builder.append("node" + nodeId++ + "[label=\"" + expr + "\"];\n");
     }
 
+    public void createNode(Object obj) { builder.append("node" + nodeId++ + "[label=\"" + obj + "\"];\n"); }
+
     public void createConnection(int id1, int id2)
     {
         builder.append("node" + id1 + " -> " + "node" + id2 + ";\n");
@@ -55,7 +57,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
     @Override
     public Void visitLiteralExpr(Expr.Literal expr) {
-        createNode(expr);
+        createNode(expr.value);
 
         return null;
     }

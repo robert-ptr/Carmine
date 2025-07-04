@@ -172,7 +172,7 @@ public class Scanner {
                     return makeToken(TokenType.NOTEQUAL);
                 }
                 //return makeToken(TokenType.NOT);
-                Carmine.error("Unknown literal: '" + c + "' at line " + line) ;
+                Logger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
                 return makeToken(TokenType.ERR);
             case '+':
                 return makeToken(TokenType.PLUS);
@@ -234,7 +234,7 @@ public class Scanner {
                 }
                 else
                 {
-                    Carmine.error("Unknown literal: '" + c + "' at line " + line) ;
+                    Logger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
                     return makeToken(TokenType.ERR);
                 }
         }

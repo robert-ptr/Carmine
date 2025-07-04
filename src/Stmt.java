@@ -224,9 +224,9 @@ abstract class Stmt {
 
     static class Enum extends Stmt {
         Token name;
-        final ArrayList<Expr> assignments;
+        final ArrayList<Expr.Assignment> assignments;
 
-        Enum(Token name, ArrayList<Expr> assignments) {
+        Enum(Token name, ArrayList<Expr.Assignment> assignments) {
             this.name = name;
             this.assignments = assignments;
         }

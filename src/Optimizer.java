@@ -18,7 +18,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitLiteralExpr(Expr.Literal expr)
     {
-        return expr;
+        return expr.value;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     {
         if (Carmine.constEnvironment.contains(expr.name))
         {
-            return new Expr.Literal(Carmine.constEnvironment.get(expr.name));
+            return (Carmine.constEnvironment).get(expr.name);
         }
 
         return expr; // it's a module, so leave it as it is
@@ -42,31 +42,190 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitUnaryExpr(Expr.Unary expr)
     {
-        Expr right = (Expr) expr.right.evaluate(this);
-        if (right instanceof Expr.Literal)
+        Object right = expr.right.evaluate(this);
+
+        Token operator = expr.operator;
+
+        if (right instanceof Integer)
         {
-            return new Expr.Literal(expr.evaluate(this));
+            Logger.log(expr, "Right is of type Integer", LogLevel.DEBUG);
+            if (operator.type == TokenType.MINUS)
+                return -(Integer)right;
+            else
+                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
-        else
+        else if (right instanceof Number)
         {
-            Carmine.error(expr.operator.line + "Can't apply unary operator to non-const value.");
-            return null;
+            Logger.log(expr, "Right is of type Number", LogLevel.DEBUG);
+            if (operator.type == TokenType.MINUS)
+                return -((Number) right).doubleValue();
+            else
+                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
+        else if (right instanceof Boolean)
+        {
+            Logger.log(expr, "Right is of type Boolean", LogLevel.DEBUG);
+            if (operator.type == TokenType.NOT)
+                return !((Boolean) right);
+            else
+                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
+        }
+
+        Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.ERROR);
+        return null;
     }
 
     @Override
     public Object visitBinaryExpr(Expr.Binary expr)
     {
-        Expr left = (Expr) expr.left.evaluate(this);
-        Expr right = (Expr) expr.right.evaluate(this);
+        Object obj1 = expr.left.evaluate(this);
+        Object obj2 = expr.right.evaluate(this);
 
-        if (left instanceof Expr.Literal && right instanceof Expr.Literal)
+        if (obj1 == null || obj2 == null)
         {
-            return new Expr.Literal(expr.evaluate(this));
+            Logger.log(expr, "obj1 or obj2 are null", LogLevel.DEBUG);
+            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
+            return null;
+        }
+
+        Token operator = expr.operator;
+
+        if (obj1 instanceof Integer && obj2 instanceof Integer)
+        {
+            Logger.log(expr, "obj1 and obj2 are of type Integer", LogLevel.DEBUG);
+
+            Integer left = (Integer) obj1;
+            Integer right = (Integer) obj2;
+
+            switch (operator.type) {
+                case PLUS:
+                    return left + right;
+                case MINUS:
+                    return left - right;
+                case MUL:
+                    return left * right;
+                case DIV:
+                    return left / right;
+                case MOD:
+                    return left % right;
+                case EXP:
+                    return Math.pow(left, right);
+                case EQUAL:
+                    return left.equals(right); // will need to test this later
+                case NOTEQUAL:
+                    return !left.equals(right);
+                case GREATER:
+                    return left > right;
+                case LESS:
+                    return left < right;
+                case GREATER_EQUAL:
+                    return left >= right;
+                case LESS_EQUAL:
+                    return left <= right;
+                default:
+                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    return null;
+            }
+        }
+        else if (obj1 instanceof Number && obj2 instanceof Number) {
+            Logger.log(expr, "obj1 and obj2 are of type Number", LogLevel.DEBUG);
+
+            Number left = (Number) obj1;
+            Number right = (Number) obj2;
+
+            switch (operator.type) {
+                case PLUS:
+                    return left.doubleValue() + right.doubleValue();
+                case MINUS:
+                    return left.doubleValue() - right.doubleValue();
+                case MUL:
+                    return left.doubleValue() * right.doubleValue();
+                case DIV:
+                    return left.doubleValue() / right.doubleValue();
+                case MOD:
+                    return left.doubleValue() % right.doubleValue();
+                case EXP:
+                    return Math.pow(left.doubleValue(), right.doubleValue());
+                case EQUAL:
+                    return left.equals(right); // will need to test this later
+                case NOTEQUAL:
+                    return !left.equals(right);
+                case GREATER:
+                    return left.doubleValue() > right.doubleValue();
+                case LESS:
+                    return left.doubleValue() < right.doubleValue();
+                case GREATER_EQUAL:
+                    return left.doubleValue() >= right.doubleValue();
+                case LESS_EQUAL:
+                    return left.doubleValue() <= right.doubleValue();
+                default:
+                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    return null;
+            }
+        }
+        else if (obj1 instanceof Boolean && obj2 instanceof Boolean)
+        {
+            Boolean left = (Boolean)obj1;
+            Boolean right = (Boolean)obj2;
+            switch (operator.type)
+            {
+                case OR:
+                    return left || right;
+                case AND:
+                    return left && right;
+                default:
+                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    return null;
+            }
+        }
+        else if (obj1 instanceof String && obj2 instanceof String)
+        {
+            String left = (String)obj1;
+            String right = (String)obj2;
+            switch (operator.type)
+            {
+                case PLUS:
+                    return left + right;
+                case EQUAL:
+                    return left.equals(right);
+                case NOTEQUAL:
+                    return !left.equals(right);
+                default:
+                    Logger.log(expr, "Operator can't be used on strings: " + operator, LogLevel.ERROR);
+                    return null;
+
+            }
+        }
+        else if (obj1 instanceof String && obj2 instanceof Double)
+        {
+            String left = (String)obj1;
+            Double right = (Double)obj2;
+
+            if (operator.type == TokenType.PLUS)
+                return left + right;
+            else
+            {
+                Logger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
+                return null;
+            }
+        }
+        else if (obj1 instanceof Double && obj2 instanceof String)
+        {
+            Double left = (Double)obj1;
+            String right = (String)obj2;
+
+            if (operator.type == TokenType.PLUS)
+                return left + right;
+            else
+            {
+                Logger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
+                return null;
+            }
         }
         else
         {
-            Carmine.error(expr.operator.line + "Can't apply binary operator to non-const value.");
+            Logger.log(expr, "obj1 or obj2 are of wrong types", LogLevel.DEBUG);
+            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
             return null;
         }
     }
@@ -86,15 +245,16 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitAssignmentExpr(Expr.Assignment assignment)
     {
-        Expr right = (Expr) assignment.right.evaluate(this);
+        Object right = assignment.right.evaluate(this);
+        assignment.right = new Expr.Literal(assignment.getLine(), right);
 
-        if (right instanceof Expr.Literal) // !!will have to check for exception later, in loops!!
+        if (right instanceof Expr.Literal) // !!will have to check for the exception to this rule later, in loops!!
         {
-            Carmine.error(assignment.name.line + "Can't reassign const value.");
+            Logger.log(assignment, "Can't reassign const value.", LogLevel.ERROR);
             return null;
         }
 
-        return assignment;
+        return right;
     }
 
     @Override
@@ -110,7 +270,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
 
         if (!(condition instanceof Expr.Literal))
         {
-            Carmine.error("Condition of while loop is not evaluable."); // TO DO: add way to get line number
+            Logger.log(condition, "Condition of while loop is not evaluable.", LogLevel.ERROR); // TO DO: add way to get line number
             return null;
         }
 
@@ -127,7 +287,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
 
         if (!(condition instanceof Expr.Literal))
         {
-            Carmine.error("Condition of while loop is not evaluable."); // TO DO: add way to get line number
+            Logger.log(condition, "Condition of while loop is not evaluable.", LogLevel.ERROR); // TO DO: add way to get line number
             return null;
         }
 
@@ -142,9 +302,9 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitEnumStmt(Stmt.Enum enumStmt)
     {
-        for (Expr assignment : enumStmt.assignments)
+        for (Expr.Assignment assignment : enumStmt.assignments)
         {
-            assignment = (Expr.Assignment)assignment.evaluate(this); // test this out
+            assignment.right = new Expr.Literal(assignment.getLine(), assignment.evaluate(this)); // test this out
         }
 
         return null;
@@ -174,7 +334,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
 
         if (right instanceof Expr.Literal)
         {
-            Carmine.error("Can't assign const value to a module."); // TO DO: add way to obtain line number
+            Logger.log(right, "Can't assign const value to a module.", LogLevel.ERROR); // TO DO: add way to obtain line number
         }
 
         return null;
@@ -183,16 +343,16 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitConstStmt(Stmt.Const constStmt)
     {
-        Expr right = (Expr)constStmt.expr.evaluate(this);
+        constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), constStmt.expr.evaluate(this));
 
+        /*
         if (!(right instanceof Expr.Literal))
         {
-            Carmine.error("Const expression is not evaluable."); // TO DO: add way to obtain line number
+            Logger.log(right, "Const expression is not evaluable.", LogLevel.ERROR); // TO DO: add way to obtain line number
 
             return null;
         }
-
-        constStmt.expr = right;
+         */
 
         return null;
     }

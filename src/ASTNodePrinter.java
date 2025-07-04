@@ -1,7 +1,7 @@
 public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitLiteralExpr(Expr.Literal expr) {
         if (expr.value != null)
-            System.out.print(expr.value.toString());
+            System.out.print(expr.value);
         else
             System.out.print("null");
 

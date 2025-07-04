@@ -102,11 +102,6 @@ public class Carmine {
         return constEnvironment;
     }
 
-    public static void error(String message)
-    {
-        System.err.println(message);
-    }
-    public static void error(Token token, String message) { System.err.println(token.line + " " + message); }
     private static void run(String code)
     {
         Scanner scanner = new Scanner(code);
@@ -132,6 +127,9 @@ public class Carmine {
          */
 
         TreeVisualizer visualizer = new TreeVisualizer();
+        Optimizer optimizer = new Optimizer(statements);
+
+        optimizer.evaluateArithmeticAST();
 
         String dotContent = visualizer.visualizeAST(statements);
         //System.out.println(dotContent);

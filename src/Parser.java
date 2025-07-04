@@ -37,7 +37,7 @@ public class Parser
 
     private void errorAtCurrent(String message)
     {
-         Carmine.error(peek(), message);
+         Logger.log(peek(), message, LogLevel.ERROR) ;
     }
 
     private boolean check(TokenType type)
@@ -208,7 +208,7 @@ public class Parser
         {
             List<Expr> args = arguments();
 
-            return new Expr.Call(expr, args);
+            return new Expr.Call(peek().line, expr, args);
         }
         else
         {
@@ -219,10 +219,10 @@ public class Parser
     private Expr primary()
     {
         if (match(TokenType.TRUE))
-            return new Expr.Literal(true);
+            return new Expr.Literal(peek().line,true);
 
         if (match(TokenType.FALSE))
-            return new Expr.Literal(false);
+            return new Expr.Literal(peek().line, false);
 
         if (match(TokenType.LPAREN))
         {
@@ -230,20 +230,20 @@ public class Parser
             if (!match(TokenType.RPAREN))
                 errorAtCurrent("Expected matching ')' for '('.");
 
-            return new Expr.Group(expr);
+            return new Expr.Group(peek().line, expr);
         }
 
         if (match(TokenType.DECIMAL))
-            return new Expr.Literal(Integer.parseInt(previous().lexeme));
+            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme));
 
         if (match(TokenType.HEXADECIMAL))
-            return new Expr.Literal(Integer.parseInt(previous().lexeme, 16));
+            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 16));
 
         if (match(TokenType.BINARY))
-            return new Expr.Literal(Integer.parseInt(previous().lexeme, 2));
+            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 2));
 
         if (match(TokenType.NULL))
-            return new Expr.Literal(null);
+            return new Expr.Literal(peek().line, null);
 
         if (match(TokenType.IDENTIFIER))
             return new Expr.Variable(previous());
@@ -432,7 +432,7 @@ public class Parser
         if (!match(TokenType.LBRACE))
              errorAtCurrent("Expected '{'.");
 
-        ArrayList<Expr> assignments = new ArrayList<>();
+        ArrayList<Expr.Assignment> assignments = new ArrayList<>();
 
         do
         {
@@ -446,7 +446,7 @@ public class Parser
             {
                  errorAtCurrent("Invalid assignment.");
             }
-            assignments.add(assignment);
+            assignments.add((Expr.Assignment)assignment);
         } while (match(TokenType.COMMA));
 
         if (!match(TokenType.RBRACE) && !found_brace)

@@ -6,11 +6,13 @@ abstract class Expr {
     public abstract <T> T evaluate(ASTVisitor<T> visitor);
     public abstract <T> T buildTree(ASTVisitor<T> visitor);
 
+    public abstract int getLine();
+
     static class Binary extends Expr
     {
-        final Expr left;
-        final Expr right;
-        final Token operator;
+        Expr left;
+        Expr right;
+        Token operator;
 
         Binary(Expr left, Token operator, Expr right)
         {
@@ -74,12 +76,17 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return operator.line;
+        }
     }
 
     static class Unary extends Expr
     {
-        final Expr right;
-        final Token operator;
+        Expr right;
+        Token operator;
 
         Unary(Token operator, Expr right)
         {
@@ -116,11 +123,16 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return operator.line;
+        }
     }
 
     static class Variable extends Expr
     {
-        final Token name;
+        Token name;
 
         Variable(Token name)
         {
@@ -154,12 +166,17 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return name.line;
+        }
     }
 
     static class Assignment extends Expr
     {
-        final Token name;
-        final Expr right;
+        Token name;
+        Expr right;
 
         Assignment(Token name, Expr right)
         {
@@ -205,12 +222,17 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return name.line;
+        }
     }
 
     static class Literal extends Expr
     {
-        final Object value;
-
+        Object value;
+        int line;
         /*
         Literal(Token value)
         {
@@ -218,7 +240,7 @@ abstract class Expr {
         }
         */
 
-        Literal(Object value)
+        Literal(int line, Object value)
         {
             this.value = value;
         }
@@ -235,13 +257,19 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return this.line;
+        }
     }
 
     static class Group extends Expr
     {
-        final Expr expr;
+        Expr expr;
+        int line;
 
-        Group(Expr expr)
+        Group(int line, Expr expr)
         {
             this.expr = expr;
         }
@@ -266,14 +294,21 @@ abstract class Expr {
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
+        @Override
+        public int getLine()
+        {
+            return this.line;
+        }
     }
 
     static class Call extends Expr
     {
-        final Expr callee; // test this
-        final List<Expr> arguments;
+        Expr callee; // test this
+        List<Expr> arguments;
 
-        Call(Expr callee, List<Expr> arguments)
+        int line;
+
+        Call(int line, Expr callee, List<Expr> arguments)
         {
             this.callee = callee;
             this.arguments = arguments;
@@ -317,6 +352,11 @@ abstract class Expr {
         @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
+        }
+        @Override
+        public int getLine()
+        {
+            return this.line;
         }
     }
 }
