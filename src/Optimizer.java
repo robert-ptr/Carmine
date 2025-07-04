@@ -1,31 +1,7 @@
 import java.util.List;
 
-public class Optimizer implements ASTVisitor<Object> { // travels the AST graph and evaluates arithmetic expressions
-                            // these are: Expr.Binary, Expr.Unary, Expr.Literal, Expr.Group and maybe Expr.Variable and Expr.Call
-    final List<Stmt> statements;
-    Optimizer(List<Stmt> statements) // traverse all the statements and search for the expressions
-    {
-        this.statements = statements;
-    }
-
-    void constantPropagation()
-    {
-
-    }
-
-    void constantFolding()
-    {
-        for (Stmt statement : statements)
-        {
-            statement.fold(this);
-        }
-    }
-
-    void loopUnrolling()
-    {
-
-    }
-
+class ConstantFolder implements ASTVisitor<Object>
+{
     boolean isTruthy(Object o)
     {
         if (o instanceof Integer)
@@ -54,14 +30,14 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr) // check if module or const
-                                                        // this might be tricky, check function evaluation
+    // this might be tricky, check function evaluation
     {
         if (Carmine.constEnvironment.contains(expr.name))
         {
             return (Carmine.constEnvironment).get(expr.name);
         }
 
-        return expr; // it's a module, so leave it as it is
+        return null; // it's a module, so leave it as it is
     }
 
     @Override
@@ -96,7 +72,12 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
                 Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
 
-        Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.ERROR);
+        if (right != null) {
+            Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.ERROR);
+            return null;
+        }
+        Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.WARN); // most likely an identifier
+
         return null;
     }
 
@@ -106,9 +87,24 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
         Object obj1 = expr.left.fold(this);
         Object obj2 = expr.right.fold(this);
 
-        if (obj1 == null || obj2 == null)
+        if (obj1 == null)
         {
-            Logger.log(expr, "obj1 or obj2 are null", LogLevel.DEBUG);
+            if (obj2 != null)
+            {
+                expr.right = new Expr.Literal(expr.getLine(), obj2);
+                return null;
+            }
+
+            Logger.log(expr, "obj1 and obj2 are null", LogLevel.DEBUG);
+            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
+            return null;
+        }
+
+        if (obj2 == null)
+        {
+            expr.left = new Expr.Literal(expr.getLine(), obj1); // obj1 is not null otherwise the function would have returned null
+
+            Logger.log(expr, "Obj2 is null", LogLevel.DEBUG);
             Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
             return null;
         }
@@ -287,7 +283,8 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     public Object visitAssignmentExpr(Expr.Assignment assignment)
     {
         Object right = assignment.right.fold(this);
-        assignment.right = new Expr.Literal(assignment.getLine(), right);
+        if (right != null)
+            assignment.right = new Expr.Literal(assignment.getLine(), right);
 
         if (right instanceof Expr.Literal) // !!will have to check for the exception to this rule later, in loops!!
         {
@@ -360,7 +357,10 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitConstStmt(Stmt.Const constStmt)
     {
-        constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), constStmt.expr.fold(this));
+        Object value = constStmt.expr.fold(this);
+
+        if (value != null)
+            constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), value);
 
         /*
         if (!(right instanceof Expr.Literal))
@@ -386,8 +386,132 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitExpressionStmt(Stmt.Expression expression)
     {
-        expression.expr = (Expr) expression.expr.fold(this); // if expr is an arithmetic expression, evaluate it and save it
+        expression.expr.fold(this); // if expr is an arithmetic expression, evaluate it and save it
 
         return null;
+    }
+}
+
+class ConstantPropagator implements ASTVisitor<Void>
+{
+    public Void visitLiteralExpr(Expr.Literal expr)
+    {
+        return null;
+    }
+
+    public Void visitUnaryExpr(Expr.Unary expr)
+    {
+        return null;
+    }
+
+    public Void visitBinaryExpr(Expr.Binary expr)
+    {
+        return null;
+    }
+
+    public Void visitCallExpr(Expr.Call call)
+    {
+        return null;
+    }
+
+    public Void visitGroupExpr(Expr.Group group)
+    {
+        return null;
+    }
+
+    public Void visitAssignmentExpr(Expr.Assignment assignment)
+    {
+        return null;
+    }
+
+    public Void visitVariableExpr(Expr.Variable variable)
+    {
+        return null;
+    }
+
+    public Void visitForStmt(Stmt.For forStmt)
+    {
+        return null;
+    }
+
+    public Void visitWhileStmt(Stmt.While whileStmt)
+    {
+        return null;
+    }
+
+    public Void visitIfStmt(Stmt.If ifStmt)
+    {
+        return null;
+    }
+
+    public Void visitEnumStmt(Stmt.Enum enumStmt)
+    {
+        return null;
+    }
+
+    public Void visitConstFunctionStmt(Stmt.ConstFunction constFunction)
+    {
+        return null;
+    }
+
+    public Void visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
+    {
+        return null;
+    }
+
+    public Void visitModuleStmt(Stmt.Module module)
+    {
+        return null;
+    }
+
+    public Void visitConstStmt(Stmt.Const constStmt)
+    {
+        return null;
+    }
+
+    public Void visitBlockStmt(Stmt.Block block)
+    {
+        return null;
+    }
+
+    public Void visitExpressionStmt(Stmt.Expression expression)
+    {
+        return null;
+    }
+
+}
+
+public class Optimizer { // travels the AST graph and evaluates arithmetic expressions
+                            // these are: Expr.Binary, Expr.Unary, Expr.Literal, Expr.Group and maybe Expr.Variable and Expr.Call
+
+    final ConstantFolder constantFolder = new ConstantFolder();
+    final ConstantPropagator constantPropagator = new ConstantPropagator();
+    final List<Stmt> statements;
+    Optimizer(List<Stmt> statements) // traverse all the statements and search for the expressions
+    {
+        this.statements = statements;
+    }
+
+    void constantFolding()
+    {
+        for (Stmt statement : statements)
+        {
+            statement.fold(constantFolder);
+        }
+    }
+
+    void constantPropagation()
+    {
+
+    }
+
+    void loopUnrolling()
+    {
+
+    }
+
+    void deadCodeElimination()
+    {
+
     }
 }

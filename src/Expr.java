@@ -4,6 +4,7 @@ import java.util.List;
 abstract class Expr {
     public abstract <T> T print(ASTVisitor<T> visitor);
     public abstract <T> T fold(ASTVisitor<T> visitor);
+    public abstract <T> T propagate(ASTVisitor<T> visitor); // propagate constants
     public abstract <T> T buildTree(ASTVisitor<T> visitor);
 
     public abstract int getLine();
@@ -21,55 +22,16 @@ abstract class Expr {
             this.right = right;
         }
 
-        /*
-        @Override
-        Object evaluate()
-        {
-            Object op1 = left.evaluate();
-            Object op2 = right.evaluate();
-
-            switch(operator.type)
-            {
-                case PLUS:
-                    return (double)op1 + (double)op2;
-                case MINUS:
-                    return (double)op1 - (double)op2;
-                case MUL:
-                    return (double)op1 * (double)op2;
-                case DIV:
-                    return (double)op1 / (double)op2;
-                case MOD:
-                    return (double)op1 % (double)op2;
-                case EXP:
-                    return Math.pow((double)op1, (double)op2);
-                case EQUAL:
-                    return op1.equals(op2); // will need to test this later
-                case NOTEQUAL:
-                    return !op1.equals(op2);
-                case GREATER:
-                    return (double)op1 > (double)op2;
-                case LESS:
-                    return (double)op1 < (double)op2;
-                case GREATER_EQUAL:
-                    return (double)op1 >= (double)op2;
-                case LESS_EQUAL:
-                    return (double)op1 <= (double)op2;
-                case OR:
-                    return (boolean)op1 || (boolean)op2;
-                case AND:
-                    return (boolean)op1 && (boolean)op2;
-                default:
-                    Carmine.error("Unknown binary operator: " + operator);
-                    return null;
-            }
-        }
-*/
         @Override
         public <T> T print(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitBinaryExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
         @Override
@@ -94,29 +56,16 @@ abstract class Expr {
             this.right = right;
         }
 
-        /*
-        @Override
-        Object evaluate()
-        {
-            Object op = right.evaluate();
-            switch(operator.type)
-            {
-                case NOT:
-                    return !(boolean)op;
-                case MINUS:
-                    return -(double)op;
-                default:
-                    Carmine.error("Unknown unary operator: " + operator);
-                    return null;
-            }
-        }
-*/
         @Override
         public <T> T print(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitUnaryExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
         @Override
@@ -160,6 +109,10 @@ abstract class Expr {
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
         @Override
@@ -219,6 +172,10 @@ abstract class Expr {
             return visitor.visitAssignmentExpr(this);
         }
         @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
+            return visitor.visitAssignmentExpr(this);
+        }
+        @Override
         public <T> T buildTree(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
@@ -233,15 +190,10 @@ abstract class Expr {
     {
         Object value;
         int line;
-        /*
-        Literal(Token value)
-        {
-            this.value = value.value;
-        }
-        */
 
         Literal(int line, Object value)
         {
+            this.line = line;
             this.value = value;
         }
 
@@ -251,6 +203,10 @@ abstract class Expr {
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitLiteralExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
         @Override
@@ -271,6 +227,7 @@ abstract class Expr {
 
         Group(int line, Expr expr)
         {
+            this.line = line;
             this.expr = expr;
         }
 
@@ -288,6 +245,10 @@ abstract class Expr {
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitGroupExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
         @Override
@@ -310,6 +271,7 @@ abstract class Expr {
 
         Call(int line, Expr callee, List<Expr> arguments)
         {
+            this.line = line;
             this.callee = callee;
             this.arguments = arguments;
         }
@@ -347,6 +309,10 @@ abstract class Expr {
         }
         @Override
         public <T> T fold(ASTVisitor<T> visitor) {
+            return visitor.visitCallExpr(this);
+        }
+        @Override
+        public <T> T propagate(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
         @Override

@@ -130,6 +130,11 @@ public class Carmine {
         Optimizer optimizer = new Optimizer(statements);
 
         optimizer.constantFolding();
+        optimizer.constantPropagation(); // WIP
+        optimizer.constantFolding();
+
+        optimizer.loopUnrolling(); // WIP
+        optimizer.deadCodeElimination(); // WIP
 
         String dotContent = visualizer.visualizeAST(statements);
         //System.out.println(dotContent);
