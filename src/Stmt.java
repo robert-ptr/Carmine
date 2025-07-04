@@ -2,9 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class Stmt {
-    abstract void print();
-
-    abstract public <T> T evaluate(ASTVisitor<T> visitor);
+    abstract public <T> T print(ASTVisitor<T> visitor);
+    abstract public <T> T fold(ASTVisitor<T> visitor); // constant folding
     abstract public <T> T buildTree(ASTVisitor<T> visitor);
 
     static class Expression extends Stmt {
@@ -15,12 +14,11 @@ abstract class Stmt {
         }
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitExpressionStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
         @Override
@@ -58,12 +56,11 @@ abstract class Stmt {
          */
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitBlockStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitBlockStmt(this);
         }
         @Override
@@ -100,12 +97,11 @@ abstract class Stmt {
         */
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitConstStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitConstStmt(this);
         }
         @Override
@@ -141,12 +137,11 @@ abstract class Stmt {
         }
 */
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitModuleStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitModuleStmt(this);
         }
         @Override
@@ -175,12 +170,11 @@ abstract class Stmt {
          */
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitModuleFunctionStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitModuleFunctionStmt(this);
         }
         @Override
@@ -208,12 +202,9 @@ abstract class Stmt {
         }*/
 
         @Override
-        void print() {
-
-        }
-
+        public <T> T print(ASTVisitor<T> visitor) { return visitor.visitConstFunctionStmt(this); }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitConstFunctionStmt(this);
         }
         @Override
@@ -237,12 +228,11 @@ abstract class Stmt {
         }*/
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitEnumStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitEnumStmt(this);
         }
         @Override
@@ -268,12 +258,11 @@ abstract class Stmt {
         }*/
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitIfStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitIfStmt(this);
         }
         @Override
@@ -297,12 +286,11 @@ abstract class Stmt {
         }*/
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitWhileStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitWhileStmt(this);
         }
         @Override
@@ -330,12 +318,11 @@ abstract class Stmt {
         }*/
 
         @Override
-        void print() {
-
+        public <T> T print(ASTVisitor<T> visitor) {
+            return visitor.visitForStmt(this);
         }
-
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitForStmt(this);
         }
         @Override

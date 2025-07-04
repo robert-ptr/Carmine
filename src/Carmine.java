@@ -129,7 +129,7 @@ public class Carmine {
         TreeVisualizer visualizer = new TreeVisualizer();
         Optimizer optimizer = new Optimizer(statements);
 
-        optimizer.evaluateArithmeticAST();
+        optimizer.constantFolding();
 
         String dotContent = visualizer.visualizeAST(statements);
         //System.out.println(dotContent);

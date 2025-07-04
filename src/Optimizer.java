@@ -8,13 +8,44 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
         this.statements = statements;
     }
 
-    void evaluateArithmeticAST()
+    void constantPropagation()
+    {
+
+    }
+
+    void constantFolding()
     {
         for (Stmt statement : statements)
         {
-            statement.evaluate(this);
+            statement.fold(this);
         }
     }
+
+    void loopUnrolling()
+    {
+
+    }
+
+    boolean isTruthy(Object o)
+    {
+        if (o instanceof Integer)
+        {
+            if ((Integer) o == 0)
+                return false;
+            else
+                return true;
+        }
+        else if (o instanceof Number)
+        {
+            if (((Number)o).doubleValue() == 0)
+                return false;
+            else
+                return true;
+        }
+        else
+            return false;
+    }
+
     @Override
     public Object visitLiteralExpr(Expr.Literal expr)
     {
@@ -34,15 +65,9 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     }
 
     @Override
-    public Object visitIdentifierExpr(Expr.Variable expr)
-    {
-        return expr;
-    }
-
-    @Override
     public Object visitUnaryExpr(Expr.Unary expr)
     {
-        Object right = expr.right.evaluate(this);
+        Object right = expr.right.fold(this);
 
         Token operator = expr.operator;
 
@@ -78,8 +103,8 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitBinaryExpr(Expr.Binary expr)
     {
-        Object obj1 = expr.left.evaluate(this);
-        Object obj2 = expr.right.evaluate(this);
+        Object obj1 = expr.left.fold(this);
+        Object obj2 = expr.right.fold(this);
 
         if (obj1 == null || obj2 == null)
         {
@@ -111,7 +136,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
                 case EXP:
                     return Math.pow(left, right);
                 case EQUAL:
-                    return left.equals(right); // will need to test this later
+                    return left.equals(right);
                 case NOTEQUAL:
                     return !left.equals(right);
                 case GREATER:
@@ -147,7 +172,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
                 case EXP:
                     return Math.pow(left.doubleValue(), right.doubleValue());
                 case EQUAL:
-                    return left.equals(right); // will need to test this later
+                    return left.equals(right);
                 case NOTEQUAL:
                     return !left.equals(right);
                 case GREATER:
@@ -169,10 +194,26 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
             Boolean right = (Boolean)obj2;
             switch (operator.type)
             {
+                case EQUAL:
+                    return left.equals(right);
+                case NOTEQUAL:
+                    return !left.equals(right);
                 case OR:
                     return left || right;
                 case AND:
                     return left && right;
+                default:
+                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    return null;
+            }
+        }
+        else if (obj1 instanceof Boolean || obj2 instanceof Boolean)
+        {
+            switch (operator.type) {
+                case EQUAL:
+                    return isTruthy(obj1) == isTruthy(obj2);
+                case NOTEQUAL:
+                    return isTruthy(obj1) != isTruthy(obj2);
                 default:
                     Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
                     return null;
@@ -239,13 +280,13 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitGroupExpr(Expr.Group group)
     {
-        return group.expr.evaluate(this);
+        return group.expr.fold(this);
     }
 
     @Override
     public Object visitAssignmentExpr(Expr.Assignment assignment)
     {
-        Object right = assignment.right.evaluate(this);
+        Object right = assignment.right.fold(this);
         assignment.right = new Expr.Literal(assignment.getLine(), right);
 
         if (right instanceof Expr.Literal) // !!will have to check for the exception to this rule later, in loops!!
@@ -266,16 +307,8 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitWhileStmt(Stmt.While whileStmt)
     {
-        Expr condition = (Expr)whileStmt.condition.evaluate(this);
-
-        if (!(condition instanceof Expr.Literal))
-        {
-            Logger.log(condition, "Condition of while loop is not evaluable.", LogLevel.ERROR); // TO DO: add way to get line number
-            return null;
-        }
-
-        whileStmt.condition = condition; // change condition to the new evaluated value
-        whileStmt.body.evaluate(this); // this will evaluate all the expressions in the body
+        whileStmt.condition.fold(this);
+        whileStmt.body.fold(this); // this will evaluate all the expressions in the body
 
         return null;
     }
@@ -283,18 +316,9 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitIfStmt(Stmt.If ifStmt)
     {
-        Expr condition = (Expr)ifStmt.condition.evaluate(this);
-
-        if (!(condition instanceof Expr.Literal))
-        {
-            Logger.log(condition, "Condition of while loop is not evaluable.", LogLevel.ERROR); // TO DO: add way to get line number
-            return null;
-        }
-
-        ifStmt.condition = condition; // change condition to the new evaluated value
-
-        ifStmt.thenStmt.evaluate(this);
-        ifStmt.elseStmt.evaluate(this);
+        ifStmt.condition.fold(this);
+        ifStmt.thenStmt.fold(this);
+        ifStmt.elseStmt.fold(this);
 
         return null;
     }
@@ -304,7 +328,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     {
         for (Expr.Assignment assignment : enumStmt.assignments)
         {
-            assignment.right = new Expr.Literal(assignment.getLine(), assignment.evaluate(this)); // test this out
+            assignment.right = new Expr.Literal(assignment.getLine(), assignment.fold(this)); // test this out
         }
 
         return null;
@@ -313,7 +337,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitConstFunctionStmt(Stmt.ConstFunction constFunction)
     {
-        constFunction.statements.evaluate(this);
+        constFunction.statements.fold(this);
 
         return null;
     }
@@ -322,7 +346,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
-        moduleFunction.statements.evaluate(this);
+        moduleFunction.statements.fold(this);
 
         return null;
     }
@@ -330,20 +354,13 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitModuleStmt(Stmt.Module module)
     {
-        Expr right = (Expr)module.expr.evaluate(this);
-
-        if (right instanceof Expr.Literal)
-        {
-            Logger.log(right, "Can't assign const value to a module.", LogLevel.ERROR); // TO DO: add way to obtain line number
-        }
-
         return null;
     }
 
     @Override
     public Object visitConstStmt(Stmt.Const constStmt)
     {
-        constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), constStmt.expr.evaluate(this));
+        constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), constStmt.expr.fold(this));
 
         /*
         if (!(right instanceof Expr.Literal))
@@ -361,7 +378,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     public Object visitBlockStmt(Stmt.Block block)
     {
         for (Stmt stmt : block.statements)
-            stmt.evaluate(this);
+            stmt.fold(this);
 
         return null;
     }
@@ -369,7 +386,7 @@ public class Optimizer implements ASTVisitor<Object> { // travels the AST graph 
     @Override
     public Object visitExpressionStmt(Stmt.Expression expression)
     {
-        expression.expr = (Expr) expression.expr.evaluate(this); // if expr is an arithmetic expression, evaluate it and save it
+        expression.expr = (Expr) expression.expr.fold(this); // if expr is an arithmetic expression, evaluate it and save it
 
         return null;
     }

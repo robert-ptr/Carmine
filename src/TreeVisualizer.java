@@ -63,13 +63,6 @@ public class TreeVisualizer implements ASTVisitor<Void> {
     }
 
     @Override
-    public Void visitIdentifierExpr(Expr.Variable expr) {
-        createNode(expr.name);
-
-        return null;
-    }
-
-    @Override
     public Void visitUnaryExpr(Expr.Unary expr) {
         createNode(expr.operator);
         createConnection(nodeId - 1, nodeId);

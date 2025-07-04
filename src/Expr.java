@@ -3,7 +3,7 @@ import java.util.List;
 
 abstract class Expr {
     public abstract <T> T print(ASTVisitor<T> visitor);
-    public abstract <T> T evaluate(ASTVisitor<T> visitor);
+    public abstract <T> T fold(ASTVisitor<T> visitor);
     public abstract <T> T buildTree(ASTVisitor<T> visitor);
 
     public abstract int getLine();
@@ -69,7 +69,7 @@ abstract class Expr {
             return visitor.visitBinaryExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
         @Override
@@ -116,7 +116,7 @@ abstract class Expr {
             return visitor.visitUnaryExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
         @Override
@@ -159,7 +159,7 @@ abstract class Expr {
             return visitor.visitVariableExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitVariableExpr(this);
         }
         @Override
@@ -215,7 +215,7 @@ abstract class Expr {
             return visitor.visitAssignmentExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
         @Override
@@ -250,7 +250,7 @@ abstract class Expr {
             return visitor.visitLiteralExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
         @Override
@@ -287,7 +287,7 @@ abstract class Expr {
             return visitor.visitGroupExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
         @Override
@@ -346,7 +346,7 @@ abstract class Expr {
             return visitor.visitCallExpr(this);
         }
         @Override
-        public <T> T evaluate(ASTVisitor<T> visitor) {
+        public <T> T fold(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
         @Override

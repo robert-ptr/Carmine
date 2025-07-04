@@ -44,13 +44,21 @@ public class Logger {
 
     public static void log(Token token, String message, LogLevel level)
     {
-        System.err.print(token.line + " ");
+        if (level == LogLevel.FATAL || level == LogLevel.ERROR)
+            System.err.print(token.line + " ");
+        else
+            System.out.print(token.line + " ");
+
         log(message, level);
     }
 
     public static void log(Expr expr, String message, LogLevel level)
     {
-        System.err.print(expr.getLine() + " ");
+        if (level == LogLevel.FATAL || level == LogLevel.ERROR)
+            System.err.print(expr.getLine() + " ");
+        else
+            System.out.print(expr.getLine() + " ");
+
         log(message, level);
     }
 }

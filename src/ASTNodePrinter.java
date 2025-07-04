@@ -8,11 +8,6 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         return null;
     }
 
-    public Void visitIdentifierExpr(Expr.Variable expr)
-    {
-        return null;
-    }
-
     public Void visitUnaryExpr(Expr.Unary expr)
     {
         System.out.print(expr.operator.lexeme + " ");
@@ -81,7 +76,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         System.out.print("..");
         forStmt.maxValue.print(this);
         System.out.println();
-        forStmt.body.print();
+        forStmt.body.print(this);
 
         return null;
     }
@@ -91,7 +86,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         System.out.print("while ");
         whileStmt.condition.print(this);
         System.out.println();
-        whileStmt.body.print();
+        whileStmt.body.print(this);
 
         return null;
     }
@@ -101,11 +96,11 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         System.out.print("if ");
         ifStmt.condition.print(this);
         System.out.println();
-        ifStmt.thenStmt.print();
+        ifStmt.thenStmt.print(this);
 
         if (ifStmt.elseStmt != null) {
             System.out.print("else ");
-            ifStmt.elseStmt.print();
+            ifStmt.elseStmt.print(this);
         }
 
         return null;
@@ -150,7 +145,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         }
 
         System.out.println();
-        constFunction.statements.print();
+        constFunction.statements.print(this);
 
         return null;
     }
@@ -181,7 +176,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
         }
 
         System.out.println();
-        moduleFunction.statements.print();
+        moduleFunction.statements.print(this);
 
         return null;
     }
@@ -218,7 +213,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     {
         System.out.println("{");
         for (Stmt stmt : block.statements) {
-            stmt.print();
+            stmt.print(this);
             System.out.println();
         }
         System.out.println("}");
