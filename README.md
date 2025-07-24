@@ -95,7 +95,10 @@ DIGIT → "0" … "9" ;
 SYMBOL → Any printable symbol excluding quotes and control characters ;
 ```
 
-
+## References
+Crafting Interpreters - Robert Nystrom
+Digital Design and Computer Architecture (RISC-V Edition) - Sarah L. Harris, David Money Harris
+Engineering a Compiler - Keith D. Cooper, Linda Torczon
 
 ## Project Status 🚧
 This project is currently **unfinished** and is very much a **work in progress**.
