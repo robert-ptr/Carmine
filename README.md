@@ -13,7 +13,7 @@ Is a hardware description language made with the end-goal of generating **workin
 
 - [x] Lexer & Parser
 - [x] .dot output of AST
-- [ ] AST optimization (loop unrolling, constant folding) - WIP
+- [ ] AST optimization (loop unrolling, constant folding, constant propagation, SSA, dead code elimination) - WIP
 - [ ] Module connection logic
 - [ ] Placement & routing
 - [ ] Redstone layout generation
