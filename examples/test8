@@ -5,11 +5,11 @@ enum
     MEDIUM = 5,
 };
 
-const val = null;
+var val = null;
 
 module xor10(a, b) -> out
 {
-    const i = 0;
+    var i = 0;
     while i < 10
     {
         out = and(or(a, b), not(and(a, b)));

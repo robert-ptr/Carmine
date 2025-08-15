@@ -23,13 +23,13 @@ Is a hardware description language made with the end-goal of generating **workin
 program → { declaration } EOF ;
 
 declaration → moduleStatement
-            | constStatement
+            | varStatement
             | enumStatement
             | statement ;
 
 moduleStatement → "module" IDENTIFIER "(" arguments ")" "->" arguments blockStatement ;
 
-constStatement → "const" IDENTIFIER "(" arguments ")" "->" arguments blockStatement ;
+varStatement → "var" IDENTIFIER "(" arguments ")" "->" arguments blockStatement ;
 
 enumStatement → "enum" IDENTIFIER "{" { assignment "," } "}" ";" ;
 
@@ -49,7 +49,9 @@ forStatement → "for" "(" [ expressionStatement ] [ expression ] ";" [ expressi
 
 expressionStatement → expression ";" ;
 
-expression → IDENTIFIER "=" expression
+expression → "var" assignment 
+           | "module" assignment
+           | assignment
            | or ;
 
 or → and { "|" and } ;
