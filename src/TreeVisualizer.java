@@ -3,17 +3,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class TreeVisualizer implements ASTVisitor<Void> {
-    public static List<ConstEnvironment> environments = new ArrayList<ConstEnvironment>();
+    public static List<VariableEnvironment> environments = new ArrayList<VariableEnvironment>();
 
     private int nodeId = 0;
     private StringBuilder builder = new StringBuilder();
 
     public static void printEnvironments() {
-        environments.add(Carmine.constEnvironment);
+        environments.add(Carmine.variableEnvironment);
 
-        for (ConstEnvironment constEnvironment : environments) {
+        for (VariableEnvironment variableEnvironment : environments) {
             System.out.println("environment");
-            HashMap<String, Object> variables = constEnvironment.getVariables();
+            HashMap<String, Object> variables = variableEnvironment.getVariables();
 
             for (String key : variables.keySet()) {
                 System.out.println(key + ": " + variables.get(key));
@@ -26,7 +26,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
         for (Stmt stmt : statements)
         {
-            stmt.buildTree(this);
+            stmt.accept(this);
         }
 
         builder.append("}\n");
@@ -66,7 +66,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
     public Void visitUnaryExpr(Expr.Unary expr) {
         createNode(expr.operator);
         createConnection(nodeId - 1, nodeId);
-        expr.right.buildTree(this);
+        expr.right.accept(this);
         return null;
     }
 
@@ -77,9 +77,9 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
         createConnection(initialId, nodeId);
 
-        expr.left.buildTree(this);
+        expr.left.accept(this);
         createConnection(initialId, nodeId);
-        expr.right.buildTree(this);
+        expr.right.accept(this);
 
         return null;
     }
@@ -103,7 +103,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
     public Void visitGroupExpr(Expr.Group group) {
         createNode("GROUP");
         createConnection(nodeId - 1, nodeId);
-        group.expr.buildTree(this);
+        group.expr.accept(this);
 
         return null;
     }
@@ -112,13 +112,13 @@ public class TreeVisualizer implements ASTVisitor<Void> {
     public Void visitAssignmentExpr(Expr.Assignment assignment) {
         createNode("ASSIGNMENT " + assignment.name);
         createConnection(nodeId - 1, nodeId);
-        assignment.right.buildTree(this);
+        assignment.right.accept(this);
 
         return null;
     }
 
     @Override
-    public Void visitVariableExpr(Expr.Variable variable) {
+    public Void visitIdentifierExpr(Expr.Identifier variable) {
         createNode(variable.name);
 
         return null;
@@ -130,7 +130,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
         createNode("FOR");
         createConnection(initialId, nodeId);
-        forStmt.body.buildTree(this);
+        forStmt.body.accept(this);
 
         return null;
     }
@@ -141,9 +141,9 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
         createNode("WHILE");
         createConnection(initialId, nodeId);
-        whileStmt.condition.buildTree(this);
+        whileStmt.condition.accept(this);
         createConnection(initialId, nodeId);
-        whileStmt.body.buildTree(this);
+        whileStmt.body.accept(this);
 
         return null;
     }
@@ -154,14 +154,14 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
         createNode("IF");
         createConnection(initialId, nodeId);
-        ifStmt.condition.buildTree(this);
+        ifStmt.condition.accept(this);
 
         createConnection(initialId, nodeId);
-        ifStmt.thenStmt.buildTree(this);
+        ifStmt.thenStmt.accept(this);
 
         if (ifStmt.elseStmt != null) {
             createConnection(initialId, nodeId);
-            ifStmt.elseStmt.buildTree(this);
+            ifStmt.elseStmt.accept(this);
         }
 
         return null;
@@ -175,32 +175,32 @@ public class TreeVisualizer implements ASTVisitor<Void> {
         for (Expr assignment : enumStmt.assignments)
         {
             createConnection(initialId, nodeId);
-            assignment.buildTree(this);
+            assignment.accept(this);
         }
 
         return null;
     }
 
     @Override
-    public Void visitConstFunctionStmt(Stmt.ConstFunction constFunction)
+    public Void visitConstFunctionStmt(Stmt.VarFunction varFunction)
     {
         int initialId = nodeId;
-        createNode("CONST FUNC " + constFunction.name);
+        createNode("CONST FUNC " + varFunction.name);
 
-        for (Token paramter : constFunction.parameters)
+        for (Token paramter : varFunction.parameters)
         {
             createConnection(initialId, nodeId);
             createNode(paramter);
         }
 
-        for (Token returnValue : constFunction.returnValues)
+        for (Token returnValue : varFunction.returnValues)
         {
             createConnection(initialId, nodeId);
             createNode(returnValue);
         }
 
         createConnection(initialId, nodeId);
-        constFunction.statements.buildTree(this);
+        varFunction.statements.accept(this);
 
         return null;
     }
@@ -224,31 +224,30 @@ public class TreeVisualizer implements ASTVisitor<Void> {
         }
 
         createConnection(initialId, nodeId);
-        moduleFunction.statements.buildTree(this);
+        moduleFunction.statements.accept(this);
 
         return null;
     }
 
     @Override
-    public Void visitModuleStmt(Stmt.Module module)
+    public Void visitModuleExpr(Expr.Module module)
     {
         int initialId = nodeId;
 
-        createNode("MODULE " + module.name);
+        createNode("MODULE " + module.getName());
         createConnection(initialId, nodeId);
-        module.expr.buildTree(this);
+        module.assignment.accept(this);
 
         return null;
     }
 
     @Override
-    public Void visitConstStmt(Stmt.Const constStmt)
-    {
+    public Void visitVarExpr(Expr.Variable var) {
         int initialId = nodeId;
 
-        createNode("CONST " + constStmt.name);
+        createNode("CONST " + var.getName());
         createConnection(initialId, nodeId);
-        constStmt.expr.buildTree(this);
+        var.assignment.accept(this);
 
         return null;
     }
@@ -262,7 +261,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
         for (Stmt stmt : block.statements)
         {
             createConnection(initialId, nodeId);
-            stmt.buildTree(this);
+            stmt.accept(this);
         }
 
         return null;
@@ -273,7 +272,7 @@ public class TreeVisualizer implements ASTVisitor<Void> {
     {
         createNode("EXPRESSION");
         createConnection(nodeId - 1, nodeId);
-        expression.expr.buildTree(this);
+        expression.expr.accept(this);
 
         return null;
     }

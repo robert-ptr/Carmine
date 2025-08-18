@@ -7,13 +7,13 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
-    static ConstEnvironment constEnvironment = new ConstEnvironment(); // used for the first parse where we evaluate all arithmetic expressions
+    static VariableEnvironment variableEnvironment = new VariableEnvironment(); // used for the first parse where we evaluate all arithmetic expressions
     static ModuleEnvironment moduleEnvironment = new ModuleEnvironment(); // used to save modules
     //static List<Stmt.Function> statements;
 
     static
     {
-        constEnvironment.put("print", new CarmineCallable() {
+        variableEnvironment.put("print", new CarmineCallable() {
             @Override
             public int arity() {
                 return 1;
@@ -26,7 +26,7 @@ public class Carmine {
             }
         });
 
-        constEnvironment.put("and", new CarmineCallable() {
+        variableEnvironment.put("and", new CarmineCallable() {
            @Override
            public int arity() { return 2; }
 
@@ -38,7 +38,7 @@ public class Carmine {
            }
         });
 
-        constEnvironment.put("or", new CarmineCallable() {
+        variableEnvironment.put("or", new CarmineCallable() {
             @Override
             public int arity() { return 2; }
 
@@ -74,7 +74,7 @@ public class Carmine {
             }
         });
 
-        constEnvironment.put("import", new CarmineCallable() {
+        variableEnvironment.put("import", new CarmineCallable() {
             @Override
             public int arity() { return 1;}
 
@@ -85,7 +85,7 @@ public class Carmine {
             }
         });
 
-        constEnvironment.put("export", new CarmineCallable() {
+        variableEnvironment.put("export", new CarmineCallable() {
             @Override
             public int arity() { return 1;}
 
@@ -97,9 +97,9 @@ public class Carmine {
         });
     }
 
-    public static ConstEnvironment getEnvironment()
+    public static VariableEnvironment getEnvironment()
     {
-        return constEnvironment;
+        return variableEnvironment;
     }
 
     private static void run(String code)

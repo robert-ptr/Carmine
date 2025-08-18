@@ -2,10 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract class Expr {
-    public abstract <T> T print(ASTVisitor<T> visitor);
-    public abstract <T> T fold(ASTVisitor<T> visitor);
-    public abstract <T> T propagate(ASTVisitor<T> visitor); // propagate constants
-    public abstract <T> T buildTree(ASTVisitor<T> visitor);
+    public abstract <T> T accept(ASTVisitor<T> visitor);
 
     public abstract int getLine();
 
@@ -23,21 +20,10 @@ abstract class Expr {
         }
 
         @Override
-        public <T> T print(ASTVisitor<T> visitor) {
+        public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitBinaryExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitBinaryExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitBinaryExpr(this);
-        }
+
         @Override
         public int getLine()
         {
@@ -57,21 +43,10 @@ abstract class Expr {
         }
 
         @Override
-        public <T> T print(ASTVisitor<T> visitor) {
+        public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitUnaryExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitUnaryExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitUnaryExpr(this);
-        }
+
         @Override
         public int getLine()
         {
@@ -79,11 +54,11 @@ abstract class Expr {
         }
     }
 
-    static class Variable extends Expr
+    static class Identifier extends Expr
     {
         Token name;
 
-        Variable(Token name)
+        Identifier(Token name)
         {
             this.name = name;
         }
@@ -93,36 +68,67 @@ abstract class Expr {
             return name;
         }
 
-        /*
         @Override
-        Object evaluate() throws RuntimeException
-        {
-            if (Carmine.constEnvironment.contains(name))
-                return Carmine.constEnvironment.get(name);
-            else
-                return Carmine.moduleEnvironment.get(name);
-        }*/
+        public <T> T accept(ASTVisitor<T> visitor) {
+            return visitor.visitIdentifierExpr(this);
+        }
 
-        @Override
-        public <T> T print(ASTVisitor<T> visitor) {
-            return visitor.visitVariableExpr(this);
-        }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitVariableExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitVariableExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitVariableExpr(this);
-        }
         @Override
         public int getLine()
         {
             return name.line;
+        }
+    }
+
+    static class Module extends Expr
+    {
+        Expr.Assignment assignment;
+
+        Module(Expr.Assignment assignment)
+        {
+            this.assignment = assignment;
+        }
+
+        public Token getName()
+        {
+            return assignment.getName();
+        }
+
+        @Override
+        public <T> T accept(ASTVisitor<T> visitor) {
+            return visitor.visitModuleExpr(this);
+        }
+
+        @Override
+        public int getLine()
+        {
+            return assignment.getName().line;
+        }
+    }
+
+    static class Variable extends Expr
+    {
+        Expr.Assignment assignment;
+
+        Variable(Expr.Assignment assignment)
+        {
+            this.assignment = assignment;
+        }
+
+        public Token getName()
+        {
+            return assignment.getName();
+        }
+
+        @Override
+        public <T> T accept(ASTVisitor<T> visitor) {
+            return visitor.visitVarExpr(this);
+        }
+
+        @Override
+        public int getLine()
+        {
+            return assignment.getName().line;
         }
     }
 
@@ -142,43 +148,11 @@ abstract class Expr {
             return name;
         }
 
-        /*
         @Override
-        Object evaluate()
-        {
-            ModuleEnvironment env = Carmine.moduleEnvironment;
-            while (env != null && !env.contains(name)) {
-                env = env.getEnclosing();
-
-            }
-
-            if (env == null)
-                throw new RuntimeException(name.line + " Undefined variable: " + name);
-            else {
-                Object value = right.evaluate();
-
-                env.put(name.lexeme, value);
-
-                return value;
-            }
-        }*/
-
-        @Override
-        public <T> T print(ASTVisitor<T> visitor) {
+        public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitAssignmentExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitAssignmentExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitAssignmentExpr(this);
-        }
+
         @Override
         public int getLine()
         {
@@ -198,21 +172,10 @@ abstract class Expr {
         }
 
         @Override
-        public <T> T print(ASTVisitor<T> visitor) {
+        public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitLiteralExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitLiteralExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitLiteralExpr(this);
-        }
+
         @Override
         public int getLine()
         {
@@ -231,30 +194,11 @@ abstract class Expr {
             this.expr = expr;
         }
 
-        /*
         @Override
-        Object evaluate()
-        {
-            return expr.evaluate();
+        public <T> T accept(ASTVisitor<T> visitor) {
+            return visitor.visitGroupExpr(this);
         }
-    */
 
-        @Override
-        public <T> T print(ASTVisitor<T> visitor) {
-            return visitor.visitGroupExpr(this);
-        }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitGroupExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitGroupExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitGroupExpr(this);
-        }
         @Override
         public int getLine()
         {
@@ -304,21 +248,10 @@ abstract class Expr {
         }*/
 
         @Override
-        public <T> T print(ASTVisitor<T> visitor) {
+        public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
-        @Override
-        public <T> T fold(ASTVisitor<T> visitor) {
-            return visitor.visitCallExpr(this);
-        }
-        @Override
-        public <T> T propagate(ASTVisitor<T> visitor) {
-            return visitor.visitCallExpr(this);
-        }
-        @Override
-        public <T> T buildTree(ASTVisitor<T> visitor) {
-            return visitor.visitCallExpr(this);
-        }
+
         @Override
         public int getLine()
         {

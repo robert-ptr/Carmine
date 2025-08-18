@@ -21,7 +21,7 @@ public class Scanner {
         keywords.put("true", TokenType.TRUE);
         keywords.put("false", TokenType.FALSE);
         keywords.put("module", TokenType.MODULE);
-        keywords.put("const", TokenType.CONST);
+        keywords.put("var", TokenType.VAR);
         keywords.put("if", TokenType.IF);
         keywords.put("else", TokenType.ELSE);
         keywords.put("for", TokenType.FOR);

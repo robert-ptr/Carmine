@@ -1,8 +1,8 @@
 import java.util.HashMap;
 
-public class ConstEnvironment implements Environment<ConstEnvironment>
+public class VariableEnvironment implements Environment<VariableEnvironment>
 {
-    private ConstEnvironment enclosing = null;
+    private VariableEnvironment enclosing = null;
     private HashMap<String, Object> variables = new HashMap<>();
 
     public void put(String name, Object value)
@@ -35,12 +35,12 @@ public class ConstEnvironment implements Environment<ConstEnvironment>
         throw new RuntimeException(token.line + " Unknown variable: " + token.lexeme);
     }
 
-    public void addEnclosing(ConstEnvironment enclosing)
+    public void addEnclosing(VariableEnvironment enclosing)
     {
         this.enclosing = enclosing;
     }
 
-    public ConstEnvironment getEnclosing()
+    public VariableEnvironment getEnclosing()
     {
         return enclosing;
     }

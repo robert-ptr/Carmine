@@ -29,12 +29,12 @@ class ConstantFolder implements ASTVisitor<Object>
     }
 
     @Override
-    public Object visitVariableExpr(Expr.Variable expr) // check if module or const
+    public Object visitIdentifierExpr(Expr.Identifier expr) // check if module or const
     // this might be tricky, check function evaluation
     {
-        if (Carmine.constEnvironment.contains(expr.name))
+        if (Carmine.variableEnvironment.contains(expr.getName()))
         {
-            return (Carmine.constEnvironment).get(expr.name);
+            return (Carmine.variableEnvironment).get(expr.getName());
         }
 
         return null; // it's a module, so leave it as it is
@@ -43,7 +43,7 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitUnaryExpr(Expr.Unary expr)
     {
-        Object right = expr.right.fold(this);
+        Object right = expr.right.accept(this);
 
         Token operator = expr.operator;
 
@@ -84,8 +84,8 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitBinaryExpr(Expr.Binary expr)
     {
-        Object obj1 = expr.left.fold(this);
-        Object obj2 = expr.right.fold(this);
+        Object obj1 = expr.left.accept(this);
+        Object obj2 = expr.right.accept(this);
 
         if (obj1 == null)
         {
@@ -96,7 +96,7 @@ class ConstantFolder implements ASTVisitor<Object>
             }
 
             Logger.log(expr, "obj1 and obj2 are null", LogLevel.DEBUG);
-            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
+            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
             return null;
         }
 
@@ -105,7 +105,7 @@ class ConstantFolder implements ASTVisitor<Object>
             expr.left = new Expr.Literal(expr.getLine(), obj1); // obj1 is not null otherwise the function would have returned null
 
             Logger.log(expr, "Obj2 is null", LogLevel.DEBUG);
-            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
+            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
             return null;
         }
 
@@ -276,23 +276,29 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitGroupExpr(Expr.Group group)
     {
-        return group.expr.fold(this);
+        return group.expr.accept(this);
     }
 
     @Override
     public Object visitAssignmentExpr(Expr.Assignment assignment)
     {
-        Object right = assignment.right.fold(this);
+        Object right = assignment.right.accept(this);
         if (right != null)
             assignment.right = new Expr.Literal(assignment.getLine(), right);
 
-        if (right instanceof Expr.Literal) // !!will have to check for the exception to this rule later, in loops!!
-        {
-            Logger.log(assignment, "Can't reassign const value.", LogLevel.ERROR);
-            return null;
-        }
-
         return right;
+    }
+
+    @Override
+    public Object visitModuleExpr(Expr.Module module) {
+        return null;
+    }
+
+    @Override
+    public Object visitVarExpr(Expr.Variable var) {
+        var.assignment.accept(this);
+
+        return null;
     }
 
     @Override
@@ -304,8 +310,8 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitWhileStmt(Stmt.While whileStmt)
     {
-        whileStmt.condition.fold(this);
-        whileStmt.body.fold(this); // this will evaluate all the expressions in the body
+        whileStmt.condition.accept(this);
+        whileStmt.body.accept(this); // this will evaluate all the expressions in the body
 
         return null;
     }
@@ -313,9 +319,9 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitIfStmt(Stmt.If ifStmt)
     {
-        ifStmt.condition.fold(this);
-        ifStmt.thenStmt.fold(this);
-        ifStmt.elseStmt.fold(this);
+        ifStmt.condition.accept(this);
+        ifStmt.thenStmt.accept(this);
+        ifStmt.elseStmt.accept(this);
 
         return null;
     }
@@ -325,16 +331,16 @@ class ConstantFolder implements ASTVisitor<Object>
     {
         for (Expr.Assignment assignment : enumStmt.assignments)
         {
-            assignment.right = new Expr.Literal(assignment.getLine(), assignment.fold(this)); // test this out
+            assignment.right = new Expr.Literal(assignment.getLine(), assignment.accept(this)); // test this out
         }
 
         return null;
     }
 
     @Override
-    public Object visitConstFunctionStmt(Stmt.ConstFunction constFunction)
+    public Object visitConstFunctionStmt(Stmt.VarFunction varFunction)
     {
-        constFunction.statements.fold(this);
+        varFunction.statements.accept(this);
 
         return null;
     }
@@ -343,33 +349,7 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
-        moduleFunction.statements.fold(this);
-
-        return null;
-    }
-
-    @Override
-    public Object visitModuleStmt(Stmt.Module module)
-    {
-        return null;
-    }
-
-    @Override
-    public Object visitConstStmt(Stmt.Const constStmt)
-    {
-        Object value = constStmt.expr.fold(this);
-
-        if (value != null)
-            constStmt.expr = new Expr.Literal(constStmt.expr.getLine(), value);
-
-        /*
-        if (!(right instanceof Expr.Literal))
-        {
-            Logger.log(right, "Const expression is not evaluable.", LogLevel.ERROR); // TO DO: add way to obtain line number
-
-            return null;
-        }
-         */
+        moduleFunction.statements.accept(this);
 
         return null;
     }
@@ -378,7 +358,7 @@ class ConstantFolder implements ASTVisitor<Object>
     public Object visitBlockStmt(Stmt.Block block)
     {
         for (Stmt stmt : block.statements)
-            stmt.fold(this);
+            stmt.accept(this);
 
         return null;
     }
@@ -386,99 +366,317 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitExpressionStmt(Stmt.Expression expression)
     {
-        expression.expr.fold(this); // if expr is an arithmetic expression, evaluate it and save it
+        expression.expr.accept(this); // if expr is an arithmetic expression, evaluate it and save it
 
         return null;
     }
 }
 
-class ConstantPropagator implements ASTVisitor<Void>
+class ConstantPropagator implements ASTVisitor<Object> {
+    public Object visitLiteralExpr(Expr.Literal expr) {
+        return null;
+    }
+
+    public Object visitUnaryExpr(Expr.Unary expr) {
+        if (expr.right instanceof Expr.Variable) {
+            expr.right = new Expr.Literal(expr.right.getLine(), expr.right.accept(this));
+        }
+
+        return null;
+    }
+
+    public Object visitBinaryExpr(Expr.Binary expr) {
+        if (expr.left instanceof Expr.Variable)
+            expr.left = new Expr.Literal(expr.left.getLine(), expr.left.accept(this));
+
+        if (expr.right instanceof Expr.Variable)
+            expr.right = new Expr.Literal(expr.right.getLine(), expr.left.accept(this));
+
+        return null;
+    }
+
+    public Object visitCallExpr(Expr.Call call) {
+        return null;
+    } // TO DO
+
+    public Object visitGroupExpr(Expr.Group group) {
+        group.expr.accept(this);
+
+        return null;
+    }
+
+    public Object visitAssignmentExpr(Expr.Assignment assignment) {
+        ModuleEnvironment env = Carmine.moduleEnvironment;
+        Object value = assignment.right.accept(this);
+
+        if (value != null)
+            env.put(assignment.name.lexeme, value);
+
+        return value;
+    }
+
+    @Override
+    public Object visitIdentifierExpr(Expr.Identifier identifier) { // TO DO: search the other environments
+        ModuleEnvironment moduleEnv = Carmine.moduleEnvironment;
+        VariableEnvironment variableEnv = Carmine.variableEnvironment;
+
+
+        if (Carmine.variableEnvironment.contains(identifier.name))
+            return Carmine.variableEnvironment.get(identifier.name);
+        else if ((Carmine.moduleEnvironment.contains(identifier.name)))
+            return Carmine.moduleEnvironment.get(identifier.name);
+
+        return null;
+    }
+
+    public Object visitForStmt(Stmt.For forStmt) {
+        return null;
+    }
+
+    public Object visitWhileStmt(Stmt.While whileStmt) {
+        return null;
+    }
+
+    public Object visitIfStmt(Stmt.If ifStmt) {
+        return null;
+    }
+
+    public Object visitEnumStmt(Stmt.Enum enumStmt) {
+        return null;
+    }
+
+    public Object visitConstFunctionStmt(Stmt.VarFunction varFunction) {
+        return null;
+    }
+
+    public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction) {
+        return null;
+    }
+
+    public Object visitModuleExpr(Expr.Module module) {
+        ModuleEnvironment env = Carmine.moduleEnvironment;
+        while (env != null && !env.contains(module.getName())) {
+            env = (ModuleEnvironment) env.getEnclosing();
+        }
+
+        if (env != null)
+            throw new RuntimeException("Module " + module.getName() + " is already defined.");
+
+        Carmine.variableEnvironment.put(module.getName().lexeme, module.assignment.accept(this));
+
+        return null;
+    }
+
+    public Object visitVarExpr(Expr.Variable var) {
+        Environment env = Carmine.variableEnvironment;
+        while (env != null && !env.contains(var.getName())) {
+            env = (Environment) env.getEnclosing();
+        }
+
+        if (env != null)
+            throw new RuntimeException("Variable " + var.getName() + " is already defined.");
+
+        Carmine.variableEnvironment.put(var.getName().lexeme, var.assignment.accept(this));
+
+        return null;
+    }
+
+    public Object visitBlockStmt(Stmt.Block block) {
+        VariableEnvironment blockConstEnvironment = new VariableEnvironment();
+        blockConstEnvironment.addEnclosing(Carmine.variableEnvironment);
+
+        Carmine.variableEnvironment = blockConstEnvironment;
+
+        for (Stmt stmt : block.statements) {
+            stmt.accept(this);
+        }
+
+        Carmine.variableEnvironment = blockConstEnvironment.getEnclosing();
+
+        return null;
+    }
+
+    public Object visitExpressionStmt(Stmt.Expression expression) {
+        return null;
+    }
+
+}
+
+class SSAConverter implements ASTVisitor<Object>
 {
-    public Void visitLiteralExpr(Expr.Literal expr)
-    {
+
+    @Override
+    public Object visitLiteralExpr(Expr.Literal expr) {
         return null;
     }
 
-    public Void visitUnaryExpr(Expr.Unary expr)
-    {
+    @Override
+    public Object visitUnaryExpr(Expr.Unary expr) {
         return null;
     }
 
-    public Void visitBinaryExpr(Expr.Binary expr)
-    {
+    @Override
+    public Object visitBinaryExpr(Expr.Binary expr) {
         return null;
     }
 
-    public Void visitCallExpr(Expr.Call call)
-    {
+    @Override
+    public Object visitCallExpr(Expr.Call call) {
         return null;
     }
 
-    public Void visitGroupExpr(Expr.Group group)
-    {
+    @Override
+    public Object visitGroupExpr(Expr.Group group) {
         return null;
     }
 
-    public Void visitAssignmentExpr(Expr.Assignment assignment)
-    {
+    @Override
+    public Object visitAssignmentExpr(Expr.Assignment assignment) {
         return null;
     }
 
-    public Void visitVariableExpr(Expr.Variable variable)
-    {
+    @Override
+    public Object visitModuleExpr(Expr.Module module) {
         return null;
     }
 
-    public Void visitForStmt(Stmt.For forStmt)
-    {
+    @Override
+    public Object visitVarExpr(Expr.Variable var) {
         return null;
     }
 
-    public Void visitWhileStmt(Stmt.While whileStmt)
-    {
+    @Override
+    public Object visitIdentifierExpr(Expr.Identifier identifier) {
         return null;
     }
 
-    public Void visitIfStmt(Stmt.If ifStmt)
-    {
+    @Override
+    public Object visitForStmt(Stmt.For forStmt) {
         return null;
     }
 
-    public Void visitEnumStmt(Stmt.Enum enumStmt)
-    {
+    @Override
+    public Object visitWhileStmt(Stmt.While whileStmt) {
         return null;
     }
 
-    public Void visitConstFunctionStmt(Stmt.ConstFunction constFunction)
-    {
+    @Override
+    public Object visitIfStmt(Stmt.If ifStmt) {
         return null;
     }
 
-    public Void visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
-    {
+    @Override
+    public Object visitEnumStmt(Stmt.Enum enumStmt) {
         return null;
     }
 
-    public Void visitModuleStmt(Stmt.Module module)
-    {
+    @Override
+    public Object visitConstFunctionStmt(Stmt.VarFunction varFunction) {
         return null;
     }
 
-    public Void visitConstStmt(Stmt.Const constStmt)
-    {
+    @Override
+    public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction) {
         return null;
     }
 
-    public Void visitBlockStmt(Stmt.Block block)
-    {
+    @Override
+    public Object visitBlockStmt(Stmt.Block block) {
         return null;
     }
 
-    public Void visitExpressionStmt(Stmt.Expression expression)
-    {
+    @Override
+    public Object visitExpressionStmt(Stmt.Expression expression) {
+        return null;
+    }
+}
+
+class LoopUnroller implements ASTVisitor<Object>
+{
+    @Override
+    public Object visitLiteralExpr(Expr.Literal expr) {
         return null;
     }
 
+    @Override
+    public Object visitUnaryExpr(Expr.Unary expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitBinaryExpr(Expr.Binary expr) {
+        return null;
+    }
+
+    @Override
+    public Object visitCallExpr(Expr.Call call) {
+        return null;
+    }
+
+    @Override
+    public Object visitGroupExpr(Expr.Group group) {
+        return null;
+    }
+
+    @Override
+    public Object visitAssignmentExpr(Expr.Assignment assignment) {
+        return null;
+    }
+
+    @Override
+    public Object visitModuleExpr(Expr.Module module) {
+        return null;
+    }
+
+    @Override
+    public Object visitVarExpr(Expr.Variable var) {
+        return null;
+    }
+
+    @Override
+    public Object visitIdentifierExpr(Expr.Identifier identifier) {
+        return null;
+    }
+
+    @Override
+    public Object visitForStmt(Stmt.For forStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visitWhileStmt(Stmt.While whileStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visitIfStmt(Stmt.If ifStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visitEnumStmt(Stmt.Enum enumStmt) {
+        return null;
+    }
+
+    @Override
+    public Object visitConstFunctionStmt(Stmt.VarFunction varFunction) {
+        return null;
+    }
+
+    @Override
+    public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction) {
+        return null;
+    }
+
+    @Override
+    public Object visitBlockStmt(Stmt.Block block) {
+        return null;
+    }
+
+    @Override
+    public Object visitExpressionStmt(Stmt.Expression expression) {
+        return null;
+    }
 }
 
 public class Optimizer { // travels the AST graph and evaluates arithmetic expressions
@@ -486,7 +684,10 @@ public class Optimizer { // travels the AST graph and evaluates arithmetic expre
 
     final ConstantFolder constantFolder = new ConstantFolder();
     final ConstantPropagator constantPropagator = new ConstantPropagator();
+    final SSAConverter ssaConverter = new SSAConverter();
+    final LoopUnroller loopUnroller = new LoopUnroller();
     final List<Stmt> statements;
+
     Optimizer(List<Stmt> statements) // traverse all the statements and search for the expressions
     {
         this.statements = statements;
@@ -496,18 +697,32 @@ public class Optimizer { // travels the AST graph and evaluates arithmetic expre
     {
         for (Stmt statement : statements)
         {
-            statement.fold(constantFolder);
+            statement.accept(constantFolder);
         }
     }
 
     void constantPropagation()
     {
+        for (Stmt statement : statements)
+        {
+            statement.accept(constantPropagator);
+        }
+    }
 
+    void convertToSSA()
+    {
+        for (Stmt statement : statements)
+        {
+            statement.accept(ssaConverter);
+        }
     }
 
     void loopUnrolling()
     {
-
+        for (Stmt statement : statements)
+        {
+            statement.accept(loopUnroller);
+        }
     }
 
     void deadCodeElimination()

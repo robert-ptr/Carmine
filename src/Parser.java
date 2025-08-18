@@ -62,15 +62,40 @@ public class Parser
 
     private Expr expression()
     {
+        if (match(TokenType.MODULE)) {
+            Expr right = assignment();
+
+            if (right instanceof Expr.Assignment)
+                return new Expr.Module((Expr.Assignment)right);
+            else if (right instanceof Expr.Identifier)
+                return new Expr.Module(null);
+            else
+                errorAtCurrent("module");
+        }
+        else if (match(TokenType.VAR)) {
+            Expr right = assignment();
+
+            if (right instanceof Expr.Assignment)
+                return new Expr.Variable((Expr.Assignment)right);
+            else if (right instanceof Expr.Identifier)
+                return new Expr.Variable(null);
+            else
+                errorAtCurrent("variable");
+        }
+            return assignment();
+    }
+
+    private Expr assignment()
+    {
         Expr left = or();
 
         while (match(TokenType.ASSIGN))
         {
             Expr right = expression();
 
-            if (left instanceof Expr.Variable)
+            if (left instanceof Expr.Identifier)
             {
-                return new Expr.Assignment(((Expr.Variable)left).getName(), right);
+                return new Expr.Assignment(((Expr.Identifier)left).getName(), right);
             }
 
             errorAtCurrent("Invalid assignment target.");
@@ -246,7 +271,7 @@ public class Parser
             return new Expr.Literal(peek().line, null);
 
         if (match(TokenType.IDENTIFIER))
-            return new Expr.Variable(previous());
+            return new Expr.Identifier(previous());
 
         errorAtCurrent("Unexpected token: " + peek());
         hadError = true;
@@ -331,28 +356,10 @@ public class Parser
             return null;
         }
 
-        if (match(TokenType.ASSIGN))
-        {
-            Expr right = expression();
-            // match(TokenType.ENDLINE);
-            if (!match(TokenType.SEMICOLON)) {
-                errorAtCurrent("Expected ';' at end of statement.");
-                return null;
-            }
-
-            return new Stmt.Module(name, right);
-        }
-
-        //match(TokenType.ENDLINE);
-        if (!match(TokenType.SEMICOLON)) {
-            errorAtCurrent("Expected ';' at end of statement.");
-            return null;
-        }
-
-        return new Stmt.Module(name, null);
+        return null;
     }
 
-    private Stmt constStatement() // could either be a variable or a function
+    private Stmt varStatement() // could either be a variable or a function
     {
         if(!match(TokenType.IDENTIFIER))
         {
@@ -392,32 +399,13 @@ public class Parser
             Stmt statements = blockStatement();
 
             if (statements instanceof Stmt.Block)
-                return new Stmt.ConstFunction(name, params, returnValues, (Stmt.Block)statements);
+                return new Stmt.VarFunction(name, params, returnValues, (Stmt.Block)statements);
             else
                 errorAtCurrent("Expected block statement.");
 
             return null;
         }
-
-        if (match(TokenType.ASSIGN))
-        {
-            Expr right = expression();
-           // match(TokenType.ENDLINE);
-            if (!match(TokenType.SEMICOLON)) {
-                errorAtCurrent("Expected ';' at end of statement.");
-                return null;
-            }
-
-            return new Stmt.Const(name, right);
-        }
-
-        //match(TokenType.ENDLINE);
-        if (!match(TokenType.SEMICOLON)) {
-            errorAtCurrent("Expected ';' at end of statement.");
-            return null;
-        }
-
-        return new Stmt.Const(name, null);
+        return null;
     }
 
     private Stmt enumStatement()
@@ -494,21 +482,23 @@ public class Parser
 
     private Stmt forStatement() // unused right now, still unsure about for syntax
     {
-        Expr init = expression();
+        Token var = null;
 
-        if (!(init instanceof Expr.Variable))
+        if (!match(TokenType.IDENTIFIER))
         {
-             errorAtCurrent("Invalid variable.");
+            errorAtCurrent("Unexpected token: " + peek());
         }
 
-        if (!(peek().lexeme.contentEquals("in")))
-             errorAtCurrent("Missing 'in' keyword.");
+        var = previous();
 
-        advance();
+        if (!match(TokenType.EQUAL))
+        {
+            errorAtCurrent("Expected assignment.");
+        }
 
         Expr minValue = expression();
 
-        if (!match(TokenType.DOT))
+        if (!match(TokenType.DOT)) // WTF??
         {
 
         }
@@ -520,7 +510,7 @@ public class Parser
         Expr maxValue = expression();
 
         Stmt body = statement();
-        return new Stmt.For(init, minValue, maxValue, body);
+        return new Stmt.For(var, minValue, maxValue, body);
     }
 
     private Stmt declaration()
@@ -529,8 +519,8 @@ public class Parser
 
         if (match(TokenType.MODULE))
             return moduleStatement();
-        else if (match(TokenType.CONST))
-            return constStatement();
+        else if (match(TokenType.VAR))
+            return varStatement();
         else if (match(TokenType.ENUM))
             return enumStatement();
         else
