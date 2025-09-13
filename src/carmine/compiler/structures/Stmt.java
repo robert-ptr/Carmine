@@ -1,13 +1,17 @@
+package carmine.compiler.structures;
+
+import carmine.compiler.helpers.ASTVisitor;
+
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class Stmt {
-    abstract public <T> T accept(ASTVisitor<T> visitor);
+public abstract class Stmt {
+    public abstract<T> T accept(ASTVisitor<T> visitor);
 
-    static class Expression extends Stmt {
-        Expr expr;
+    public static class Expression extends Stmt {
+        public Expr expr;
 
-        Expression(Expr expr) {
+        public Expression(Expr expr) {
             this.expr = expr;
         }
 
@@ -15,16 +19,12 @@ abstract class Stmt {
         public <T> T accept(ASTVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
-
-        Expr getExpr() {
-            return expr;
-        }
     }
 
-    static class Block extends Stmt {
-        final List<Stmt> statements;
+    public static class Block extends Stmt {
+        public final List<Stmt> statements;
 
-        Block(List<Stmt> statements) {
+        public Block(List<Stmt> statements) {
             this.statements = statements;
         }
 
@@ -34,13 +34,13 @@ abstract class Stmt {
         }
     }
 
-    static class ModuleFunction extends Stmt {
-        final Token name;
-        final List<Token> parameters;
-        final List<Token> returnValues;
-        final Stmt.Block statements;
+    public static class ModuleFunction extends Stmt {
+        public final Token name;
+        public final List<Token> parameters;
+        public final List<Token> returnValues;
+        public final Stmt.Block statements;
 
-        ModuleFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
+        public ModuleFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
             this.name = name;
             this.parameters = parameters;
             this.statements = statements;
@@ -53,13 +53,13 @@ abstract class Stmt {
         }
     }
 
-    static class VarFunction extends Stmt {
-        final Token name;
-        final List<Token> parameters;
-        final List<Token> returnValues;
-        final Stmt.Block statements;
+    public static class VarFunction extends Stmt {
+        public final Token name;
+        public final List<Token> parameters;
+        public final List<Token> returnValues;
+        public final Stmt.Block statements;
 
-        VarFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
+        public VarFunction(Token name, List<Token> parameters, List<Token> returnValues, Stmt.Block statements) {
             this.name = name;
             this.parameters = parameters;
             this.statements = statements;
@@ -70,11 +70,11 @@ abstract class Stmt {
         public <T> T accept(ASTVisitor<T> visitor) { return visitor.visitConstFunctionStmt(this); }
     }
 
-    static class Enum extends Stmt {
-        Token name;
-        final ArrayList<Expr.Assignment> assignments;
+    public static class Enum extends Stmt {
+        public Token name;
+        public final ArrayList<Expr.Assignment> assignments;
 
-        Enum(Token name, ArrayList<Expr.Assignment> assignments) {
+        public Enum(Token name, ArrayList<Expr.Assignment> assignments) {
             this.name = name;
             this.assignments = assignments;
         }
@@ -85,12 +85,12 @@ abstract class Stmt {
         }
     }
 
-    static class If extends Stmt {
-        Expr condition;
-        Stmt thenStmt;
-        Stmt elseStmt;
+    public static class If extends Stmt {
+        public Expr condition;
+        public Stmt thenStmt;
+        public Stmt elseStmt;
 
-        If(Expr condition, Stmt thenStmt, Stmt elseStmt) {
+        public If(Expr condition, Stmt thenStmt, Stmt elseStmt) {
             this.condition = condition;
             this.thenStmt = thenStmt;
             this.elseStmt = elseStmt;
@@ -102,11 +102,11 @@ abstract class Stmt {
         }
     }
 
-    static class While extends Stmt {
-        Expr condition;
-        Stmt body;
+    public static class While extends Stmt {
+        public Expr condition;
+        public Stmt body;
 
-        While(Expr condition, Stmt body) {
+        public While(Expr condition, Stmt body) {
             this.condition = condition;
             this.body = body;
         }
@@ -117,13 +117,13 @@ abstract class Stmt {
         }
     }
 
-    static class For extends Stmt {
-        Token var;
-        Expr minValue;
-        Expr maxValue;
-        Stmt body;
+    public static class For extends Stmt {
+        public Token var;
+        public Expr minValue;
+        public Expr maxValue;
+        public Stmt body;
 
-        For(Token var, Expr minValue, Expr maxValue, Stmt body) {
+        public For(Token var, Expr minValue, Expr maxValue, Stmt body) {
             this.var = var;
             this.minValue = minValue;
             this.maxValue = maxValue;

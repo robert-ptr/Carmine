@@ -1,3 +1,8 @@
+package carmine.compiler.helpers;
+
+import carmine.compiler.structures.Expr;
+import carmine.compiler.structures.Stmt;
+
 public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitLiteralExpr(Expr.Literal expr) {
         if (expr.value != null)
@@ -10,7 +15,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
 
     public Void visitUnaryExpr(Expr.Unary expr)
     {
-        System.out.print(expr.operator.lexeme + " ");
+        System.out.print(expr.operator.getLexeme() + " ");
         expr.right.accept(this);
 
         return null;
@@ -19,7 +24,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitBinaryExpr(Expr.Binary expr)
     {
         expr.left.accept(this);
-        System.out.print(" " + expr.operator.lexeme + " ");
+        System.out.print(" " + expr.operator.getLexeme() + " ");
         expr.right.accept(this);
         System.out.print(" ");
 
@@ -53,7 +58,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
 
     public Void visitAssignmentExpr(Expr.Assignment assignment)
     {
-        System.out.print(assignment.name.lexeme + " = ");
+        System.out.print(assignment.name.getLexeme() + " = ");
         assignment.right.accept(this);
         System.out.println();
 
@@ -68,7 +73,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitForStmt(Stmt.For forStmt)
     {
         System.out.println("for ");
-        System.out.print(forStmt.var.lexeme);
+        System.out.print(forStmt.var.getLexeme());
         System.out.print("");
         forStmt.minValue.accept(this);
         System.out.print("..");
@@ -108,7 +113,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     {
         System.out.print("enum ");
         if (enumStmt.name != null)
-            System.out.println(enumStmt.name.lexeme);
+            System.out.println(enumStmt.name.getLexeme());
         System.out.println("{");
         for (int i = 0; i < enumStmt.assignments.size(); i++)
             enumStmt.assignments.get(i).accept(this);
@@ -120,11 +125,11 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitConstFunctionStmt(Stmt.VarFunction varFunction)
     {
         System.out.print("def ");
-        System.out.print(varFunction.name.lexeme);
+        System.out.print(varFunction.name.getLexeme());
         System.out.printf("(");
 
         for (int i = 0; i < varFunction.parameters.size(); i++) {
-            System.out.printf(varFunction.parameters.get(i).lexeme);
+            System.out.printf(varFunction.parameters.get(i).getLexeme());
 
             if (i < varFunction.parameters.size() - 1)
                 System.out.print(", ");
@@ -136,7 +141,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
             System.out.print("-> ");
 
         for (int i = 0; i < varFunction.returnValues.size(); i++) {
-            System.out.print(varFunction.returnValues.get(i).lexeme);
+            System.out.print(varFunction.returnValues.get(i).getLexeme());
 
             if (i < varFunction.returnValues.size() - 1)
                 System.out.print(", ");
@@ -151,11 +156,11 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
     public Void visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
         System.out.print("def ");
-        System.out.print(moduleFunction.name.lexeme);
+        System.out.print(moduleFunction.name.getLexeme());
         System.out.printf("(");
 
         for (int i = 0; i < moduleFunction.parameters.size(); i++) {
-            System.out.printf(moduleFunction.parameters.get(i).lexeme);
+            System.out.printf(moduleFunction.parameters.get(i).getLexeme());
 
             if (i < moduleFunction.parameters.size() - 1)
                 System.out.print(", ");
@@ -167,7 +172,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
             System.out.print("-> ");
 
         for (int i = 0; i < moduleFunction.returnValues.size(); i++) {
-            System.out.print(moduleFunction.returnValues.get(i).lexeme);
+            System.out.print(moduleFunction.returnValues.get(i).getLexeme());
 
             if (i < moduleFunction.returnValues.size() - 1)
                 System.out.print(", ");
@@ -181,7 +186,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
 
     public Void visitModuleExpr(Expr.Module module)
     {
-        System.out.print("module " + module.getName().lexeme + " ");
+        System.out.print("module " + module.getName().getLexeme() + " ");
         if (module.assignment != null) {
             System.out.print("= ");
             module.assignment.accept(this);
@@ -195,7 +200,7 @@ public class ASTNodePrinter implements ASTVisitor<Void> {
 
     public Void visitVarExpr(Expr.Variable var)
     {
-        System.out.print("const " + var.getName().lexeme + " ");
+        System.out.print("const " + var.getName().getLexeme() + " ");
         if (var.assignment != null) {
             System.out.print("= ");
             var.assignment.accept(this);

@@ -1,3 +1,10 @@
+package carmine.compiler.passes;
+
+import carmine.compiler.structures.Token;
+import carmine.compiler.structures.TokenType;
+import carmine.compiler.helpers.Logger;
+import carmine.compiler.helpers.LogLevel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,7 +101,7 @@ public class Scanner {
             advance();
         }
         Token number = makeToken(TokenType.DECIMAL);
-        number.value = Integer.parseInt(number.lexeme);
+        number.setValue(Integer.parseInt(number.getLexeme()));
         return number;
     }
 

@@ -1,3 +1,10 @@
+package carmine.compiler.passes;
+
+import carmine.compiler.helpers.ASTVisitor;
+import carmine.compiler.helpers.LogLevel;
+import carmine.compiler.helpers.Logger;
+import carmine.compiler.structures.*;
+
 import java.util.List;
 
 class ConstantFolder implements ASTVisitor<Object>
@@ -50,7 +57,7 @@ class ConstantFolder implements ASTVisitor<Object>
         if (right instanceof Integer)
         {
             Logger.log(expr, "Right is of type Integer", LogLevel.DEBUG);
-            if (operator.type == TokenType.MINUS)
+            if (operator.getType() == TokenType.MINUS)
                 return -(Integer)right;
             else
                 Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
@@ -58,7 +65,7 @@ class ConstantFolder implements ASTVisitor<Object>
         else if (right instanceof Number)
         {
             Logger.log(expr, "Right is of type Number", LogLevel.DEBUG);
-            if (operator.type == TokenType.MINUS)
+            if (operator.getType() == TokenType.MINUS)
                 return -((Number) right).doubleValue();
             else
                 Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
@@ -66,7 +73,7 @@ class ConstantFolder implements ASTVisitor<Object>
         else if (right instanceof Boolean)
         {
             Logger.log(expr, "Right is of type Boolean", LogLevel.DEBUG);
-            if (operator.type == TokenType.NOT)
+            if (operator.getType() == TokenType.NOT)
                 return !((Boolean) right);
             else
                 Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
@@ -118,7 +125,7 @@ class ConstantFolder implements ASTVisitor<Object>
             Integer left = (Integer) obj1;
             Integer right = (Integer) obj2;
 
-            switch (operator.type) {
+            switch (operator.getType()) {
                 case PLUS:
                     return left + right;
                 case MINUS:
@@ -154,7 +161,7 @@ class ConstantFolder implements ASTVisitor<Object>
             Number left = (Number) obj1;
             Number right = (Number) obj2;
 
-            switch (operator.type) {
+            switch (operator.getType()) {
                 case PLUS:
                     return left.doubleValue() + right.doubleValue();
                 case MINUS:
@@ -188,7 +195,7 @@ class ConstantFolder implements ASTVisitor<Object>
         {
             Boolean left = (Boolean)obj1;
             Boolean right = (Boolean)obj2;
-            switch (operator.type)
+            switch (operator.getType())
             {
                 case EQUAL:
                     return left.equals(right);
@@ -205,7 +212,7 @@ class ConstantFolder implements ASTVisitor<Object>
         }
         else if (obj1 instanceof Boolean || obj2 instanceof Boolean)
         {
-            switch (operator.type) {
+            switch (operator.getType()) {
                 case EQUAL:
                     return isTruthy(obj1) == isTruthy(obj2);
                 case NOTEQUAL:
@@ -219,7 +226,7 @@ class ConstantFolder implements ASTVisitor<Object>
         {
             String left = (String)obj1;
             String right = (String)obj2;
-            switch (operator.type)
+            switch (operator.getType())
             {
                 case PLUS:
                     return left + right;
@@ -238,7 +245,7 @@ class ConstantFolder implements ASTVisitor<Object>
             String left = (String)obj1;
             Double right = (Double)obj2;
 
-            if (operator.type == TokenType.PLUS)
+            if (operator.getType() == TokenType.PLUS)
                 return left + right;
             else
             {
@@ -251,7 +258,7 @@ class ConstantFolder implements ASTVisitor<Object>
             Double left = (Double)obj1;
             String right = (String)obj2;
 
-            if (operator.type == TokenType.PLUS)
+            if (operator.getType() == TokenType.PLUS)
                 return left + right;
             else
             {
@@ -410,7 +417,7 @@ class ConstantPropagator implements ASTVisitor<Object> {
         Object value = assignment.right.accept(this);
 
         if (value != null)
-            env.put(assignment.name.lexeme, value);
+            env.put(assignment.name.getLexeme(), value);
 
         return value;
     }
@@ -462,7 +469,7 @@ class ConstantPropagator implements ASTVisitor<Object> {
         if (env != null)
             throw new RuntimeException("Module " + module.getName() + " is already defined.");
 
-        Carmine.variableEnvironment.put(module.getName().lexeme, module.assignment.accept(this));
+        Carmine.variableEnvironment.put(module.getName().getLexeme(), module.assignment.accept(this));
 
         return null;
     }
@@ -476,7 +483,7 @@ class ConstantPropagator implements ASTVisitor<Object> {
         if (env != null)
             throw new RuntimeException("Variable " + var.getName() + " is already defined.");
 
-        Carmine.variableEnvironment.put(var.getName().lexeme, var.assignment.accept(this));
+        Carmine.variableEnvironment.put(var.getName().getLexeme(), var.assignment.accept(this));
 
         return null;
     }

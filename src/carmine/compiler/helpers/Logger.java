@@ -1,16 +1,7 @@
-import java.io.FileWriter;
-import java.io.IOException;
-import java.time.LocalDateTime;
+package carmine.compiler.helpers;
 
-enum LogLevel
-{
-    INFO,
-    WARN,
-    ERROR,
-    FATAL,
-    DEBUG,
-    TRACE,
-}
+import carmine.compiler.structures.Expr;
+import carmine.compiler.structures.Token;
 
 public class Logger {
     private Logger() {}
@@ -45,9 +36,9 @@ public class Logger {
     public static void log(Token token, String message, LogLevel level)
     {
         if (level == LogLevel.FATAL || level == LogLevel.ERROR)
-            System.err.print(token.line + " ");
+            System.err.print(token.getLine() + " ");
         else
-            System.out.print(token.line + " ");
+            System.out.print(token.getLine() + " ");
 
         log(message, level);
     }

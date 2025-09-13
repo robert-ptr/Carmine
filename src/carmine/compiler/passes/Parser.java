@@ -1,3 +1,12 @@
+package carmine.compiler.passes;
+
+import carmine.compiler.helpers.LogLevel;
+import carmine.compiler.helpers.Logger;
+import carmine.compiler.structures.Expr;
+import carmine.compiler.structures.Stmt;
+import carmine.compiler.structures.Token;
+import carmine.compiler.structures.TokenType;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +18,7 @@ public class Parser
 
     private boolean isAtEnd()
     {
-        return peek().type == TokenType.EOF;
+        return peek().getType() == TokenType.EOF;
     }
 
     Parser(List<Token> tokens)
@@ -45,13 +54,13 @@ public class Parser
         if (isAtEnd())
             return false;
 
-        return peek().type == type;
+        return peek().getType() == type;
     }
 
     private boolean match(TokenType... types)
     {
         for (TokenType type : types) {
-            if (peek().type == type) {
+            if (peek().getType() == type) {
                 advance();
                 return true;
             }
@@ -66,23 +75,51 @@ public class Parser
             Expr right = assignment();
 
             if (right instanceof Expr.Assignment)
-                return new Expr.Module((Expr.Assignment)right);
+                return new Expr.Module((Expr.Assignment) right);
             else if (right instanceof Expr.Identifier)
                 return new Expr.Module(null);
             else
-                errorAtCurrent("module");
-        }
-        else if (match(TokenType.VAR)) {
+                errorAtCurrent("Invalid module declaration.");
+        } else if (match(TokenType.VAR)) {
             Expr right = assignment();
 
             if (right instanceof Expr.Assignment)
-                return new Expr.Variable((Expr.Assignment)right);
+                return new Expr.Variable((Expr.Assignment) right);
             else if (right instanceof Expr.Identifier)
                 return new Expr.Variable(null);
             else
-                errorAtCurrent("variable");
+                errorAtCurrent("Invalid variable declaration.");
         }
-            return assignment();
+
+        return assignment();
+    }
+
+    private Expr moduleExpression()
+    {
+        Expr right = assignment();
+
+        if (right instanceof Expr.Assignment)
+            return new Expr.Module((Expr.Assignment)right);
+        else if (right instanceof Expr.Identifier)
+            return new Expr.Module(null);
+        else
+            errorAtCurrent("Invalid module declaration.");
+
+        return null;
+    }
+
+    private Expr varExpression()
+    {
+        Expr right = assignment();
+
+        if (right instanceof Expr.Assignment)
+            return new Expr.Variable((Expr.Assignment)right);
+        else if (right instanceof Expr.Identifier)
+            return new Expr.Variable(null);
+        else
+            errorAtCurrent("Invalid variable declaration.");
+
+        return null;
     }
 
     private Expr assignment()
@@ -233,7 +270,7 @@ public class Parser
         {
             List<Expr> args = arguments();
 
-            return new Expr.Call(peek().line, expr, args);
+            return new Expr.Call(peek().getLine(), expr, args);
         }
         else
         {
@@ -244,10 +281,10 @@ public class Parser
     private Expr primary()
     {
         if (match(TokenType.TRUE))
-            return new Expr.Literal(peek().line,true);
+            return new Expr.Literal(peek().getLine(),true);
 
         if (match(TokenType.FALSE))
-            return new Expr.Literal(peek().line, false);
+            return new Expr.Literal(peek().getLine(), false);
 
         if (match(TokenType.LPAREN))
         {
@@ -255,20 +292,20 @@ public class Parser
             if (!match(TokenType.RPAREN))
                 errorAtCurrent("Expected matching ')' for '('.");
 
-            return new Expr.Group(peek().line, expr);
+            return new Expr.Group(peek().getLine(), expr);
         }
 
         if (match(TokenType.DECIMAL))
-            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme));
+            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme()));
 
         if (match(TokenType.HEXADECIMAL))
-            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 16));
+            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme(), 16));
 
         if (match(TokenType.BINARY))
-            return new Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 2));
+            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme(), 2));
 
         if (match(TokenType.NULL))
-            return new Expr.Literal(peek().line, null);
+            return new Expr.Literal(peek().getLine(), null);
 
         if (match(TokenType.IDENTIFIER))
             return new Expr.Identifier(previous());
@@ -309,17 +346,8 @@ public class Parser
         return new Stmt.Block(statements);
     }
 
-    private Stmt moduleStatement() // could either be a variable or a function
+    private Stmt moduleStatement(Token name) // could either be a variable or a function
     {
-        if(!match(TokenType.IDENTIFIER))
-        {
-            errorAtCurrent("Unexpected token in moduleStatement: " + peek());
-
-            return null;
-        }
-
-        Token name = previous();
-
         if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a module
         {
             List<Token> params = new ArrayList<>();
@@ -359,17 +387,8 @@ public class Parser
         return null;
     }
 
-    private Stmt varStatement() // could either be a variable or a function
+    private Stmt varStatement(Token name) // could either be a variable or a function
     {
-        if(!match(TokenType.IDENTIFIER))
-        {
-            errorAtCurrent("Unexpected token: " + peek());
-
-            return null;
-        }
-
-        Token name = previous();
-
         if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a const
         {
             List<Token> params = new ArrayList<>();
@@ -513,14 +532,57 @@ public class Parser
         return new Stmt.For(var, minValue, maxValue, body);
     }
 
-    private Stmt declaration()
+    private Stmt declaration() // global scope
     {
        // while (match(TokenType.ENDLINE)) ;
 
-        if (match(TokenType.MODULE))
-            return moduleStatement();
-        else if (match(TokenType.VAR))
-            return varStatement();
+        if (match(TokenType.MODULE)) {
+            if (!match(TokenType.IDENTIFIER))
+            {
+                errorAtCurrent("Unexpected token in moduleStatement: " + peek());
+
+                return null;
+            }
+
+            Token name = previous();
+
+            if (match(TokenType.LPAREN))
+                return moduleStatement(name);
+            else {
+                current--;
+                Stmt varExpr = new Stmt.Expression(moduleExpression());
+                match(TokenType.SEMICOLON);
+                return varExpr;
+            }
+        }
+        else if (match(TokenType.VAR)) {
+            if (!match(TokenType.IDENTIFIER))
+            {
+                errorAtCurrent("Unexpected token in varStatement: " + peek());
+
+                return null;
+            }
+
+            Token name = previous();
+
+            if (match(TokenType.LPAREN))
+                return varStatement(name);
+            else {
+                current--;
+                Stmt varExpr = new Stmt.Expression(varExpression());
+                match(TokenType.SEMICOLON);
+                return varExpr;
+            }
+            //{
+//
+            //}
+            //else
+            //    return new Stmt.Expression(
+            //            new Expr.Variable(
+            //                    new Expr.Assignment(name, new Expr.Literal(name.getLine(), null))
+            //            )
+            //    );
+        }
         else if (match(TokenType.ENUM))
             return enumStatement();
         else

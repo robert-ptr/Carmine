@@ -1,15 +1,23 @@
+package carmine.compiler.helpers;
+
+import carmine.compiler.structures.*;
+import carmine.compiler.passes.Carmine;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+;
+
 public class TreeVisualizer implements ASTVisitor<Void> {
     public static List<VariableEnvironment> environments = new ArrayList<VariableEnvironment>();
+    VisualizationMode mode = VisualizationMode.DEFAULT;
 
     private int nodeId = 0;
     private StringBuilder builder = new StringBuilder();
 
     public static void printEnvironments() {
-        environments.add(Carmine.variableEnvironment);
+        environments.add(Carmine.getVarEnv());
 
         for (VariableEnvironment variableEnvironment : environments) {
             System.out.println("environment");
@@ -21,7 +29,8 @@ public class TreeVisualizer implements ASTVisitor<Void> {
         }
     }
 
-    public String visualizeAST(List<Stmt> statements) {
+    public String visualizeAST(List<Stmt> statements, VisualizationMode mode) {
+
         builder.append("digraph AST {\n");
 
         for (Stmt stmt : statements)
@@ -45,10 +54,23 @@ public class TreeVisualizer implements ASTVisitor<Void> {
 
     public void createNode(String expr)
     {
-        builder.append("node" + nodeId++ + "[label=\"" + expr + "\"];\n");
+        if (mode == VisualizationMode.PRETTY_PRINT)
+        {
+
+        }
+        else
+            builder.append("node" + nodeId++ + "[label=\"" + expr + "\"];\n");
     }
 
-    public void createNode(Object obj) { builder.append("node" + nodeId++ + "[label=\"" + obj + "\"];\n"); }
+    public void createNode(Object obj)
+    {
+        if (mode == VisualizationMode.PRETTY_PRINT)
+        {
+
+        }
+        else
+            builder.append("node" + nodeId++ + "[label=\"" + obj + "\"];\n");
+    }
 
     public void createConnection(int id1, int id2)
     {

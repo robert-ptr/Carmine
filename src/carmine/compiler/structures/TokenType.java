@@ -1,4 +1,6 @@
-enum TokenType
+package carmine.compiler.structures;
+
+public enum TokenType
 {
     LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE,
     ENDLINE,
@@ -15,23 +17,4 @@ enum TokenType
     MODULE, VAR,
     ERR,
     EOF
-}
-
-public class Token {
-    TokenType type;
-    String lexeme;
-    Object value;
-    int line;
-    Token(TokenType type, String lexeme, Object value, int line)
-    {
-        this.type = type;
-        this.lexeme = lexeme;
-        this.value = value;
-        this.line = line;
-    }
-
-    public String toString()
-    {
-        return type + " " + lexeme + " " + value;
-    }
 }

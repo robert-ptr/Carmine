@@ -1,9 +1,12 @@
+package carmine.compiler.passes;
+
+import carmine.compiler.helpers.TreeVisualizer;
+import carmine.compiler.structures.*;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
@@ -97,9 +100,14 @@ public class Carmine {
         });
     }
 
-    public static VariableEnvironment getEnvironment()
+    public static VariableEnvironment getVarEnv()
     {
         return variableEnvironment;
+    }
+
+    public static ModuleEnvironment getModuleEnv()
+    {
+        return moduleEnvironment;
     }
 
     private static void run(String code)
@@ -129,15 +137,16 @@ public class Carmine {
         TreeVisualizer visualizer = new TreeVisualizer();
         Optimizer optimizer = new Optimizer(statements);
 
-        optimizer.constantFolding();
-        optimizer.constantPropagation(); // WIP
-        optimizer.constantFolding();
+        //optimizer.constantFolding();
+        //optimizer.constantPropagation(); // WIP
+        //optimizer.constantFolding();
 
-        optimizer.loopUnrolling(); // WIP
-        optimizer.deadCodeElimination(); // WIP
+        //optimizer.loopUnrolling(); // WIP
+        //optimizer.deadCodeElimination(); // WIP
 
-        String dotContent = visualizer.visualizeAST(statements);
-        //System.out.println(dotContent);
+        /*
+        String dotContent = visualizer.visualizeAST(statements, VisualizationMode.DEFAULT);
+        System.out.println(dotContent);
 
         try {
             Files.writeString(
@@ -150,6 +159,7 @@ public class Carmine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 
     private static void runFile(String path) throws IOException, IOException {

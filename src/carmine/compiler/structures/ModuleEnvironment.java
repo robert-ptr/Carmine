@@ -1,3 +1,5 @@
+package carmine.compiler.structures;
+
 import java.util.HashMap;
 
 public class ModuleEnvironment implements Environment<ModuleEnvironment> {
@@ -11,7 +13,7 @@ public class ModuleEnvironment implements Environment<ModuleEnvironment> {
 
     public boolean contains(Token token)
     {
-        return variables.containsKey(token.lexeme);
+        return variables.containsKey(token.getLexeme());
     }
 
     public Object get(String name)
@@ -26,12 +28,12 @@ public class ModuleEnvironment implements Environment<ModuleEnvironment> {
 
     public Object get(Token token)
     {
-        if (variables.containsKey(token.lexeme))
+        if (variables.containsKey(token.getLexeme()))
         {
-            return variables.get(token.lexeme);
+            return variables.get(token.getLexeme());
         }
 
-        throw new RuntimeException(token.line + " Unknown variable: " + token.lexeme);
+        throw new RuntimeException(token.getLine() + " Unknown variable: " + token.getLexeme());
     }
 
     public void addEnclosing(ModuleEnvironment enclosing)

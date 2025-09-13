@@ -1,18 +1,21 @@
-import java.util.ArrayList;
+package carmine.compiler.structures;
+
+import carmine.compiler.helpers.ASTVisitor;
+
 import java.util.List;
 
-abstract class Expr {
+public abstract class Expr {
     public abstract <T> T accept(ASTVisitor<T> visitor);
 
     public abstract int getLine();
 
-    static class Binary extends Expr
+    public static class Binary extends Expr
     {
-        Expr left;
-        Expr right;
-        Token operator;
+        public Expr left;
+        public Expr right;
+        public Token operator;
 
-        Binary(Expr left, Token operator, Expr right)
+        public Binary(Expr left, Token operator, Expr right)
         {
             this.left = left;
             this.operator = operator;
@@ -27,16 +30,16 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return operator.line;
+            return operator.getLine();
         }
     }
 
-    static class Unary extends Expr
+    public static class Unary extends Expr
     {
-        Expr right;
-        Token operator;
+        public Expr right;
+        public Token operator;
 
-        Unary(Token operator, Expr right)
+        public Unary(Token operator, Expr right)
         {
             this.operator = operator;
             this.right = right;
@@ -50,15 +53,15 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return operator.line;
+            return operator.getLine();
         }
     }
 
-    static class Identifier extends Expr
+    public static class Identifier extends Expr
     {
-        Token name;
+        public Token name;
 
-        Identifier(Token name)
+        public Identifier(Token name)
         {
             this.name = name;
         }
@@ -76,15 +79,15 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return name.line;
+            return name.getLine();
         }
     }
 
-    static class Module extends Expr
+    public static class Module extends Expr
     {
-        Expr.Assignment assignment;
+        public Expr.Assignment assignment;
 
-        Module(Expr.Assignment assignment)
+        public Module(Expr.Assignment assignment)
         {
             this.assignment = assignment;
         }
@@ -102,15 +105,15 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return assignment.getName().line;
+            return assignment.getName().getLine();
         }
     }
 
-    static class Variable extends Expr
+    public static class Variable extends Expr
     {
-        Expr.Assignment assignment;
+        public Expr.Assignment assignment;
 
-        Variable(Expr.Assignment assignment)
+        public Variable(Expr.Assignment assignment)
         {
             this.assignment = assignment;
         }
@@ -128,17 +131,16 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return assignment.getName().line;
+            return assignment.getName().getLine();
         }
     }
 
-    static class Assignment extends Expr
+    public static class Assignment extends Expr
     {
-        Token name;
-        Expr right;
+        public Token name;
+        public Expr right;
 
-        Assignment(Token name, Expr right)
-        {
+        public Assignment(Token name, Expr right) {
             this.name = name;
             this.right = right;
         }
@@ -156,16 +158,16 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return name.line;
+            return name.getLine();
         }
     }
 
-    static class Literal extends Expr
+    public static class Literal extends Expr
     {
-        Object value;
-        int line;
+        public Object value;
+        public int line;
 
-        Literal(int line, Object value)
+        public Literal(int line, Object value)
         {
             this.line = line;
             this.value = value;
@@ -179,16 +181,16 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return this.line;
+            return this.getLine();
         }
     }
 
-    static class Group extends Expr
+    public static class Group extends Expr
     {
-        Expr expr;
-        int line;
+        public Expr expr;
+        public int line;
 
-        Group(int line, Expr expr)
+        public Group(int line, Expr expr)
         {
             this.line = line;
             this.expr = expr;
@@ -202,18 +204,18 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return this.line;
+            return this.getLine();
         }
     }
 
-    static class Call extends Expr
+    public static class Call extends Expr
     {
-        Expr callee; // test this
-        List<Expr> arguments;
+        public Expr callee; // test this
+        public List<Expr> arguments;
 
-        int line;
+        public int line;
 
-        Call(int line, Expr callee, List<Expr> arguments)
+        public Call(int line, Expr callee, List<Expr> arguments)
         {
             this.line = line;
             this.callee = callee;
@@ -255,7 +257,7 @@ abstract class Expr {
         @Override
         public int getLine()
         {
-            return this.line;
+            return this.getLine();
         }
     }
 }

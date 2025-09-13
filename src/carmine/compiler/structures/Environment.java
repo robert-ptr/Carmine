@@ -1,3 +1,5 @@
+package carmine.compiler.structures;
+
 import java.util.HashMap;
 
 public interface Environment<T extends Environment<T>> {
