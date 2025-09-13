@@ -2,7 +2,7 @@ package carmine.compiler.passes;
 
 import carmine.compiler.structures.Token;
 import carmine.compiler.structures.TokenType;
-import carmine.compiler.helpers.Logger;
+import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
 
 import java.util.ArrayList;
@@ -179,7 +179,7 @@ public class Scanner {
                     return makeToken(TokenType.NOTEQUAL);
                 }
                 //return makeToken(TokenType.NOT);
-                Logger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
+                CarmineLogger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
                 return makeToken(TokenType.ERR);
             case '+':
                 return makeToken(TokenType.PLUS);
@@ -241,7 +241,7 @@ public class Scanner {
                 }
                 else
                 {
-                    Logger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
+                    CarmineLogger.log("Unknown literal: '" + c + "' at line " + line, LogLevel.ERROR) ;
                     return makeToken(TokenType.ERR);
                 }
         }

@@ -1,7 +1,8 @@
 package carmine.compiler.passes;
 
+import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
-import carmine.compiler.helpers.Logger;
+import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.structures.Expr;
 import carmine.compiler.structures.Stmt;
 import carmine.compiler.structures.Token;
@@ -46,7 +47,7 @@ public class Parser
 
     private void errorAtCurrent(String message)
     {
-         Logger.log(peek(), message, LogLevel.ERROR) ;
+         CarmineLogger.log(peek(), message, LogLevel.ERROR) ;
     }
 
     private boolean check(TokenType type)

@@ -1,8 +1,9 @@
 package carmine.compiler.passes;
 
 import carmine.compiler.helpers.ASTVisitor;
+import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
-import carmine.compiler.helpers.Logger;
+import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.structures.*;
 
 import java.util.List;
@@ -56,34 +57,34 @@ class ConstantFolder implements ASTVisitor<Object>
 
         if (right instanceof Integer)
         {
-            Logger.log(expr, "Right is of type Integer", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Right is of type Integer", LogLevel.DEBUG);
             if (operator.getType() == TokenType.MINUS)
                 return -(Integer)right;
             else
-                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
+                CarmineLogger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
         else if (right instanceof Number)
         {
-            Logger.log(expr, "Right is of type Number", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Right is of type Number", LogLevel.DEBUG);
             if (operator.getType() == TokenType.MINUS)
                 return -((Number) right).doubleValue();
             else
-                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
+                CarmineLogger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
         else if (right instanceof Boolean)
         {
-            Logger.log(expr, "Right is of type Boolean", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Right is of type Boolean", LogLevel.DEBUG);
             if (operator.getType() == TokenType.NOT)
                 return !((Boolean) right);
             else
-                Logger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
+                CarmineLogger.log(expr, "Can't apply operator " + operator + " to " + right, LogLevel.ERROR);
         }
 
         if (right != null) {
-            Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.ERROR);
+            CarmineLogger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.ERROR);
             return null;
         }
-        Logger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.WARN); // most likely an identifier
+        CarmineLogger.log(expr, "Can't apply unary operator to non-const value.", LogLevel.WARN); // most likely an identifier
 
         return null;
     }
@@ -102,8 +103,8 @@ class ConstantFolder implements ASTVisitor<Object>
                 return null;
             }
 
-            Logger.log(expr, "obj1 and obj2 are null", LogLevel.DEBUG);
-            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
+            CarmineLogger.log(expr, "obj1 and obj2 are null", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
             return null;
         }
 
@@ -111,8 +112,8 @@ class ConstantFolder implements ASTVisitor<Object>
         {
             expr.left = new Expr.Literal(expr.getLine(), obj1); // obj1 is not null otherwise the function would have returned null
 
-            Logger.log(expr, "Obj2 is null", LogLevel.DEBUG);
-            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
+            CarmineLogger.log(expr, "Obj2 is null", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.WARN);
             return null;
         }
 
@@ -120,7 +121,7 @@ class ConstantFolder implements ASTVisitor<Object>
 
         if (obj1 instanceof Integer && obj2 instanceof Integer)
         {
-            Logger.log(expr, "obj1 and obj2 are of type Integer", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "obj1 and obj2 are of type Integer", LogLevel.DEBUG);
 
             Integer left = (Integer) obj1;
             Integer right = (Integer) obj2;
@@ -151,12 +152,12 @@ class ConstantFolder implements ASTVisitor<Object>
                 case LESS_EQUAL:
                     return left <= right;
                 default:
-                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    CarmineLogger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
                     return null;
             }
         }
         else if (obj1 instanceof Number && obj2 instanceof Number) {
-            Logger.log(expr, "obj1 and obj2 are of type Number", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "obj1 and obj2 are of type Number", LogLevel.DEBUG);
 
             Number left = (Number) obj1;
             Number right = (Number) obj2;
@@ -187,7 +188,7 @@ class ConstantFolder implements ASTVisitor<Object>
                 case LESS_EQUAL:
                     return left.doubleValue() <= right.doubleValue();
                 default:
-                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    CarmineLogger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
                     return null;
             }
         }
@@ -206,7 +207,7 @@ class ConstantFolder implements ASTVisitor<Object>
                 case AND:
                     return left && right;
                 default:
-                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    CarmineLogger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
                     return null;
             }
         }
@@ -218,7 +219,7 @@ class ConstantFolder implements ASTVisitor<Object>
                 case NOTEQUAL:
                     return isTruthy(obj1) != isTruthy(obj2);
                 default:
-                    Logger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
+                    CarmineLogger.log(expr, "Unknown binary operator: " + operator, LogLevel.ERROR);
                     return null;
             }
         }
@@ -235,7 +236,7 @@ class ConstantFolder implements ASTVisitor<Object>
                 case NOTEQUAL:
                     return !left.equals(right);
                 default:
-                    Logger.log(expr, "Operator can't be used on strings: " + operator, LogLevel.ERROR);
+                    CarmineLogger.log(expr, "Operator can't be used on strings: " + operator, LogLevel.ERROR);
                     return null;
 
             }
@@ -249,7 +250,7 @@ class ConstantFolder implements ASTVisitor<Object>
                 return left + right;
             else
             {
-                Logger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
+                CarmineLogger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
                 return null;
             }
         }
@@ -262,14 +263,14 @@ class ConstantFolder implements ASTVisitor<Object>
                 return left + right;
             else
             {
-                Logger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
+                CarmineLogger.log(expr, "Operator can't be used on string and double: " + operator, LogLevel.ERROR);
                 return null;
             }
         }
         else
         {
-            Logger.log(expr, "obj1 or obj2 are of wrong types", LogLevel.DEBUG);
-            Logger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
+            CarmineLogger.log(expr, "obj1 or obj2 are of wrong types", LogLevel.DEBUG);
+            CarmineLogger.log(expr, "Can't apply binary operator to non-const value.", LogLevel.ERROR);
             return null;
         }
     }
