@@ -116,7 +116,7 @@ public class Parser
         if (right instanceof Expr.Assignment)
             return new Expr.Variable((Expr.Assignment)right);
         else if (right instanceof Expr.Identifier)
-            return new Expr.Variable(null);
+            return new Expr.Variable(new Expr.Assignment(previous(), null));
         else
             errorAtCurrent("Invalid variable declaration.");
 
@@ -349,82 +349,73 @@ public class Parser
 
     private Stmt moduleStatement(Token name) // could either be a variable or a function
     {
-        if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a module
+        List<Token> params = new ArrayList<>();
+        List<Token> returnValues = new ArrayList<>();
+        if (!check(TokenType.RPAREN))
         {
-            List<Token> params = new ArrayList<>();
-            List<Token> returnValues = new ArrayList<>();
-            if (!check(TokenType.RPAREN))
+            do
             {
-                do
-                {
-                    params.add(advance());
-                } while(match(TokenType.COMMA));
-            }
-
-            if (!match(TokenType.RPAREN))
-                errorAtCurrent("Expected ')'.");
-
-            if (match(TokenType.ARROW)) // then it returns one or multiple values
-            {
-                do
-                {
-                    returnValues.add(advance());
-                } while(match(TokenType.COMMA));
-            }
-
-            if (!match(TokenType.LBRACE))
-                errorAtCurrent("Expected '{'.");
-
-            Stmt statements = blockStatement();
-
-            if (statements instanceof Stmt.Block)
-                return new Stmt.ModuleFunction(name, params, returnValues, (Stmt.Block)statements);
-            else
-                errorAtCurrent("Expected block statement.");
-
-            return null;
+                params.add(advance());
+            } while(match(TokenType.COMMA));
         }
+
+        if (!match(TokenType.RPAREN))
+            errorAtCurrent("Expected ')'.");
+
+        if (match(TokenType.ARROW)) // then it returns one or multiple values
+        {
+            do
+            {
+                returnValues.add(advance());
+            } while(match(TokenType.COMMA));
+        }
+
+        if (!match(TokenType.LBRACE))
+            errorAtCurrent("Expected '{'.");
+
+        Stmt statements = blockStatement();
+
+        if (statements instanceof Stmt.Block)
+            return new Stmt.ModuleFunction(name, params, returnValues, (Stmt.Block)statements);
+        else
+            errorAtCurrent("Expected block statement.");
 
         return null;
     }
 
     private Stmt varStatement(Token name) // could either be a variable or a function
     {
-        if (match(TokenType.LPAREN)) // then it's a function declaration and that function returns a const
+        List<Token> params = new ArrayList<>();
+        List<Token> returnValues = new ArrayList<>();
+        if (!check(TokenType.RPAREN))
         {
-            List<Token> params = new ArrayList<>();
-            List<Token> returnValues = new ArrayList<>();
-            if (!check(TokenType.RPAREN))
+            do
             {
-                do
-                {
-                    params.add(advance());
-                } while(match(TokenType.COMMA));
-            }
-
-            if (!match(TokenType.RPAREN))
-                errorAtCurrent("Expected ')'.");
-
-            if (match(TokenType.ARROW)) // then it returns one or multiple values
-            {
-                do
-                {
-                    returnValues.add(advance());
-                } while(match(TokenType.COMMA));
-            }
-
-            if (!match(TokenType.LBRACE))
-                errorAtCurrent("Expected '{'.");
-
-            Stmt statements = blockStatement();
-
-            if (statements instanceof Stmt.Block)
-                return new Stmt.VarFunction(name, params, returnValues, (Stmt.Block)statements);
-            else
-                errorAtCurrent("Expected block statement.");
-
-            return null;
+                params.add(advance());
+            } while(match(TokenType.COMMA));
         }
+
+        if (!match(TokenType.RPAREN))
+            errorAtCurrent("Expected ')'.");
+
+        if (match(TokenType.ARROW)) // then it returns one or multiple values
+        {
+            do
+            {
+                returnValues.add(advance());
+            } while(match(TokenType.COMMA));
+        }
+
+        if (!match(TokenType.LBRACE))
+            errorAtCurrent("Expected '{'.");
+
+        Stmt statements = blockStatement();
+
+        if (statements instanceof Stmt.Block)
+            return new Stmt.VarFunction(name, params, returnValues, (Stmt.Block)statements);
+        else
+            errorAtCurrent("Expected block statement.");
+
         return null;
     }
 

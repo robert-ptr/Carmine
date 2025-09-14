@@ -1,12 +1,15 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.TreeVisualizer;
+import carmine.compiler.helpers.ASTVisualizer;
+import carmine.compiler.helpers.VisualizationMode;
 import carmine.compiler.structures.*;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
@@ -134,8 +137,8 @@ public class Carmine {
         //Debug.printEnvironments();
          */
 
-        TreeVisualizer visualizer = new TreeVisualizer();
-        Optimizer optimizer = new Optimizer(statements);
+        ASTVisualizer visualizer = new ASTVisualizer();
+        //Optimizer optimizer = new Optimizer(statements);
 
         //optimizer.constantFolding();
         //optimizer.constantPropagation(); // WIP
@@ -144,10 +147,10 @@ public class Carmine {
         //optimizer.loopUnrolling(); // WIP
         //optimizer.deadCodeElimination(); // WIP
 
-        /*
-        String dotContent = visualizer.visualizeAST(statements, VisualizationMode.DEFAULT);
+        String dotContent = visualizer.visualizeAST(statements, VisualizationMode.PRETTY_PRINT);
         System.out.println(dotContent);
 
+        /*
         try {
             Files.writeString(
                     Path.of("graph.dot"),
