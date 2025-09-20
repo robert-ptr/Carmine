@@ -32,6 +32,12 @@ public abstract class Expr {
         {
             return operator.getLine();
         }
+
+        @Override
+        public String toString()
+        {
+            return left.toString() + " " + operator.toString() + " " + right.toString();
+        }
     }
 
     public static class Unary extends Expr
@@ -54,6 +60,12 @@ public abstract class Expr {
         public int getLine()
         {
             return operator.getLine();
+        }
+
+        @Override
+        public String toString()
+        {
+            return operator.toString() + " " + right.toString();
         }
     }
 
@@ -81,6 +93,12 @@ public abstract class Expr {
         {
             return name.getLine();
         }
+
+        @Override
+        public String toString()
+        {
+            return name.getLexeme();
+        }
     }
 
     public static class Module extends Expr
@@ -107,6 +125,12 @@ public abstract class Expr {
         {
             return assignment.getName().getLine();
         }
+
+        @Override
+        public String toString()
+        {
+            return "module " + assignment.toString();
+        }
     }
 
     public static class Variable extends Expr
@@ -132,6 +156,12 @@ public abstract class Expr {
         public int getLine()
         {
             return assignment.getName().getLine();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "variable " + assignment.toString();
         }
     }
 
@@ -160,6 +190,12 @@ public abstract class Expr {
         {
             return name.getLine();
         }
+
+        @Override
+        public String toString()
+        {
+            return name.getLexeme() + " = " + right.toString();
+        }
     }
 
     public static class Literal extends Expr
@@ -183,6 +219,12 @@ public abstract class Expr {
         {
             return this.getLine();
         }
+
+        @Override
+        public String toString()
+        {
+            return value.toString();
+        }
     }
 
     public static class Group extends Expr
@@ -205,6 +247,12 @@ public abstract class Expr {
         public int getLine()
         {
             return this.getLine();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "(" + expr.toString() + ")";
         }
     }
 
@@ -258,6 +306,12 @@ public abstract class Expr {
         public int getLine()
         {
             return this.getLine();
+        }
+
+        @Override
+        public String toString()
+        {
+            return callee.toString() + "(" + arguments.toString() + ")";
         }
     }
 }
