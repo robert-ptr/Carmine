@@ -110,11 +110,13 @@ public class ASTVisualizer implements ASTVisitor<Void> {
         int initialId = nodeId;
         createNode(expr.operator);
 
+        tabSize++;
         createConnection(initialId, nodeId);
 
         expr.left.accept(this);
         createConnection(initialId, nodeId);
         expr.right.accept(this);
+        tabSize--;
 
         return null;
     }
@@ -139,8 +141,10 @@ public class ASTVisualizer implements ASTVisitor<Void> {
     @Override
     public Void visitGroupExpr(Expr.Group group) {
         createNode("GROUP");
+        tabSize++;
         createConnection(nodeId - 1, nodeId);
         group.expr.accept(this);
+        tabSize--;
 
         return null;
     }
@@ -149,8 +153,11 @@ public class ASTVisualizer implements ASTVisitor<Void> {
     public Void visitAssignmentExpr(Expr.Assignment assignment) {
         createNode("ASSIGNMENT " + assignment.name);
         createConnection(nodeId - 1, nodeId);
-        if (assignment.right != null)
+        if (assignment.right != null) {
+            tabSize++;
             assignment.right.accept(this);
+            tabSize--;
+        }
 
 
         return null;

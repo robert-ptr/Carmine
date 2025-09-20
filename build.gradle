@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.13'
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.13'
 }
 
 java {
@@ -26,4 +27,8 @@ sourceSets {
             srcDirs = ['src']
         }
     }
+}
+
+application {
+    mainClass = 'carmine.compiler.passes.Carmine'
 }
