@@ -374,20 +374,27 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitExpressionStmt(Stmt.Expression expression)
     {
-        expression.expr.accept(this); // if expr is an arithmetic expression, evaluate it and save it
+        Object obj = expression.expr.accept(this); // if expr is an arithmetic expression, evaluate it and save it
+        if (obj instanceof Integer ||
+            obj instanceof Number ||
+            obj instanceof String)
+            expression.expr = new Expr.Literal(expression.expr.getLine(),obj);
 
         return null;
     }
 }
 
 class ConstantPropagator implements ASTVisitor<Object> {
+    Environment varEnvironment = new Environment();
+    Environment moduleEnvironment = new Environment();
+
     public Object visitLiteralExpr(Expr.Literal expr) {
-        return null;
+        return expr;
     }
 
     public Object visitUnaryExpr(Expr.Unary expr) {
         if (expr.right instanceof Expr.Variable) {
-            expr.right = new Expr.Literal(expr.right.getLine(), expr.right.accept(this));
+            expr.right = (Expr.Literal)expr.right.accept(this);
         }
 
         return null;
@@ -395,10 +402,10 @@ class ConstantPropagator implements ASTVisitor<Object> {
 
     public Object visitBinaryExpr(Expr.Binary expr) {
         if (expr.left instanceof Expr.Variable)
-            expr.left = new Expr.Literal(expr.left.getLine(), expr.left.accept(this));
+            expr.left = (Expr.Literal)expr.left.accept(this);
 
         if (expr.right instanceof Expr.Variable)
-            expr.right = new Expr.Literal(expr.right.getLine(), expr.left.accept(this));
+            expr.right = (Expr.Literal)expr.right.accept(this);
 
         return null;
     }
@@ -413,26 +420,48 @@ class ConstantPropagator implements ASTVisitor<Object> {
         return null;
     }
 
-    public Object visitAssignmentExpr(Expr.Assignment assignment) {
-        ModuleEnvironment env = Carmine.moduleEnvironment;
-        Object value = assignment.right.accept(this);
+    public Object visitAssignmentExpr(Expr.Assignment assignment)
+    {
+        assignment.right.accept(this);
 
-        if (value != null)
-            env.put(assignment.name.getLexeme(), value);
+        Environment moduleEnv = moduleEnvironment;
+        while (moduleEnv != null && !moduleEnv.contains(assignment.name)) {
+            moduleEnv = (Environment) moduleEnv.getEnclosing();
+        }
 
-        return value;
+        if (moduleEnv != null)
+        {
+            if (assignment.right instanceof Expr.Literal)
+                moduleEnv.getVariables().put(assignment.name.getLexeme(), assignment.right);
+
+            return null;
+        }
+
+        Environment variableEnv = varEnvironment;
+        while (variableEnv != null && !variableEnv.contains(assignment.name)) {
+            variableEnv = (Environment) variableEnv.getEnclosing();
+        }
+
+        if (variableEnv != null)
+        {
+            if (assignment.right instanceof Expr.Literal)
+                variableEnv.getVariables().put(assignment.name.getLexeme(), assignment.right);
+
+            return null;
+        }
+
+        return null;
     }
 
     @Override
     public Object visitIdentifierExpr(Expr.Identifier identifier) { // TO DO: search the other environments
-        ModuleEnvironment moduleEnv = Carmine.moduleEnvironment;
-        VariableEnvironment variableEnv = Carmine.variableEnvironment;
+        Environment moduleEnv = moduleEnvironment;
+        Environment variableEnv = varEnvironment;
 
-
-        if (Carmine.variableEnvironment.contains(identifier.name))
-            return Carmine.variableEnvironment.get(identifier.name);
-        else if ((Carmine.moduleEnvironment.contains(identifier.name)))
-            return Carmine.moduleEnvironment.get(identifier.name);
+        if (varEnvironment.contains(identifier.name))
+            return varEnvironment.get(identifier.name);
+        else if ((moduleEnvironment.contains(identifier.name)))
+            return moduleEnvironment.get(identifier.name);
 
         return null;
     }
@@ -462,44 +491,43 @@ class ConstantPropagator implements ASTVisitor<Object> {
     }
 
     public Object visitModuleExpr(Expr.Module module) {
-        ModuleEnvironment env = Carmine.moduleEnvironment;
+        Environment env = moduleEnvironment;
         while (env != null && !env.contains(module.getName())) {
-            env = (ModuleEnvironment) env.getEnclosing();
+            env = (Environment) env.getEnclosing();
         }
 
         if (env != null)
             throw new RuntimeException("Module " + module.getName() + " is already defined.");
 
-        Carmine.variableEnvironment.put(module.getName().getLexeme(), module.assignment.accept(this));
+        Carmine.moduleEnvironment.put(module.getName().getLexeme(), module.assignment.accept(this));
 
         return null;
     }
 
     public Object visitVarExpr(Expr.Variable var) {
-        Environment env = Carmine.variableEnvironment;
+        Environment env = varEnvironment;
         while (env != null && !env.contains(var.getName())) {
             env = (Environment) env.getEnclosing();
         }
 
         if (env != null)
             throw new RuntimeException("Variable " + var.getName() + " is already defined.");
-
-        Carmine.variableEnvironment.put(var.getName().getLexeme(), var.assignment.accept(this));
+        varEnvironment.put(var.getName().getLexeme(), var.assignment.accept(this));
 
         return null;
     }
 
     public Object visitBlockStmt(Stmt.Block block) {
-        VariableEnvironment blockConstEnvironment = new VariableEnvironment();
-        blockConstEnvironment.addEnclosing(Carmine.variableEnvironment);
+        Environment blockConstEnvironment = new Environment();
+        blockConstEnvironment.addEnclosing(varEnvironment);
 
-        Carmine.variableEnvironment = blockConstEnvironment;
+        varEnvironment = blockConstEnvironment;
 
         for (Stmt stmt : block.statements) {
             stmt.accept(this);
         }
 
-        Carmine.variableEnvironment = blockConstEnvironment.getEnclosing();
+        varEnvironment = blockConstEnvironment.getEnclosing();
 
         return null;
     }

@@ -217,7 +217,7 @@ public abstract class Expr {
         @Override
         public int getLine()
         {
-            return this.getLine();
+            return line;
         }
 
         @Override

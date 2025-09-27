@@ -13,8 +13,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
-    static VariableEnvironment variableEnvironment = new VariableEnvironment(); // used for the first parse where we evaluate all arithmetic expressions
-    static ModuleEnvironment moduleEnvironment = new ModuleEnvironment(); // used to save modules
+    static Environment variableEnvironment = new Environment(); // used for the first parse where we evaluate all arithmetic expressions
+    static Environment moduleEnvironment = new Environment(); // used to save modules
     //static List<Stmt.Function> statements;
 
     static
@@ -103,12 +103,12 @@ public class Carmine {
         });
     }
 
-    public static VariableEnvironment getVarEnv()
+    public static Environment getVarEnv()
     {
         return variableEnvironment;
     }
 
-    public static ModuleEnvironment getModuleEnv()
+    public static Environment getModuleEnv()
     {
         return moduleEnvironment;
     }
@@ -138,11 +138,11 @@ public class Carmine {
          */
 
         ASTVisualizer visualizer = new ASTVisualizer();
-        //Optimizer optimizer = new Optimizer(statements);
+        Optimizer optimizer = new Optimizer(statements);
 
-        //optimizer.constantFolding();
+        optimizer.constantFolding();
         //optimizer.constantPropagation(); // WIP
-        //optimizer.constantFolding();
+        optimizer.constantFolding();
 
         //optimizer.loopUnrolling(); // WIP
         //optimizer.deadCodeElimination(); // WIP

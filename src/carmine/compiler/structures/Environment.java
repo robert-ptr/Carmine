@@ -2,16 +2,52 @@ package carmine.compiler.structures;
 
 import java.util.HashMap;
 
-public interface Environment<T extends Environment<T>> {
-    void put(String name, Object value);
+public class Environment {
+    private Environment enclosing = null;
+    private HashMap<String, Object> variables = new HashMap<>();
 
-    boolean contains(Token token);
-    Object get(String name);
-    Object get(Token token);
+    public void put(String name, Object value)
+    {
+        variables.put(name, value);
+    }
 
-    void addEnclosing(T enclosing);
+    public boolean contains(Token token)
+    {
+        return variables.containsKey(token.getLexeme());
+    }
 
-    T getEnclosing();
+    public Object get(String name)
+    {
+        if (variables.containsKey(name))
+        {
+            return variables.get(name);
+        }
 
-    HashMap<String, Object> getVariables();
+        throw new RuntimeException("Unknown variable: " + name);
+    }
+
+    public Object get(Token token)
+    {
+        if (variables.containsKey(token.getLexeme()))
+        {
+            return variables.get(token.getLexeme());
+        }
+
+        throw new RuntimeException(token.getLine() + " Unknown variable: " + token.getLexeme());
+    }
+
+    public void addEnclosing(Environment enclosing)
+    {
+        this.enclosing = enclosing;
+    }
+
+    public Environment getEnclosing()
+    {
+        return enclosing;
+    }
+
+    public HashMap<String, Object> getVariables()
+    {
+        return variables;
+    }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 ;
 
 public class ASTVisualizer implements ASTVisitor<Void> {
-    public static List<VariableEnvironment> environments = new ArrayList<VariableEnvironment>();
+    public static List<Environment> environments = new ArrayList<Environment>();
     VisualizationMode mode = VisualizationMode.DEFAULT;
 
     private int tabSize = 0;
@@ -20,7 +20,7 @@ public class ASTVisualizer implements ASTVisitor<Void> {
     public static void printEnvironments() {
         environments.add(Carmine.getVarEnv());
 
-        for (VariableEnvironment variableEnvironment : environments) {
+        for (Environment variableEnvironment : environments) {
             System.out.println("environment");
             HashMap<String, Object> variables = variableEnvironment.getVariables();
 
