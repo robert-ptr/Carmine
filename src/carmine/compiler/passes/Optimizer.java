@@ -313,6 +313,10 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitForStmt(Stmt.For forStmt)
     {
+        forStmt.minValue.accept(this);
+        forStmt.maxValue.accept(this);
+        forStmt.body.accept(this);
+
         return null;
     }
 
@@ -340,7 +344,9 @@ class ConstantFolder implements ASTVisitor<Object>
     {
         for (Expr.Assignment assignment : enumStmt.assignments)
         {
-            assignment.right = new Expr.Literal(assignment.getLine(), assignment.accept(this)); // test this out
+            Object right = assignment.right.accept(this);
+            if (right != null)
+                assignment.right = new Expr.Literal(assignment.getLine(), assignment.accept(this)); // test this out
         }
 
         return null;
@@ -432,53 +438,83 @@ class ConstantPropagator implements ASTVisitor<Object> {
     }
 
     @Override
-    public Object visitIdentifierExpr(Expr.Identifier identifier) { // TO DO: search the other environments
-        if (varEnvironment.contains(identifier.name))
-            return ((Expr.Literal)varEnvironment.get(identifier.name)).value;
-        else if ((moduleEnvironment.contains(identifier.name)))
-            return ((Expr.Literal)moduleEnvironment.get(identifier.name)).value;
+    public Object visitIdentifierExpr(Expr.Identifier identifier) {
+        Environment varEnv = varEnvironment;
+
+        while (varEnv != null) {
+            if (varEnvironment.contains(identifier.name))
+                return ((Expr.Literal) varEnvironment.get(identifier.name)).value;
+
+            varEnv = varEnv.getEnclosing();
+        }
 
         return null;
     }
 
     public Object visitForStmt(Stmt.For forStmt) {
+        forStmt.minValue.accept(this);
+        forStmt.maxValue.accept(this);
+        forStmt.body.accept(this);
+
         return null;
     }
 
     public Object visitWhileStmt(Stmt.While whileStmt) {
+        whileStmt.condition.accept(this);
+        whileStmt.body.accept(this);
+
         return null;
     }
 
     public Object visitIfStmt(Stmt.If ifStmt) {
+        ifStmt.condition.accept(this);
+        ifStmt.thenStmt.accept(this);
+
+        if (ifStmt.elseStmt != null)
+            ifStmt.elseStmt.accept(this);
+
         return null;
     }
 
     public Object visitEnumStmt(Stmt.Enum enumStmt) {
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
+        for (var expr : enumStmt.assignments) {
+            expr.accept(this);
+            if (expr.right instanceof Expr.Literal)
+                varEnvironment.getVariables().put(expr.name.getLexeme(), expr.right);
+
+        }
+
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
     public Object visitConstFunctionStmt(Stmt.VarFunction varFunction) {
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
+        varFunction.statements.accept(this);
+
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
     public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction) {
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
+        moduleFunction.statements.accept(this);
+
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
     public Object visitModuleExpr(Expr.Module module) {
-
-        Environment env = moduleEnvironment;
-        while (env != null && !env.contains(module.getName())) {
-            env = (Environment) env.getEnclosing();
-        }
-        if (env != null)
-            throw new RuntimeException("Module " + module.getName() + " is already defined.");
-
-        module.assignment.accept(this);
-
-        if (module.assignment.right instanceof Expr.Literal)
-            moduleEnvironment.getVariables().put(module.assignment.name.getLexeme(), module.assignment.right);
-
         return null;
     }
 
@@ -500,16 +536,15 @@ class ConstantPropagator implements ASTVisitor<Object> {
     }
 
     public Object visitBlockStmt(Stmt.Block block) {
-        Environment blockConstEnvironment = new Environment();
-        blockConstEnvironment.addEnclosing(varEnvironment);
-
-        varEnvironment = blockConstEnvironment;
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
 
         for (Stmt stmt : block.statements) {
             stmt.accept(this);
         }
 
-        varEnvironment = blockConstEnvironment.getEnclosing();
+        varEnvironment = varEnvironment.getEnclosing();
 
         return null;
     }

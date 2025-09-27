@@ -40,6 +40,9 @@ public class Token {
 
     public String toString()
     {
-        return type + " " + lexeme + " " + value;
+        if (value != null)
+            return type + " " + lexeme + " " + value;
+        else
+            return type + " " + lexeme;
     }
 }
