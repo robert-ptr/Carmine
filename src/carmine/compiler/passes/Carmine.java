@@ -141,7 +141,7 @@ public class Carmine {
         Optimizer optimizer = new Optimizer(statements);
 
         optimizer.constantFolding();
-        //optimizer.constantPropagation(); // WIP
+        optimizer.constantPropagation(); // WIP
         optimizer.constantFolding();
 
         //optimizer.loopUnrolling(); // WIP

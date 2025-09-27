@@ -6,6 +6,7 @@ import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.structures.*;
 
+import javax.print.attribute.HashPrintServiceAttributeSet;
 import java.util.List;
 
 class ConstantFolder implements ASTVisitor<Object>
@@ -389,23 +390,26 @@ class ConstantPropagator implements ASTVisitor<Object> {
     Environment moduleEnvironment = new Environment();
 
     public Object visitLiteralExpr(Expr.Literal expr) {
-        return expr;
+        return expr.value;
     }
 
     public Object visitUnaryExpr(Expr.Unary expr) {
-        if (expr.right instanceof Expr.Variable) {
-            expr.right = (Expr.Literal)expr.right.accept(this);
-        }
+        Object right = expr.right.accept(this);
+
+        if (right != null)
+            expr.right = new Expr.Literal(expr.getLine(), right);
 
         return null;
     }
 
     public Object visitBinaryExpr(Expr.Binary expr) {
-        if (expr.left instanceof Expr.Variable)
-            expr.left = (Expr.Literal)expr.left.accept(this);
+        Object left = expr.left.accept(this);
+        Object right = expr.right.accept(this);
 
-        if (expr.right instanceof Expr.Variable)
-            expr.right = (Expr.Literal)expr.right.accept(this);
+        if (left != null)
+            expr.left = new Expr.Literal(expr.getLine(), left);
+        if (right != null)
+            expr.right = new Expr.Literal(expr.getLine(), right);
 
         return null;
     }
@@ -424,44 +428,15 @@ class ConstantPropagator implements ASTVisitor<Object> {
     {
         assignment.right.accept(this);
 
-        Environment moduleEnv = moduleEnvironment;
-        while (moduleEnv != null && !moduleEnv.contains(assignment.name)) {
-            moduleEnv = (Environment) moduleEnv.getEnclosing();
-        }
-
-        if (moduleEnv != null)
-        {
-            if (assignment.right instanceof Expr.Literal)
-                moduleEnv.getVariables().put(assignment.name.getLexeme(), assignment.right);
-
-            return null;
-        }
-
-        Environment variableEnv = varEnvironment;
-        while (variableEnv != null && !variableEnv.contains(assignment.name)) {
-            variableEnv = (Environment) variableEnv.getEnclosing();
-        }
-
-        if (variableEnv != null)
-        {
-            if (assignment.right instanceof Expr.Literal)
-                variableEnv.getVariables().put(assignment.name.getLexeme(), assignment.right);
-
-            return null;
-        }
-
         return null;
     }
 
     @Override
     public Object visitIdentifierExpr(Expr.Identifier identifier) { // TO DO: search the other environments
-        Environment moduleEnv = moduleEnvironment;
-        Environment variableEnv = varEnvironment;
-
         if (varEnvironment.contains(identifier.name))
-            return varEnvironment.get(identifier.name);
+            return ((Expr.Literal)varEnvironment.get(identifier.name)).value;
         else if ((moduleEnvironment.contains(identifier.name)))
-            return moduleEnvironment.get(identifier.name);
+            return ((Expr.Literal)moduleEnvironment.get(identifier.name)).value;
 
         return null;
     }
@@ -491,15 +466,18 @@ class ConstantPropagator implements ASTVisitor<Object> {
     }
 
     public Object visitModuleExpr(Expr.Module module) {
+
         Environment env = moduleEnvironment;
         while (env != null && !env.contains(module.getName())) {
             env = (Environment) env.getEnclosing();
         }
-
         if (env != null)
             throw new RuntimeException("Module " + module.getName() + " is already defined.");
 
-        Carmine.moduleEnvironment.put(module.getName().getLexeme(), module.assignment.accept(this));
+        module.assignment.accept(this);
+
+        if (module.assignment.right instanceof Expr.Literal)
+            moduleEnvironment.getVariables().put(module.assignment.name.getLexeme(), module.assignment.right);
 
         return null;
     }
@@ -512,7 +490,11 @@ class ConstantPropagator implements ASTVisitor<Object> {
 
         if (env != null)
             throw new RuntimeException("Variable " + var.getName() + " is already defined.");
-        varEnvironment.put(var.getName().getLexeme(), var.assignment.accept(this));
+
+        var.assignment.accept(this);
+
+        if (var.assignment.right instanceof Expr.Literal)
+            varEnvironment.put(var.getName().getLexeme(), var.assignment.right);
 
         return null;
     }
@@ -533,6 +515,8 @@ class ConstantPropagator implements ASTVisitor<Object> {
     }
 
     public Object visitExpressionStmt(Stmt.Expression expression) {
+        expression.expr.accept(this);
+
         return null;
     }
 
