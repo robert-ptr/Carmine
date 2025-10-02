@@ -1,1 +1,5 @@
 rootProject.name = 'carmine'
+include 'src:tests'
+findProject(':src:tests')?.name = 'tests'
+include 'test'
+
