@@ -56,30 +56,6 @@ public class Carmine {
             }
         });
 
-        moduleEnvironment.put("true", new CarmineCallable() {
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(List<Object> arguments) {
-                return null;
-            }
-        });
-
-        moduleEnvironment.put("false", new CarmineCallable() {
-            @Override
-            public int arity() {
-                return 0;
-            }
-
-            @Override
-            public Object call(List<Object> arguments) {
-                return null;
-            }
-        });
-
         variableEnvironment.put("import", new CarmineCallable() {
             @Override
             public int arity() { return 1;}

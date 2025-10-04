@@ -1,6 +1,6 @@
 module xor(a, b) -> out
 {
-    out = and((a or b) not(a and b));
+    out = and(a or b, not(a and b));
 }
 
 print(xor(1, 0)); // this should print the structure

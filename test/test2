@@ -2,7 +2,7 @@ module OR(a, b) -> out {
     out = or(a, b);
 }
 
-module x = false();
-module y = true();
+module x = false;
+module y = true;
 module output = OR(x, y);
 

@@ -1,7 +1,7 @@
 module a;
 var _absdsdc10 = false;
 {
-    module b = and(true(), (not false()));
+    module b = and(true, (not (false)));
     a = true();
 }
 

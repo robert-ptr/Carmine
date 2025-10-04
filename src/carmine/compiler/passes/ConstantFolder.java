@@ -36,14 +36,8 @@ class ConstantFolder implements ASTVisitor<Object>
     }
 
     @Override
-    public Object visitIdentifierExpr(Expr.Identifier expr) // check if module or const
-    // this might be tricky, check function evaluation
+    public Object visitIdentifierExpr(Expr.Identifier expr)
     {
-        if (Carmine.variableEnvironment.contains(expr.getName()))
-        {
-            return (Carmine.variableEnvironment).get(expr.getName());
-        }
-
         return null; // it's a module, so leave it as it is
     }
 
