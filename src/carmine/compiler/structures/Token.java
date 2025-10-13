@@ -1,5 +1,7 @@
 package carmine.compiler.structures;
 
+import java.util.Objects;
+
 public class Token {
     private TokenType type;
     private String lexeme;
@@ -38,6 +40,7 @@ public class Token {
         this.value = value;
     }
 
+    @Override
     public String toString()
     {
         if (value != null)
@@ -45,4 +48,26 @@ public class Token {
         else
             return type + " " + lexeme;
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+
+        Token other = (Token) obj;
+        return type == other.type
+                && Objects.equals(lexeme, other.lexeme)
+                && Objects.equals(value, other.value)
+                && Objects.equals(line, other.line);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, lexeme, value, line);
+    }
+
 }

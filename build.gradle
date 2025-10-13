@@ -32,8 +32,11 @@ sourceSets {
         java {
             srcDirs = ['test']
         }
+
     }
 }
+sourceSets.test.compileClasspath += sourceSets.main.output
+sourceSets.test.runtimeClasspath += sourceSets.main.output
 
 test {
     useJUnitPlatform()
