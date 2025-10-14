@@ -16,7 +16,7 @@ public class Carmine {
     static Environment variableEnvironment = new Environment(); // used for the first parse where we evaluate all arithmetic expressions
     static Environment moduleEnvironment = new Environment(); // used to save modules
     //static List<Stmt.Function> statements;
-
+    static boolean hadError = false;
     static
     {
         variableEnvironment.put("print", new CarmineCallable() {
@@ -113,19 +113,20 @@ public class Carmine {
         //Debug.printEnvironments();
          */
 
-        ASTVisualizer visualizer = new ASTVisualizer();
-        Optimizer optimizer = new Optimizer(statements);
+        if (!hadError) {
+            ASTVisualizer visualizer = new ASTVisualizer();
+            Optimizer optimizer = new Optimizer(statements);
 
-        optimizer.constantFolding();
-        optimizer.constantPropagation(); // WIP
-        optimizer.constantFolding();
+            optimizer.constantFolding();
+            optimizer.constantPropagation(); // WIP
+            optimizer.constantFolding();
 
-        //optimizer.loopUnrolling(); // WIP
-        //optimizer.deadCodeElimination(); // WIP
+            //optimizer.loopUnrolling(); // WIP
+            //optimizer.deadCodeElimination(); // WIP
 
-        String dotContent = visualizer.visualizeAST(statements, VisualizationMode.PRETTY_PRINT);
-        System.out.println(dotContent);
-
+            String dotContent = visualizer.visualizeAST(statements, VisualizationMode.PRETTY_PRINT);
+            System.out.println(dotContent);
+        }
         /*
         try {
             Files.writeString(

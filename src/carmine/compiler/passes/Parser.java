@@ -47,7 +47,15 @@ public class Parser
 
     private void errorAtCurrent(String message)
     {
+        Carmine.hadError = true;
          CarmineLogger.log(peek(), message, LogLevel.ERROR) ;
+
+         while (peek().getType() != TokenType.EOF && peek().getType() != TokenType.SEMICOLON)
+         {
+             advance();
+         }
+
+         match(TokenType.SEMICOLON);
     }
 
     private boolean check(TokenType type)
@@ -347,7 +355,7 @@ public class Parser
         return new Stmt.Block(statements);
     }
 
-    private Stmt moduleStatement(Token name) // could either be a variable or a function
+    private Stmt moduleStatement(Token name)
     {
         List<Token> params = new ArrayList<>();
         List<Token> returnValues = new ArrayList<>();
@@ -548,7 +556,10 @@ public class Parser
             else {
                 current--;
                 Stmt varExpr = new Stmt.Expression(moduleExpression());
-                match(TokenType.SEMICOLON);
+                if (!match(TokenType.SEMICOLON)) {
+                    errorAtCurrent("Expected ';' at end of module declaration.");
+                    return null;
+                }
                 return varExpr;
             }
         }
