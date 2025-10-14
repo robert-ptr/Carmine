@@ -3,10 +3,7 @@ package carmine.compiler.passes;
 import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.structures.Expr;
-import carmine.compiler.structures.Stmt;
-import carmine.compiler.structures.Token;
-import carmine.compiler.structures.TokenType;
+import carmine.compiler.structures.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +12,6 @@ public class Parser
 {
     private List<Token> tokens = new ArrayList<Token>();
     private int current = 0;
-    private boolean hadError = false;
 
     private boolean isAtEnd()
     {
@@ -48,7 +44,7 @@ public class Parser
     private void errorAtCurrent(String message)
     {
         Carmine.hadError = true;
-         CarmineLogger.log(peek(), message, LogLevel.ERROR) ;
+        CarmineLogger.log(peek(), message, LogLevel.ERROR) ;
 
          while (peek().getType() != TokenType.EOF && peek().getType() != TokenType.SEMICOLON)
          {
@@ -56,6 +52,8 @@ public class Parser
          }
 
          match(TokenType.SEMICOLON);
+
+         throw new ParseError();
     }
 
     private boolean check(TokenType type)
@@ -320,7 +318,6 @@ public class Parser
             return new Expr.Identifier(previous());
 
         errorAtCurrent("Unexpected token: " + peek());
-        hadError = true;
         return null;
     }
 
@@ -336,10 +333,7 @@ public class Parser
          */
 
         if (!match(TokenType.SEMICOLON))
-        {
             errorAtCurrent("Expected ';' at end of statement.");
-            return null;
-        }
 
         return new Stmt.Expression(expr);
     }
@@ -450,19 +444,16 @@ public class Parser
             }
             Expr assignment = expression();
             if (!(assignment instanceof Expr.Assignment))
-            {
                  errorAtCurrent("Invalid assignment.");
-            }
+
             assignments.add((Expr.Assignment)assignment);
         } while (match(TokenType.COMMA));
 
         if (!match(TokenType.RBRACE) && !found_brace)
              errorAtCurrent("Expected '}'.");
 
-        if (!match(TokenType.SEMICOLON)) {
+        if (!match(TokenType.SEMICOLON))
             errorAtCurrent("Expected ';' at end of statement.");
-            return null;
-        }
 
         return new Stmt.Enum(name, assignments);
     }
@@ -509,16 +500,12 @@ public class Parser
         Token var = null;
 
         if (!match(TokenType.IDENTIFIER))
-        {
             errorAtCurrent("Unexpected token: " + peek());
-        }
 
         var = previous();
 
         if (!match(TokenType.EQUAL))
-        {
             errorAtCurrent("Expected assignment.");
-        }
 
         Expr minValue = expression();
 
@@ -527,9 +514,7 @@ public class Parser
 
         }
         if (!match(TokenType.DOT))
-        {
              errorAtCurrent("Missing '..' keyword.");
-        }
 
         Expr maxValue = expression();
 
@@ -543,11 +528,7 @@ public class Parser
 
         if (match(TokenType.MODULE)) {
             if (!match(TokenType.IDENTIFIER))
-            {
                 errorAtCurrent("Unexpected token in moduleStatement: " + peek());
-
-                return null;
-            }
 
             Token name = previous();
 
@@ -556,20 +537,15 @@ public class Parser
             else {
                 current--;
                 Stmt varExpr = new Stmt.Expression(moduleExpression());
-                if (!match(TokenType.SEMICOLON)) {
+                if (!match(TokenType.SEMICOLON))
                     errorAtCurrent("Expected ';' at end of module declaration.");
-                    return null;
-                }
+
                 return varExpr;
             }
         }
         else if (match(TokenType.VAR)) {
             if (!match(TokenType.IDENTIFIER))
-            {
                 errorAtCurrent("Unexpected token in varStatement: " + peek());
-
-                return null;
-            }
 
             Token name = previous();
 
@@ -617,7 +593,13 @@ public class Parser
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd())
         {
-            statements.add(declaration());
+            try {
+                statements.add(declaration());
+            } catch (ParseError e)
+            {
+                // nothing here for now, just using this so I don't have to add a bunch of
+                // return statements when I call errorOnCurrent()
+            }
         }
 
         return statements;
