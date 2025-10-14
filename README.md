@@ -41,7 +41,7 @@ statement → ifStatement
 
 blockStatement → "{" { statement } "}" ;
 
-ifStatement → "if" "(" expression ")" statement [ "else" statement ] ;
+ifStatement → "if" "(" expression ")" blockStatement [ "else" blockStatement ] ;
 
 whileStatement → "while" "(" expression ")" statement ;
 
