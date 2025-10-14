@@ -463,7 +463,10 @@ public class Parser
     {
         Expr condition = expression();
 
-        Stmt thenBranch = statement();
+        if (!match(TokenType.LBRACE))
+            errorAtCurrent("Expected '{'.");
+
+        Stmt thenBranch = blockStatement();
         if (match(TokenType.ELSE))
         {
             Stmt elseBranch;
@@ -473,7 +476,9 @@ public class Parser
             }
             else
             {
-                elseBranch = statement();
+                if (!match(TokenType.LBRACE))
+                    errorAtCurrent("Expected '{'.");
+                elseBranch = blockStatement();
             }
 
             return new Stmt.If(condition, thenBranch, elseBranch);
