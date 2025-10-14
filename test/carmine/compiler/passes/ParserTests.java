@@ -22,11 +22,6 @@ public class ParserTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
-
         Parser parser = new Parser(tokens);
         parser.parse();
     }
@@ -38,11 +33,6 @@ public class ParserTests {
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
 
         Parser parser = new Parser(tokens);
         parser.parse();
@@ -56,11 +46,6 @@ public class ParserTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
-
         Parser parser = new Parser(tokens);
         parser.parse();
     }
@@ -72,11 +57,6 @@ public class ParserTests {
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
 
         Parser parser = new Parser(tokens);
         parser.parse();
@@ -90,11 +70,6 @@ public class ParserTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
-
         Parser parser = new Parser(tokens);
         parser.parse();
     }
@@ -106,11 +81,6 @@ public class ParserTests {
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
 
         Parser parser = new Parser(tokens);
         parser.parse();
@@ -124,11 +94,6 @@ public class ParserTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
-
         Parser parser = new Parser(tokens);
         parser.parse();
     }
@@ -140,11 +105,6 @@ public class ParserTests {
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
 
         Parser parser = new Parser(tokens);
         parser.parse();
@@ -158,11 +118,6 @@ public class ParserTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
-
         Parser parser = new Parser(tokens);
         parser.parse();
     }
@@ -174,11 +129,6 @@ public class ParserTests {
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
-        {
-            System.out.println(token);
-        }
 
         Parser parser = new Parser(tokens);
         parser.parse();

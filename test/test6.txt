@@ -1,8 +1,4 @@
-module HALF_ADDER(a, b) -> sum, carry {
-    sum = and(or(a, b), not(and(a, b)));
-    carry = and(a, b);
-}
-
-module s, c = HALF_ADDER(1, 1);
-result = or(s, c);
+var b = -3 + 7 * 8 / (6 + 2);
+var a = b * 6 - c;
+var c = 78;
 

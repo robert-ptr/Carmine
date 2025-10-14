@@ -123,6 +123,8 @@ public class Carmine {
             optimizer.constantFolding();
             optimizer.constantPropagation(); // WIP
             optimizer.constantFolding();
+            optimizer.constantPropagation(); // WIP
+            optimizer.constantFolding();
 
             //optimizer.loopUnrolling(); // WIP
             //optimizer.deadCodeElimination(); // WIP

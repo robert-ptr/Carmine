@@ -197,8 +197,10 @@ public class Scanner {
 
                     if (peek() == '\n')
                         advance();
+
+                    return null;
                 }
-                return null;
+                return makeToken(TokenType.DIV);
             case '%':
                 return makeToken(TokenType.MOD);
             case '*':
