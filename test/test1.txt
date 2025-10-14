@@ -1,5 +1,0 @@
-module AND(a, b) -> out {
-    out = and(a, b);
-}
-
-module output = AND(1, 1);

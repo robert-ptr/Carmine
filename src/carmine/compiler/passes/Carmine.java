@@ -1,6 +1,8 @@
 package carmine.compiler.passes;
 
 import carmine.compiler.helpers.ASTVisualizer;
+import carmine.compiler.helpers.CarmineLogger;
+import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.helpers.VisualizationMode;
 import carmine.compiler.structures.*;
 
@@ -17,6 +19,7 @@ public class Carmine {
     static Environment moduleEnvironment = new Environment(); // used to save modules
     //static List<Stmt.Function> statements;
     static boolean hadError = false;
+    static boolean debugMode = true;
     static
     {
         variableEnvironment.put("print", new CarmineCallable() {
@@ -32,7 +35,7 @@ public class Carmine {
             }
         });
 
-        variableEnvironment.put("and", new CarmineCallable() {
+        moduleEnvironment.put("and", new CarmineCallable() {
            @Override
            public int arity() { return 2; }
 
@@ -44,7 +47,7 @@ public class Carmine {
            }
         });
 
-        variableEnvironment.put("or", new CarmineCallable() {
+        moduleEnvironment.put("or", new CarmineCallable() {
             @Override
             public int arity() { return 2; }
 
@@ -56,7 +59,7 @@ public class Carmine {
             }
         });
 
-        variableEnvironment.put("import", new CarmineCallable() {
+        moduleEnvironment.put("import", new CarmineCallable() {
             @Override
             public int arity() { return 1;}
 
@@ -67,7 +70,7 @@ public class Carmine {
             }
         });
 
-        variableEnvironment.put("export", new CarmineCallable() {
+        moduleEnvironment.put("export", new CarmineCallable() {
             @Override
             public int arity() { return 1;}
 
@@ -142,9 +145,14 @@ public class Carmine {
         */
     }
 
-    private static void runFile(String path) throws IOException, IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(path));
-        run(new String(bytes, Charset.defaultCharset()));
+    private static void runFile(String path) {
+        try {
+            byte[] bytes = Files.readAllBytes(Paths.get(path));
+            run(new String(bytes, Charset.defaultCharset()));
+        } catch (IOException e)
+        {
+            CarmineLogger.log("Something went wrong when trying to read program.", LogLevel.ERROR);
+        }
     }
 
     public static void main(String[] args) throws IOException {

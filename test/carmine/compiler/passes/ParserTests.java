@@ -9,6 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+// for now this only tests that parsing finishes without errors
+// more complicated cases should be tested in the future, such as:
+// running code with syntax errors and checking the errors
+// going through the generated AST and ensuring it is as expected
 public class ParserTests {
     @Test
     void test0() throws IOException
@@ -24,13 +28,13 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
     void test1() throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("./test/test1.txt"));
+        byte[] bytes = Files.readAllBytes(Paths.get("./test/empty_program.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
@@ -41,7 +45,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -58,13 +62,13 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
     void test3() throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("./test/test3.txt"));
+        byte[] bytes = Files.readAllBytes(Paths.get("./test/simple_comment.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
@@ -75,7 +79,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -92,7 +96,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -109,7 +113,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -126,7 +130,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -143,7 +147,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -160,7 +164,7 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 
     @Test
@@ -177,6 +181,6 @@ public class ParserTests {
         }
 
         Parser parser = new Parser(tokens);
-        List<Stmt> statements = parser.parse();
+        parser.parse();
     }
 }

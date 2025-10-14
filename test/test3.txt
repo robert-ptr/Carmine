@@ -1,9 +1,0 @@
-module NOT(a) -> out {
-    out = not(a);
-}
-
-module NAND(a, b) -> out {
-    out = NOT(and(a, b));
-}
-
-module output = NAND(true, false);

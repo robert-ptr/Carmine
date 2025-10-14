@@ -1,8 +1,3 @@
-module OR(a, b) -> out {
-    out = or(a, b);
+{
+    var test = 0;
 }
-
-module x = false;
-module y = true;
-module output = OR(x, y);
-

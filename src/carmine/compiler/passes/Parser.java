@@ -53,6 +53,9 @@ public class Parser
 
          match(TokenType.SEMICOLON);
 
+         if (Carmine.debugMode)
+            Thread.dumpStack();
+
          throw new ParseError();
     }
 
@@ -79,23 +82,9 @@ public class Parser
     private Expr expression()
     {
         if (match(TokenType.MODULE)) {
-            Expr right = assignment();
-
-            if (right instanceof Expr.Assignment)
-                return new Expr.Module((Expr.Assignment) right);
-            else if (right instanceof Expr.Identifier)
-                return new Expr.Module(null);
-            else
-                errorAtCurrent("Invalid module declaration.");
+            return moduleExpression();
         } else if (match(TokenType.VAR)) {
-            Expr right = assignment();
-
-            if (right instanceof Expr.Assignment)
-                return new Expr.Variable((Expr.Assignment) right);
-            else if (right instanceof Expr.Identifier)
-                return new Expr.Variable(null);
-            else
-                errorAtCurrent("Invalid variable declaration.");
+            return varExpression();
         }
 
         return assignment();
@@ -333,7 +322,7 @@ public class Parser
          */
 
         if (!match(TokenType.SEMICOLON))
-            errorAtCurrent("Expected ';' at end of statement.");
+           errorAtCurrent("Expected ';' at end of statement.");
 
         return new Stmt.Expression(expr);
     }
@@ -343,7 +332,12 @@ public class Parser
         List<Stmt> statements = new ArrayList<>();
         while (!isAtEnd() && !match(TokenType.RBRACE))
         {
-            statements.add(declaration());
+            try {
+                statements.add(statement());
+            } catch (ParseError e)
+            {
+                continue;
+            }
         }
         //match(TokenType.ENDLINE);
         return new Stmt.Block(statements);

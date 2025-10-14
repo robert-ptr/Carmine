@@ -120,10 +120,20 @@ public class ScannerTests {
     @Test
     void test1() throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("./test/test1.txt"));
+        byte[] bytes = Files.readAllBytes(Paths.get("./test/empty_program.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        scanner.scanTokens();
+        List<Token> tokens = scanner.scanTokens();
+
+        List<Token> expectedTokens = List.of(
+          new Token(TokenType.EOF, "", null, 1)
+        );
+
+        assertEquals(tokens.size(), expectedTokens.size());
+
+        for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
+            assertEquals(expectedTokens.get(i), tokens.get(i));
+        }
     }
 
     @Test
@@ -138,10 +148,20 @@ public class ScannerTests {
     @Test
     void test3() throws IOException
     {
-        byte[] bytes = Files.readAllBytes(Paths.get("./test/test3.txt"));
+        byte[] bytes = Files.readAllBytes(Paths.get("./test/simple_comment.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        scanner.scanTokens();
+        List<Token> tokens = scanner.scanTokens();
+
+        List<Token> expectedTokens = List.of(
+                new Token(TokenType.EOF, "", null, 1)
+        );
+
+        assertEquals(tokens.size(), expectedTokens.size());
+
+        for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
+            assertEquals(expectedTokens.get(i), tokens.get(i));
+        }
     }
 
     @Test
