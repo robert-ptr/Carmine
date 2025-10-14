@@ -20,7 +20,9 @@ module xor10(a, b) -> out
 module xorc(a, b, c) -> out
 {
     if 3 + 4 > 5
+    {
         out = and(or(a, b), not(and(a, b)));
+    }
 }
 
 module xor1(a, b) -> out

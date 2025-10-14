@@ -326,7 +326,9 @@ class ConstantFolder implements ASTVisitor<Object>
     {
         ifStmt.condition.accept(this);
         ifStmt.thenStmt.accept(this);
-        ifStmt.elseStmt.accept(this);
+
+        if (ifStmt.elseStmt != null)
+            ifStmt.elseStmt.accept(this);
 
         return null;
     }

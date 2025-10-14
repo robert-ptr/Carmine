@@ -117,17 +117,13 @@ public class ScannerTests {
         }
     }
 
-    /*
     @Test
     void test1() throws IOException
     {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test1.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
 
     @Test
@@ -136,10 +132,7 @@ public class ScannerTests {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test2.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
 
     @Test
@@ -148,10 +141,7 @@ public class ScannerTests {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test3.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
 
     @Test
@@ -160,12 +150,8 @@ public class ScannerTests {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test4.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
-     */
 
     @Test
     void test5() throws IOException
@@ -229,17 +215,13 @@ public class ScannerTests {
         }
     }
 
-    /*
     @Test
     void test6() throws IOException
     {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test6.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
 
     @Test
@@ -248,12 +230,9 @@ public class ScannerTests {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test7.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
-*/
+
     @Test
     void test8() throws IOException
     {
@@ -262,8 +241,165 @@ public class ScannerTests {
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
         List<Token> tokens = scanner.scanTokens();
         List<Token> expectedTokens = List.of(
+            new Token(TokenType.ENUM, "enum", null, 1),
+                new Token(TokenType.LBRACE, "{", null, 2),
+                new Token(TokenType.IDENTIFIER, "MAX", null, 3),
+                new Token(TokenType.ASSIGN, "=", null, 3),
+                new Token(TokenType.DECIMAL, "10", 10, 3),
+                new Token(TokenType.COMMA, ",", null, 3),
+                new Token(TokenType.IDENTIFIER, "MIN", null, 4),
+                new Token(TokenType.ASSIGN, "=", null, 4),
+                new Token(TokenType.DECIMAL, "2", 2, 4),
+                new Token(TokenType.COMMA, ",", null, 4),
+                new Token(TokenType.IDENTIFIER, "MEDIUM", null, 5),
+                new Token(TokenType.ASSIGN, "=", null, 5),
+                new Token(TokenType.DECIMAL, "5", 5, 5),
+                new Token(TokenType.COMMA, ",", null, 5),
+                new Token(TokenType.RBRACE, "}", null, 6),
+                new Token(TokenType.SEMICOLON, ";", null, 6),
 
+                new Token(TokenType.VAR, "var", null, 7),
+                new Token(TokenType.IDENTIFIER, "val", null, 7),
+                new Token(TokenType.ASSIGN, "=", null,  7),
+                new Token(TokenType.NULL, "null", null, 7),
+                new Token(TokenType.SEMICOLON, ";", null, 7),
+
+                new Token(TokenType.MODULE, "module", null, 8),
+                new Token(TokenType.IDENTIFIER, "xor10", null, 8),
+                new Token(TokenType.LPAREN, "(", null, 8),
+                new Token(TokenType.IDENTIFIER, "a", null, 8),
+                new Token(TokenType.COMMA, ",", null, 8),
+                new Token(TokenType.IDENTIFIER, "b", null, 8),
+                new Token(TokenType.RPAREN, ")", null, 8),
+                new Token(TokenType.ARROW, "->", null, 8),
+                new Token(TokenType.IDENTIFIER, "out", null, 8),
+                new Token(TokenType.LBRACE, "{", null, 9),
+                new Token(TokenType.VAR, "var", null, 10),
+                new Token(TokenType.IDENTIFIER, "i", null, 10),
+                new Token(TokenType.ASSIGN, "=", null, 10),
+                new Token(TokenType.DECIMAL, "0", 0, 10),
+                new Token(TokenType.SEMICOLON, ";", null, 10),
+                new Token(TokenType.WHILE, "while", null, 11),
+                new Token(TokenType.IDENTIFIER, "i", null, 11),
+                new Token(TokenType.LESS, "<", null, 11),
+                new Token(TokenType.DECIMAL, "10", 10, 11),
+                new Token(TokenType.LBRACE, "{", null, 12),
+                new Token(TokenType.IDENTIFIER, "out", null, 13),
+                new Token(TokenType.ASSIGN, "=", null, 13),
+                new Token(TokenType.IDENTIFIER, "and", null, 13),
+                new Token(TokenType.LPAREN, "(", null, 13),
+                new Token(TokenType.IDENTIFIER, "or", null, 13),
+                new Token(TokenType.LPAREN, "(", null, 13),
+                new Token(TokenType.IDENTIFIER, "a", null, 13),
+                new Token(TokenType.COMMA, ",", null, 13),
+                new Token(TokenType.IDENTIFIER, "b", null, 13),
+                new Token(TokenType.RPAREN, ")", null, 13),
+                new Token(TokenType.COMMA, ",", null, 13),
+                new Token(TokenType.IDENTIFIER, "not", null, 13),
+                new Token(TokenType.LPAREN, "(", null, 13),
+                new Token(TokenType.IDENTIFIER, "and", null, 13),
+                new Token(TokenType.LPAREN, "(", null, 13),
+                new Token(TokenType.IDENTIFIER, "a", null, 13),
+                new Token(TokenType.COMMA, ",", null, 13),
+                new Token(TokenType.IDENTIFIER, "b", null, 13),
+                new Token(TokenType.RPAREN, ")", null, 13),
+                new Token(TokenType.RPAREN, ")", null, 13),
+                new Token(TokenType.RPAREN, ")", null, 13),
+                new Token(TokenType.SEMICOLON, ";", null, 13),
+                new Token(TokenType.IDENTIFIER, "i", null, 14),
+                new Token(TokenType.ASSIGN, "=", null, 14),
+                new Token(TokenType.IDENTIFIER, "i", null, 14),
+                new Token(TokenType.PLUS, "+", null, 14),
+                new Token(TokenType.DECIMAL, "1", 1, 14),
+                new Token(TokenType.SEMICOLON, ";", null, 14),
+                new Token(TokenType.RBRACE, "}", null, 15),
+                new Token(TokenType.RBRACE, "}", null, 16),
+
+                new Token(TokenType.MODULE, "module", null, 17),
+                new Token(TokenType.IDENTIFIER, "xorc", null, 17),
+                new Token(TokenType.LPAREN, "(", null, 17),
+                new Token(TokenType.IDENTIFIER, "a", null, 17),
+                new Token(TokenType.COMMA, ",", null, 17),
+                new Token(TokenType.IDENTIFIER, "b", null, 17),
+                new Token(TokenType.COMMA, ",", null, 17),
+                new Token(TokenType.IDENTIFIER, "c", null, 17),
+                new Token(TokenType.RPAREN, ")", null, 17),
+                new Token(TokenType.ARROW, "->", null, 17),
+                new Token(TokenType.IDENTIFIER, "out", null, 17),
+                new Token(TokenType.LBRACE, "{", null, 18),
+                new Token(TokenType.IF, "if", null, 19),
+                new Token(TokenType.DECIMAL, "3", 3, 19),
+                new Token(TokenType.PLUS, "+", null, 19),
+                new Token(TokenType.DECIMAL, "4", 4, 19),
+                new Token(TokenType.GREATER, ">", null, 19),
+                new Token(TokenType.DECIMAL, "5", 5, 19),
+                new Token(TokenType.LBRACE, "{", null, 20),
+                new Token(TokenType.IDENTIFIER, "out", null, 21),
+                new Token(TokenType.ASSIGN, "=", null, 21),
+                new Token(TokenType.IDENTIFIER, "and", null, 21),
+                new Token(TokenType.LPAREN, "(", null, 21),
+                new Token(TokenType.IDENTIFIER, "or", null, 21),
+                new Token(TokenType.LPAREN, "(", null, 21),
+                new Token(TokenType.IDENTIFIER, "a", null, 21),
+                new Token(TokenType.COMMA, ",", null, 21),
+                new Token(TokenType.IDENTIFIER, "b", null, 21),
+                new Token(TokenType.RPAREN, ")", null, 21),
+                new Token(TokenType.COMMA, ",", null, 21),
+                new Token(TokenType.IDENTIFIER, "not", null, 21),
+                new Token(TokenType.LPAREN, "(", null, 21),
+                new Token(TokenType.IDENTIFIER, "and", null, 21),
+                new Token(TokenType.LPAREN, "(", null, 21),
+                new Token(TokenType.IDENTIFIER, "a", null, 21),
+                new Token(TokenType.COMMA, ",", null, 21),
+                new Token(TokenType.IDENTIFIER, "b", null, 21),
+                new Token(TokenType.RPAREN, ")", null, 21),
+                new Token(TokenType.RPAREN, ")", null, 21),
+                new Token(TokenType.RPAREN, ")", null, 21),
+                new Token(TokenType.SEMICOLON, ";", null, 21),
+                new Token(TokenType.RBRACE, "}", null, 22),
+                new Token(TokenType.RBRACE, "}", null, 23),
+
+                new Token(TokenType.MODULE, "module", null, 24),
+                new Token(TokenType.IDENTIFIER, "xor1", null, 24),
+                new Token(TokenType.LPAREN, "(", null, 24),
+                new Token(TokenType.IDENTIFIER, "a", null, 24),
+                new Token(TokenType.COMMA, ",", null, 24),
+                new Token(TokenType.IDENTIFIER, "b", null, 24),
+                new Token(TokenType.RPAREN, ")", null, 24),
+                new Token(TokenType.ARROW, "->", null, 24),
+                new Token(TokenType.IDENTIFIER, "out", null, 24),
+                new Token(TokenType.RBRACE, "{", null, 25),
+                new Token(TokenType.IDENTIFIER, "out", null, 26),
+                new Token(TokenType.ASSIGN, "=", null, 26),
+                new Token(TokenType.IDENTIFIER, "and", null, 26),
+                new Token(TokenType.LPAREN, "(", null, 26),
+                new Token(TokenType.IDENTIFIER, "or", null, 26),
+                new Token(TokenType.LPAREN, "(", null, 26),
+                new Token(TokenType.IDENTIFIER, "a", null, 26),
+                new Token(TokenType.COMMA, ",", null, 26),
+                new Token(TokenType.IDENTIFIER, "b", null, 26),
+                new Token(TokenType.RPAREN, ")", null, 26),
+                new Token(TokenType.COMMA, ",", null, 26),
+                new Token(TokenType.IDENTIFIER, "not", null, 26),
+                new Token(TokenType.LPAREN, "(", null, 26),
+                new Token(TokenType.IDENTIFIER, "and", null, 26),
+                new Token(TokenType.LPAREN, "(", null, 26),
+                new Token(TokenType.IDENTIFIER, "a", null, 26),
+                new Token(TokenType.COMMA, ",", null, 26),
+                new Token(TokenType.IDENTIFIER, "b", null, 26),
+                new Token(TokenType.RPAREN, ")", null, 26),
+                new Token(TokenType.RPAREN, ")", null, 26),
+                new Token(TokenType.RPAREN, ")", null, 26),
+                new Token(TokenType.SEMICOLON, ";", null, 26),
+                new Token(TokenType.RBRACE, "}", null, 27),
+                new Token(TokenType.EOF, "", null, 27)
         );
+
+        assertEquals(tokens.size(), expectedTokens.size());
+
+        for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
+            assertEquals(expectedTokens.get(i), tokens.get(i));
+        }
     }
 
     @Test
@@ -272,9 +408,6 @@ public class ScannerTests {
         byte[] bytes = Files.readAllBytes(Paths.get("./test/test9.txt"));
 
         Scanner scanner = new Scanner(new String(bytes, Charset.defaultCharset()));
-        List<Token> tokens = scanner.scanTokens();
-        List<Token> expectedTokens = List.of(
-
-        );
+        scanner.scanTokens();
     }
 }
