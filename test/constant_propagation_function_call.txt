@@ -1,0 +1,7 @@
+var f(a) -> out
+{
+    out = a + 2;
+}
+
+var x = 5;
+var y = f(x);

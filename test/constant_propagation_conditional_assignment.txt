@@ -1,0 +1,6 @@
+var x = null;
+if true
+{
+    x = 5;
+}
+y = x + 2;

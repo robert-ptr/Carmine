@@ -31,6 +31,7 @@ public class Optimizer { // travels the AST graph and evaluates arithmetic expre
 
     void constantPropagation()
     {
+        constantPropagator.varEnvironment = new Environment();
         for (Stmt statement : statements)
         {
             statement.accept(constantPropagator);
