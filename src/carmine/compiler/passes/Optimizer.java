@@ -1,8 +1,5 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.ASTVisitor;
-import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.structures.*;
 
 import java.util.List;
@@ -12,7 +9,7 @@ public class Optimizer { // travels the AST graph and evaluates arithmetic expre
 
     final ConstantFolder constantFolder = new ConstantFolder();
     final ConstantPropagator constantPropagator = new ConstantPropagator();
-    final SSAConverter ssaConverter = new SSAConverter();
+    final SsaConverter ssaConverter = new SsaConverter();
     final LoopUnroller loopUnroller = new LoopUnroller();
     final List<Stmt> statements;
 
@@ -31,7 +28,6 @@ public class Optimizer { // travels the AST graph and evaluates arithmetic expre
 
     void constantPropagation()
     {
-        constantPropagator.varEnvironment = new Environment();
         for (Stmt statement : statements)
         {
             statement.accept(constantPropagator);

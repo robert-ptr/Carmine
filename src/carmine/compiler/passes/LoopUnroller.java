@@ -1,13 +1,9 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.ASTVisitor;
-import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.helpers.LogLevel;
+import carmine.compiler.helpers.AstVisitor;
 import carmine.compiler.structures.*;
 
-import java.util.List;
-
-class LoopUnroller implements ASTVisitor<Object>
+class LoopUnroller implements AstVisitor<Object>
 {
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {

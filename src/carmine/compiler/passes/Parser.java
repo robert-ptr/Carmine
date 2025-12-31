@@ -2,7 +2,6 @@ package carmine.compiler.passes;
 
 import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
-import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.structures.*;
 
 import java.util.ArrayList;

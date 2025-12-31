@@ -3,7 +3,7 @@ package carmine.compiler.helpers;
 import carmine.compiler.structures.Expr;
 import carmine.compiler.structures.Stmt;
 
-public interface ASTVisitor<T> {
+public interface AstVisitor<T> {
     T visitLiteralExpr(Expr.Literal expr);
     T visitUnaryExpr(Expr.Unary expr);
     T visitBinaryExpr(Expr.Binary expr);

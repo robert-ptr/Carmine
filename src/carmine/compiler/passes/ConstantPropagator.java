@@ -1,15 +1,10 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.ASTVisitor;
-import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.helpers.LogLevel;
+import carmine.compiler.helpers.AstVisitor;
 import carmine.compiler.structures.*;
 
-import java.util.List;
-
-class ConstantPropagator implements ASTVisitor<Object> {
+class ConstantPropagator implements AstVisitor<Object> {
     Environment varEnvironment = new Environment();
-    Environment moduleEnvironment = new Environment();
 
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;

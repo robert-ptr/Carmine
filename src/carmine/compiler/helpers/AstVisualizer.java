@@ -9,7 +9,7 @@ import java.util.List;
 
 ;
 
-public class ASTVisualizer implements ASTVisitor<Void> {
+public class AstVisualizer implements AstVisitor<Void> {
     public static List<Environment> environments = new ArrayList<Environment>();
     VisualizationMode mode = VisualizationMode.DEFAULT;
 

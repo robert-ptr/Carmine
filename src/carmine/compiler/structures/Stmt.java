@@ -1,12 +1,12 @@
 package carmine.compiler.structures;
 
-import carmine.compiler.helpers.ASTVisitor;
+import carmine.compiler.helpers.AstVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Stmt {
-    public abstract<T> T accept(ASTVisitor<T> visitor);
+    public abstract<T> T accept(AstVisitor<T> visitor);
 
     public static class Expression extends Stmt {
         public Expr expr;
@@ -16,7 +16,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitExpressionStmt(this);
         }
     }
@@ -29,7 +29,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitBlockStmt(this);
         }
     }
@@ -48,7 +48,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitModuleFunctionStmt(this);
         }
     }
@@ -67,7 +67,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) { return visitor.visitConstFunctionStmt(this); }
+        public <T> T accept(AstVisitor<T> visitor) { return visitor.visitConstFunctionStmt(this); }
     }
 
     public static class Enum extends Stmt {
@@ -80,7 +80,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitEnumStmt(this);
         }
     }
@@ -97,7 +97,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitIfStmt(this);
         }
     }
@@ -112,7 +112,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitWhileStmt(this);
         }
     }
@@ -131,7 +131,7 @@ public abstract class Stmt {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitForStmt(this);
         }
     }

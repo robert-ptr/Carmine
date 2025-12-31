@@ -1,11 +1,11 @@
 package carmine.compiler.structures;
 
-import carmine.compiler.helpers.ASTVisitor;
+import carmine.compiler.helpers.AstVisitor;
 
 import java.util.List;
 
 public abstract class Expr {
-    public abstract <T> T accept(ASTVisitor<T> visitor);
+    public abstract <T> T accept(AstVisitor<T> visitor);
 
     public abstract int getLine();
 
@@ -23,7 +23,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitBinaryExpr(this);
         }
 
@@ -52,7 +52,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitUnaryExpr(this);
         }
 
@@ -84,7 +84,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitIdentifierExpr(this);
         }
 
@@ -116,7 +116,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitModuleExpr(this);
         }
 
@@ -148,7 +148,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitVarExpr(this);
         }
 
@@ -181,7 +181,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitAssignmentExpr(this);
         }
 
@@ -210,7 +210,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitLiteralExpr(this);
         }
 
@@ -239,7 +239,7 @@ public abstract class Expr {
         }
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitGroupExpr(this);
         }
 
@@ -298,7 +298,7 @@ public abstract class Expr {
         }*/
 
         @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
+        public <T> T accept(AstVisitor<T> visitor) {
             return visitor.visitCallExpr(this);
         }
 

@@ -1,6 +1,6 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.ASTVisualizer;
+import carmine.compiler.helpers.AstVisualizer;
 import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.helpers.VisualizationMode;
@@ -9,9 +9,7 @@ import carmine.compiler.structures.*;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 public class Carmine {
@@ -117,14 +115,14 @@ public class Carmine {
          */
 
         if (!hadError) {
-            ASTVisualizer visualizer = new ASTVisualizer();
+            AstVisualizer visualizer = new AstVisualizer();
             Optimizer optimizer = new Optimizer(statements);
 
             optimizer.constantFolding();
-            optimizer.constantPropagation(); // WIP
+            //optimizer.constantPropagation(); // WIP
             optimizer.constantFolding();
-            optimizer.constantPropagation(); // WIP
-            optimizer.constantFolding();
+            //optimizer.constantPropagation(); // WIP
+            //optimizer.constantFolding();
 
             //optimizer.loopUnrolling(); // WIP
             //optimizer.deadCodeElimination(); // WIP

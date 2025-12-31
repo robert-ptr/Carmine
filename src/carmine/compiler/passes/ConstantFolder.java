@@ -1,14 +1,15 @@
 package carmine.compiler.passes;
 
-import carmine.compiler.helpers.ASTVisitor;
+import carmine.compiler.helpers.AstVisitor;
 import carmine.compiler.helpers.CarmineLogger;
 import carmine.compiler.helpers.LogLevel;
 import carmine.compiler.structures.*;
 
-import java.util.List;
-
-class ConstantFolder implements ASTVisitor<Object>
+class ConstantFolder implements AstVisitor<Object>
 {
+    public boolean changeDetected = false;
+    Environment varEnvironment = new Environment();
+
     boolean isTruthy(Object o)
     {
         if (o instanceof Integer)
@@ -36,9 +37,18 @@ class ConstantFolder implements ASTVisitor<Object>
     }
 
     @Override
-    public Object visitIdentifierExpr(Expr.Identifier expr)
+    public Object visitIdentifierExpr(Expr.Identifier identifier)
     {
-        return null; // it's a module, so leave it as it is
+        Environment varEnv = varEnvironment;
+
+        while (varEnv != null) {
+            if (varEnvironment.contains(identifier.name))
+                return ((Expr.Literal) varEnvironment.get(identifier.name)).value;
+
+            varEnv = varEnv.getEnclosing();
+        }
+
+        return null;
     }
 
     @Override
@@ -297,7 +307,18 @@ class ConstantFolder implements ASTVisitor<Object>
 
     @Override
     public Object visitVarExpr(Expr.Variable var) {
+        Environment env = varEnvironment;
+        while (env != null && !env.contains(var.getName())) {
+            env = (Environment) env.getEnclosing();
+        }
+
+        if (env != null)
+            throw new RuntimeException("Variable " + var.getName() + " is already defined.");
+
         var.assignment.accept(this);
+
+        if (var.assignment.right instanceof Expr.Literal)
+            varEnvironment.put(var.getName().getLexeme(), var.assignment.right);
 
         return null;
     }
@@ -336,21 +357,31 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitEnumStmt(Stmt.Enum enumStmt)
     {
-        for (Expr.Assignment assignment : enumStmt.assignments)
-        {
-            Object right = assignment.right.accept(this);
-            if (right != null)
-                assignment.right = new Expr.Literal(assignment.getLine(), assignment.accept(this)); // test this out
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
+        for (var expr : enumStmt.assignments) {
+            expr.accept(this);
+            if (expr.right instanceof Expr.Literal)
+                varEnvironment.getVariables().put(expr.name.getLexeme(), expr.right);
+
         }
 
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
     @Override
     public Object visitConstFunctionStmt(Stmt.VarFunction varFunction)
     {
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
         varFunction.statements.accept(this);
 
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
@@ -358,16 +389,28 @@ class ConstantFolder implements ASTVisitor<Object>
     @Override
     public Object visitModuleFunctionStmt(Stmt.ModuleFunction moduleFunction)
     {
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
         moduleFunction.statements.accept(this);
 
+        varEnvironment = varEnvironment.getEnclosing();
         return null;
     }
 
     @Override
     public Object visitBlockStmt(Stmt.Block block)
     {
-        for (Stmt stmt : block.statements)
+        Environment newEnv = new Environment();
+        newEnv.addEnclosing(varEnvironment);
+        varEnvironment = newEnv;
+
+        for (Stmt stmt : block.statements) {
             stmt.accept(this);
+        }
+
+        varEnvironment = varEnvironment.getEnclosing();
 
         return null;
     }
