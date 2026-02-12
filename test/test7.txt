@@ -1,7 +1,0 @@
-module INV() -> out
-{
-}
-
-module AND3() -> out
-{
-}
