@@ -17,6 +17,8 @@ Is a hardware description language made with the end-goal of generating **workin
 - [ ] Module connection logic
 - [ ] Placement & routing
 - [ ] Redstone layout generation
+- [ ] Integration with Minecraft as a mod
+- [ ] Functional ALU in Minecraft
 
 ## Language Grammar
 ```text
