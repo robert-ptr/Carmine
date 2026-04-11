@@ -99,6 +99,49 @@ DIGIT → "0" … "9" ;
 SYMBOL → Any printable symbol excluding quotes and control characters ;
 ```
 
+## Usage
+
+To use the Carmine compiler on a script, provide the path to your source file as the first argument:
+
+```bash
+java -jar carmine.jar <path-to-script>.car
+```
+*(During development, you run the main class `carmine.compiler.passes.Carmine` with the script path as arguments).*
+
+The compiler will:
+1. Lex and Parse your source code into an AST.
+2. Run optimization passes (e.g. constant folding).
+3. Emit a `.dot` string representation of the tree to standard output, which you can save to a `.dot` file or pipe to Graphviz to visually debug the output.
+
+## Architecture & Key Components
+
+The Carmine compiler is organized into a pipeline, primarily living within `src/carmine/compiler`. The most vital components powering the translation from source code to functional Minecraft logic are:
+
+### 1. Scanner (`passes/Scanner.java`)
+The front-end lexer that reads raw Carmine source code and translates it sequentially into a standard list of `Token` representations. Details include:
+- **Literal Support**: Detects and parses standard decimals along with advanced integer literals like binary (`0b...`) and hexadecimal (`0X...`).
+- **Keyword Definitions**: Recognizes fundamental language keywords (e.g. `module`, `enum`, `true`/`false`, loop & conditional primitives) mapping them directly to dedicated `TokenType`s.
+- **Line Tracking**: Maintains line numbers throughout tokenization to assist downstream systems in projecting accurate, human-readable error messages for syntax violations.
+- **Comment Parsing**: Efficiently identifies and ignores inline comments (denoted by `//`) as well as conventional whitespace.
+
+### 2. Parser (`passes/Parser.java`)
+A robust top-down recursive descent parser. It continuously consumes tokens sequentially according to Carmine's language grammar and formulates an Abstract Syntax Tree (AST). Details include:
+- **AST Nodes (`Expr` vs `Stmt`)**: Code constructs are strictly separated into Expressions (`structures/Expr.java`), which evaluate to values (such as literals and binary operations), and Statements (`structures/Stmt.java`), which produce state effects (such as declarations, module bindings, and control flow).
+- **Expression Hierarchy**: Enforces operator precedence tightly by cascading method calls (`assignment() -> or() -> and() -> equality() -> comparison() -> term() -> factor() -> unary() -> call() -> primary()`), storing operations in structured `Expr` components.
+- **Statement Support**: Distinguishes global declarations (modules, top-level variables, enumerations) versus scoped inner block `Stmt` code. 
+- **Error Recovery (Panic Mode)**: When an unexpected token triggers a `ParseError`, the parser initiates panic mode. A dedicated `errorAtCurrent()` routine logs the fault, drops further incorrect nodes, and loops forward until it reaches a valid statement boundary (like a `;`) to resynchronize the parser state, avoiding massive cascading error stacks across miswritten code blocks.
+- **Built-in Global Environment**: Implicit core mechanics, like basic functions (`print`, `and`, `or`), are mapped up-front inside a global `Environment` during runtime initialization.
+
+### 3. Optimization & Passes (`passes/` directory)
+The compiler iterates via AST visitor passes (`AstVisitor.java`) to refine the code structure before finally translating it into logic gates/redstone. Key transformation passes include:
+- **`ConstantFolder.java`** & **`ConstantPropagator.java`**: Transverse the AST to evaluate static arithmetic and logical expressions, replacing complex trees with simpler literal constants at compile-time to reduce circuit size.
+- **`LoopUnroller.java`**: Expands static loops into explicit, unrolled sequential logic. This is essential as static redstone circuits cannot natively handle dynamic recursive loops without immense complexity.
+- **`SsaConverter.java`**: (WIP) Converts the program strictly into Static Single Assignment form, enabling further advanced compiler optimizations and easier layout routing.
+- **`Optimizer.java`**: The main orchestrator that invokes these specialized passes sequentially.
+
+### 4. Graph Visualization (`helpers/AstVisualizer.java`)
+Since dealing with complex data structures inside the compiler can be tricky, this component translates the generated AST into a standard `.dot` graph format. By directing the compiler's textual output into Graphviz, developers can quickly generate a flowchart to debug structural transformations.
+
 ## References
 Crafting Interpreters - Robert Nystrom  
 Digital Design and Computer Architecture (RISC-V Edition) - Sarah L. Harris, David Money Harris  
