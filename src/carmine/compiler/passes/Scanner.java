@@ -190,8 +190,9 @@ public class Scanner {
                 }
                 return makeToken(TokenType.MINUS);
             case '/':
-                if (advance() == '/')
+                if (peek() == '/')
                 {
+                    advance();
                     while (!isAtEnd() && peek() != '\n')
                         advance();
 

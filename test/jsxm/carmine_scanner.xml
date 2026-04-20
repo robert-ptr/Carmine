@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SXM name="CarmineScanner">
+	<states>
+		<state name="START" />
+		<state name="IN_IDENT" />
+		<state name="IN_DECIMAL" />
+		<state name="SAW_ZERO" />
+		<state name="IN_BIN_PREFIX" />
+		<state name="IN_BIN" />
+		<state name="IN_HEX_PREFIX" />
+		<state name="IN_HEX" />
+		<state name="SAW_SLASH" />
+		<state name="IN_COMMENT" />
+		<state name="SAW_MINUS" />
+		<state name="SAW_STAR" />
+		<state name="SAW_EQUAL" />
+		<state name="SAW_LESS" />
+		<state name="SAW_GREATER" />
+		<state name="SAW_BANG" />
+		</states>
+	
+	<initialState state="START" />
+	
+	<memory>
+		<declaration>
+			String fullCode;
+			String pendingToken;
+		</declaration>
+		<initial>
+			fullCode = "";
+			pendingToken = "";
+		</initial>
+	</memory>
+	
+	<inputs>
+		<input name="alpha"><arg name="c" type="xs:string" /></input>
+		<input name="digit"><arg name="c" type="xs:string" /></input>
+		<input name="digit0" />
+		<input name="hexAlpha"><arg name="c" type="xs:string" /></input>
+		<input name="binDigit"><arg name="c" type="xs:string" /></input>
+		<input name="space"><arg name="c" type="xs:string" /></input>
+		<input name="newline" />
+		<input name="slash" />
+		<input name="minus" />
+		<input name="star" />
+		<input name="equal" />
+		<input name="less" />
+		<input name="greater" />
+		<input name="bang" />
+		<input name="b_char" />
+		<input name="X_char" />
+		<input name="dot" />
+		<input name="symbol"><arg name="c" type="xs:string" /></input>
+		<input name="EOF" />
+	</inputs>
+	
+	<outputs>
+		<output name="scanOut"><result name="tokens" type="xs:string" /></output>
+	</outputs>
+	
+	<functions>
+		
+		
+
+		
+		<function name="toINIdent" input="alpha" output="scanOut">
+			<effect> fullCode += alpha.get_c(); scanOut.tokens = ""; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="toINIdentHex" input="hexAlpha" output="scanOut">
+			<effect> fullCode += hexAlpha.get_c(); scanOut.tokens = ""; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="toINIdentB" input="b_char" output="scanOut">
+			<effect> fullCode += "b"; scanOut.tokens = ""; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="toINIdentX" input="X_char" output="scanOut">
+			<effect> fullCode += "X"; scanOut.tokens = ""; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="toINDecimal" input="digit" output="scanOut">
+			<effect> fullCode += digit.get_c(); scanOut.tokens = ""; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="toINDecimalBin" input="binDigit" output="scanOut">
+			<effect> fullCode += binDigit.get_c(); scanOut.tokens = ""; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="toSAWZero" input="digit0" output="scanOut">
+			<effect> fullCode += "0"; scanOut.tokens = ""; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="toStartSpace" input="space" output="scanOut">
+			<effect> fullCode += space.get_c(); scanOut.tokens = ""; pendingToken = ""; </effect>
+		</function>
+		<function name="toStartNewline" input="newline" output="scanOut">
+			<effect> fullCode += "\n"; scanOut.tokens = ""; pendingToken = ""; </effect>
+		</function>
+		<function name="toSAWSlash" input="slash" output="scanOut">
+			<effect> fullCode += "/"; scanOut.tokens = ""; pendingToken = "DIV"; </effect>
+		</function>
+		<function name="toSAWMinus" input="minus" output="scanOut">
+			<effect> fullCode += "-"; scanOut.tokens = ""; pendingToken = "MINUS"; </effect>
+		</function>
+		<function name="toSAWStar" input="star" output="scanOut">
+			<effect> fullCode += "*"; scanOut.tokens = ""; pendingToken = "MUL"; </effect>
+		</function>
+		<function name="toSAWEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = ""; pendingToken = "ASSIGN"; </effect>
+		</function>
+		<function name="toSAWLess" input="less" output="scanOut">
+			<effect> fullCode += "&lt;"; scanOut.tokens = ""; pendingToken = "LESS"; </effect>
+		</function>
+		<function name="toSAWGreater" input="greater" output="scanOut">
+			<effect> fullCode += "&gt;"; scanOut.tokens = ""; pendingToken = "GREATER"; </effect>
+		</function>
+		<function name="toSAWBang" input="bang" output="scanOut">
+			<effect> fullCode += "!"; scanOut.tokens = ""; pendingToken = "ERR"; </effect>
+		</function>
+		<function name="toStartDot" input="dot" output="scanOut">
+			<effect> fullCode += "."; scanOut.tokens = "DOT"; pendingToken = ""; </effect>
+		</function>
+		<function name="toStartSymbol" input="symbol" output="scanOut">
+			<effect>
+				fullCode += symbol.get_c();
+				String s = symbol.get_c();
+				String tk = "";
+				if (s.equals("(")) tk = "LPAREN";
+				else if (s.equals(")")) tk = "RPAREN";
+				else if (s.equals("[")) tk = "LBRACKET";
+				else if (s.equals("]")) tk = "RBRACKET";
+				else if (s.equals("{")) tk = "LBRACE";
+				else if (s.equals("}")) tk = "RBRACE";
+				else if (s.equals(",")) tk = "COMMA";
+				else if (s.equals(";")) tk = "SEMICOLON";
+				else if (s.equals("&amp;")) tk = "AND";
+				else if (s.equals("|")) tk = "OR";
+				else if (s.equals("+")) tk = "PLUS";
+				else if (s.equals("%")) tk = "MOD";
+				scanOut.tokens = tk;
+				pendingToken = "";
+			</effect>
+		</function>
+		<function name="toFinalEOF" input="EOF" output="scanOut">
+			<effect> scanOut.tokens = ""; pendingToken = ""; </effect>
+		</function>
+
+		
+		<function name="emitToINIdent" input="alpha" output="scanOut">
+			<effect> fullCode += alpha.get_c(); scanOut.tokens = pendingToken; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="emitToINIdentHex" input="hexAlpha" output="scanOut">
+			<effect> fullCode += hexAlpha.get_c(); scanOut.tokens = pendingToken; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="emitToINIdentB" input="b_char" output="scanOut">
+			<effect> fullCode += "b"; scanOut.tokens = pendingToken; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="emitToINIdentX" input="X_char" output="scanOut">
+			<effect> fullCode += "X"; scanOut.tokens = pendingToken; pendingToken = "IDENTIFIER"; </effect>
+		</function>
+		<function name="emitToINDecimal" input="digit" output="scanOut">
+			<effect> fullCode += digit.get_c(); scanOut.tokens = pendingToken; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="emitToINDecimalBin" input="binDigit" output="scanOut">
+			<effect> fullCode += binDigit.get_c(); scanOut.tokens = pendingToken; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="emitToSAWZero" input="digit0" output="scanOut">
+			<effect> fullCode += "0"; scanOut.tokens = pendingToken; pendingToken = "DECIMAL"; </effect>
+		</function>
+		<function name="emitToStartSpace" input="space" output="scanOut">
+			<effect> fullCode += space.get_c(); scanOut.tokens = pendingToken; pendingToken = ""; </effect>
+		</function>
+		<function name="emitToStartNewline" input="newline" output="scanOut">
+			<effect> fullCode += "\n"; scanOut.tokens = pendingToken; pendingToken = ""; </effect>
+		</function>
+		<function name="emitToSAWSlash" input="slash" output="scanOut">
+			<effect> fullCode += "/"; scanOut.tokens = pendingToken; pendingToken = "DIV"; </effect>
+		</function>
+		<function name="emitToSAWMinus" input="minus" output="scanOut">
+			<effect> fullCode += "-"; scanOut.tokens = pendingToken; pendingToken = "MINUS"; </effect>
+		</function>
+		<function name="emitToSAWStar" input="star" output="scanOut">
+			<effect> fullCode += "*"; scanOut.tokens = pendingToken; pendingToken = "MUL"; </effect>
+		</function>
+		<function name="emitToSAWEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = pendingToken; pendingToken = "ASSIGN"; </effect>
+		</function>
+		<function name="emitToSAWLess" input="less" output="scanOut">
+			<effect> fullCode += "&lt;"; scanOut.tokens = pendingToken; pendingToken = "LESS"; </effect>
+		</function>
+		<function name="emitToSAWGreater" input="greater" output="scanOut">
+			<effect> fullCode += "&gt;"; scanOut.tokens = pendingToken; pendingToken = "GREATER"; </effect>
+		</function>
+		<function name="emitToSAWBang" input="bang" output="scanOut">
+			<effect> fullCode += "!"; scanOut.tokens = pendingToken; pendingToken = "ERR"; </effect>
+		</function>
+		<function name="emitToStartDot" input="dot" output="scanOut">
+			<effect> fullCode += "."; scanOut.tokens = (pendingToken.equals("") ? "" : pendingToken + " ") + "DOT"; pendingToken = ""; </effect>
+		</function>
+		<function name="emitToStartSymbol" input="symbol" output="scanOut">
+			<effect>
+				fullCode += symbol.get_c();
+				String s = symbol.get_c();
+				String tk = "";
+				if (s.equals("(")) tk = "LPAREN";
+				else if (s.equals(")")) tk = "RPAREN";
+				else if (s.equals("[")) tk = "LBRACKET";
+				else if (s.equals("]")) tk = "RBRACKET";
+				else if (s.equals("{")) tk = "LBRACE";
+				else if (s.equals("}")) tk = "RBRACE";
+				else if (s.equals(",")) tk = "COMMA";
+				else if (s.equals(";")) tk = "SEMICOLON";
+				else if (s.equals("&amp;")) tk = "AND";
+				else if (s.equals("|")) tk = "OR";
+				else if (s.equals("+")) tk = "PLUS";
+				else if (s.equals("%")) tk = "MOD";
+				scanOut.tokens = (pendingToken.equals("") ? "" : pendingToken + " ") + tk;
+				pendingToken = "";
+			</effect>
+		</function>
+		<function name="emitToFinalEOF" input="EOF" output="scanOut">
+			<effect> scanOut.tokens = pendingToken; pendingToken = ""; </effect>
+		</function>
+
+		
+		<function name="minusToArrow" input="greater" output="scanOut">
+			<effect> fullCode += "&gt;"; scanOut.tokens = "ARROW"; pendingToken = ""; </effect>
+		</function>
+		<function name="starToExp" input="star" output="scanOut">
+			<effect> fullCode += "*"; scanOut.tokens = "EXP"; pendingToken = ""; </effect>
+		</function>
+		<function name="equalEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = "EQUAL"; pendingToken = ""; </effect>
+		</function>
+		<function name="lessEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = "LESS_EQUAL"; pendingToken = ""; </effect>
+		</function>
+		<function name="greaterEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = "GREATER_EQUAL"; pendingToken = ""; </effect>
+		</function>
+		<function name="bangEqual" input="equal" output="scanOut">
+			<effect> fullCode += "="; scanOut.tokens = "NOTEQUAL"; pendingToken = ""; </effect>
+		</function>
+		<function name="slashToComment" input="slash" output="scanOut">
+			<effect> fullCode += "/"; scanOut.tokens = ""; pendingToken = ""; </effect>
+		</function>
+
+		
+		<function name="zeroToBinPrefix" input="b_char" output="scanOut">
+			<effect> fullCode += "b"; scanOut.tokens = ""; pendingToken = "ERR"; </effect>
+		</function>
+		<function name="zeroToHexPrefix" input="X_char" output="scanOut">
+			<effect> fullCode += "X"; scanOut.tokens = ""; pendingToken = "ERR"; </effect>
+		</function>
+		<function name="toINBin" input="binDigit" output="scanOut">
+			<effect> fullCode += binDigit.get_c(); scanOut.tokens = ""; pendingToken = "BINARY"; </effect>
+		</function>
+		<function name="toINHex" input="digit" output="scanOut">
+			<effect> fullCode += digit.get_c(); scanOut.tokens = ""; pendingToken = "HEXADECIMAL"; </effect>
+		</function>
+		<function name="toINHexAlpha" input="hexAlpha" output="scanOut">
+			<effect> fullCode += hexAlpha.get_c(); scanOut.tokens = ""; pendingToken = "HEXADECIMAL"; </effect>
+		</function>
+		<function name="toINHexB" input="b_char" output="scanOut">
+			<effect> fullCode += "b"; scanOut.tokens = ""; pendingToken = "HEXADECIMAL"; </effect>
+		</function>
+
+		
+		<function name="toStayDot" input="dot" output="scanOut">
+			<effect> fullCode += "."; scanOut.tokens = ""; </effect>
+		</function>
+		<function name="toStaySymbol" input="symbol" output="scanOut">
+			<effect> fullCode += symbol.get_c(); scanOut.tokens = ""; </effect>
+		</function>
+	</functions>
+	
+	<transitions>
+		
+		<transition from="START" function="toINIdent" to="IN_IDENT" />
+		<transition from="START" function="toINIdentHex" to="IN_IDENT" />
+		<transition from="START" function="toINIdentB" to="IN_IDENT" />
+		<transition from="START" function="toINIdentX" to="IN_IDENT" />
+		<transition from="START" function="toINDecimal" to="IN_DECIMAL" />
+		<transition from="START" function="toINDecimalBin" to="IN_DECIMAL" />
+		<transition from="START" function="toSAWZero" to="SAW_ZERO" />
+		<transition from="START" function="toStartSpace" to="START" />
+		<transition from="START" function="toStartNewline" to="START" />
+		<transition from="START" function="toSAWSlash" to="SAW_SLASH" />
+		<transition from="START" function="toSAWMinus" to="SAW_MINUS" />
+		<transition from="START" function="toSAWStar" to="SAW_STAR" />
+		<transition from="START" function="toSAWEqual" to="SAW_EQUAL" />
+		<transition from="START" function="toSAWLess" to="SAW_LESS" />
+		<transition from="START" function="toSAWGreater" to="SAW_GREATER" />
+		<transition from="START" function="toSAWBang" to="SAW_BANG" />
+		<transition from="START" function="toStartDot" to="START" />
+		<transition from="START" function="toStartSymbol" to="START" />
+		<transition from="START" function="toFinalEOF" to="START" />
+
+		
+		<transition from="IN_IDENT" function="toINIdent" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="toINIdentHex" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="toINIdentB" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="toINIdentX" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="toINDecimal" to="IN_IDENT" /> 
+		<transition from="IN_IDENT" function="toINDecimalBin" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="toSAWZero" to="IN_IDENT" />
+		<transition from="IN_IDENT" function="emitToStartSpace" to="START" />
+		<transition from="IN_IDENT" function="emitToStartNewline" to="START" />
+		<transition from="IN_IDENT" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_IDENT" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_IDENT" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_IDENT" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_IDENT" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_IDENT" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_IDENT" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_IDENT" function="emitToStartDot" to="START" />
+		<transition from="IN_IDENT" function="emitToStartSymbol" to="START" />
+		<transition from="IN_IDENT" function="emitToFinalEOF" to="START" />
+
+		
+		<transition from="IN_DECIMAL" function="toINDecimal" to="IN_DECIMAL" />
+		<transition from="IN_DECIMAL" function="toINDecimalBin" to="IN_DECIMAL" />
+		<transition from="IN_DECIMAL" function="toSAWZero" to="IN_DECIMAL" />
+		<transition from="IN_DECIMAL" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="IN_DECIMAL" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="IN_DECIMAL" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="IN_DECIMAL" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="IN_DECIMAL" function="emitToStartSpace" to="START" />
+		<transition from="IN_DECIMAL" function="emitToStartNewline" to="START" />
+		<transition from="IN_DECIMAL" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_DECIMAL" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_DECIMAL" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_DECIMAL" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_DECIMAL" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_DECIMAL" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_DECIMAL" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_DECIMAL" function="emitToStartDot" to="START" />
+		<transition from="IN_DECIMAL" function="emitToStartSymbol" to="START" />
+		<transition from="IN_DECIMAL" function="emitToFinalEOF" to="START" />
+
+		
+		<transition from="SAW_ZERO" function="zeroToBinPrefix" to="IN_BIN_PREFIX" />
+		<transition from="SAW_ZERO" function="zeroToHexPrefix" to="IN_HEX_PREFIX" />
+		<transition from="SAW_ZERO" function="toINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_ZERO" function="toINDecimalBin" to="IN_DECIMAL" />
+		<transition from="SAW_ZERO" function="toSAWZero" to="IN_DECIMAL" />
+		<transition from="SAW_ZERO" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_ZERO" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_ZERO" function="emitToStartSpace" to="START" />
+		<transition from="SAW_ZERO" function="emitToStartNewline" to="START" />
+		<transition from="SAW_ZERO" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_ZERO" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_ZERO" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_ZERO" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="SAW_ZERO" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_ZERO" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_ZERO" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_ZERO" function="emitToStartDot" to="START" />
+		<transition from="SAW_ZERO" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_ZERO" function="emitToFinalEOF" to="START" />
+
+		
+		<transition from="IN_BIN_PREFIX" function="toINBin" to="IN_BIN" />
+		<transition from="IN_BIN_PREFIX" function="toSAWZero" to="IN_BIN" /> 
+		
+		<transition from="IN_BIN_PREFIX" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="IN_BIN_PREFIX" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="IN_BIN_PREFIX" function="emitToStartSpace" to="START" />
+		<transition from="IN_BIN_PREFIX" function="emitToStartNewline" to="START" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_BIN_PREFIX" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_BIN_PREFIX" function="emitToStartDot" to="START" />
+		<transition from="IN_BIN_PREFIX" function="emitToStartSymbol" to="START" />
+		<transition from="IN_BIN_PREFIX" function="emitToFinalEOF" to="START" />
+		
+		<transition from="IN_BIN_PREFIX" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="IN_BIN_PREFIX" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="IN_BIN_PREFIX" function="emitToINIdentX" to="IN_IDENT" />
+
+		
+		<transition from="IN_BIN" function="toINBin" to="IN_BIN" />
+		<transition from="IN_BIN" function="toSAWZero" to="IN_BIN" />
+		<transition from="IN_BIN" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="IN_BIN" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="IN_BIN" function="emitToStartSpace" to="START" />
+		<transition from="IN_BIN" function="emitToStartNewline" to="START" />
+		<transition from="IN_BIN" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_BIN" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_BIN" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_BIN" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_BIN" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_BIN" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_BIN" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_BIN" function="emitToStartDot" to="START" />
+		<transition from="IN_BIN" function="emitToStartSymbol" to="START" />
+		<transition from="IN_BIN" function="emitToFinalEOF" to="START" />
+		<transition from="IN_BIN" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="IN_BIN" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="IN_BIN" function="emitToINIdentX" to="IN_IDENT" />
+
+		
+		<transition from="IN_HEX_PREFIX" function="toINHex" to="IN_HEX" />
+		<transition from="IN_HEX_PREFIX" function="toINHexAlpha" to="IN_HEX" />
+		<transition from="IN_HEX_PREFIX" function="toINHexB" to="IN_HEX" />
+		<transition from="IN_HEX_PREFIX" function="toSAWZero" to="IN_HEX" />
+		<transition from="IN_HEX_PREFIX" function="toINDecimalBin" to="IN_HEX" />
+		
+		<transition from="IN_HEX_PREFIX" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="IN_HEX_PREFIX" function="emitToStartSpace" to="START" />
+		<transition from="IN_HEX_PREFIX" function="emitToStartNewline" to="START" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_HEX_PREFIX" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_HEX_PREFIX" function="emitToStartDot" to="START" />
+		<transition from="IN_HEX_PREFIX" function="emitToStartSymbol" to="START" />
+		<transition from="IN_HEX_PREFIX" function="emitToFinalEOF" to="START" />
+		<transition from="IN_HEX_PREFIX" function="emitToINIdentX" to="IN_IDENT" />
+
+		
+		<transition from="IN_HEX" function="toINHex" to="IN_HEX" />
+		<transition from="IN_HEX" function="toINHexAlpha" to="IN_HEX" />
+		<transition from="IN_HEX" function="toINHexB" to="IN_HEX" />
+		<transition from="IN_HEX" function="toSAWZero" to="IN_HEX" />
+		<transition from="IN_HEX" function="toINDecimalBin" to="IN_HEX" />
+		<transition from="IN_HEX" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="IN_HEX" function="emitToStartSpace" to="START" />
+		<transition from="IN_HEX" function="emitToStartNewline" to="START" />
+		<transition from="IN_HEX" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="IN_HEX" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="IN_HEX" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="IN_HEX" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="IN_HEX" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="IN_HEX" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="IN_HEX" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="IN_HEX" function="emitToStartDot" to="START" />
+		<transition from="IN_HEX" function="emitToStartSymbol" to="START" />
+		<transition from="IN_HEX" function="emitToFinalEOF" to="START" />
+		<transition from="IN_HEX" function="emitToINIdentX" to="IN_IDENT" />
+
+		
+		<transition from="SAW_SLASH" function="slashToComment" to="IN_COMMENT" />
+		<transition from="SAW_SLASH" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_SLASH" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_SLASH" function="emitToStartSpace" to="START" />
+		<transition from="SAW_SLASH" function="emitToStartNewline" to="START" />
+		<transition from="SAW_SLASH" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_SLASH" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_SLASH" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="SAW_SLASH" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_SLASH" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_SLASH" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_SLASH" function="emitToStartDot" to="START" />
+		<transition from="SAW_SLASH" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_SLASH" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_SLASH" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_SLASH" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_SLASH" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_SLASH" function="emitToSAWZero" to="SAW_ZERO" />
+
+		
+		<transition from="IN_COMMENT" function="toStartNewline" to="START" />
+		<transition from="IN_COMMENT" function="toFinalEOF" to="START" />
+		
+		<transition from="IN_COMMENT" function="toStartSpace" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINIdent" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINDecimal" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWZero" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINIdentHex" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINDecimalBin" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWSlash" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWMinus" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWStar" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWEqual" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWLess" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWGreater" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toSAWBang" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toStayDot" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toStaySymbol" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINIdentB" to="IN_COMMENT" />
+		<transition from="IN_COMMENT" function="toINIdentX" to="IN_COMMENT" />
+
+		
+		<transition from="SAW_MINUS" function="minusToArrow" to="START" />
+		<transition from="SAW_MINUS" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_MINUS" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_MINUS" function="emitToStartSpace" to="START" />
+		<transition from="SAW_MINUS" function="emitToStartNewline" to="START" />
+		<transition from="SAW_MINUS" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_MINUS" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_MINUS" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="SAW_MINUS" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_MINUS" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_MINUS" function="emitToStartDot" to="START" />
+		<transition from="SAW_MINUS" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_MINUS" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_MINUS" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_MINUS" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_MINUS" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_MINUS" function="emitToINDecimalBin" to="IN_DECIMAL" />
+		<transition from="SAW_MINUS" function="emitToSAWZero" to="SAW_ZERO" />
+
+		
+		<transition from="SAW_STAR" function="starToExp" to="START" />
+		<transition from="SAW_STAR" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_STAR" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_STAR" function="emitToStartSpace" to="START" />
+		<transition from="SAW_STAR" function="emitToStartNewline" to="START" />
+		<transition from="SAW_STAR" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_STAR" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_STAR" function="emitToSAWEqual" to="SAW_EQUAL" />
+		<transition from="SAW_STAR" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_STAR" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_STAR" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_STAR" function="emitToStartDot" to="START" />
+		<transition from="SAW_STAR" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_STAR" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_STAR" function="emitToSAWZero" to="SAW_ZERO" />
+		<transition from="SAW_STAR" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_STAR" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_STAR" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_STAR" function="emitToINDecimalBin" to="IN_DECIMAL" />
+
+		
+		<transition from="SAW_EQUAL" function="equalEqual" to="START" />
+		<transition from="SAW_EQUAL" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_EQUAL" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_EQUAL" function="emitToStartSpace" to="START" />
+		<transition from="SAW_EQUAL" function="emitToStartNewline" to="START" />
+		<transition from="SAW_EQUAL" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_EQUAL" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_EQUAL" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_EQUAL" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_EQUAL" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_EQUAL" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_EQUAL" function="emitToStartDot" to="START" />
+		<transition from="SAW_EQUAL" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_EQUAL" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_EQUAL" function="emitToSAWZero" to="SAW_ZERO" />
+		<transition from="SAW_EQUAL" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_EQUAL" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_EQUAL" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_EQUAL" function="emitToINDecimalBin" to="IN_DECIMAL" />
+
+		
+		<transition from="SAW_LESS" function="lessEqual" to="START" />
+		<transition from="SAW_LESS" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_LESS" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_LESS" function="emitToStartSpace" to="START" />
+		<transition from="SAW_LESS" function="emitToStartNewline" to="START" />
+		<transition from="SAW_LESS" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_LESS" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_LESS" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_LESS" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_LESS" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_LESS" function="emitToStartDot" to="START" />
+		<transition from="SAW_LESS" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_LESS" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_LESS" function="emitToSAWZero" to="SAW_ZERO" />
+		<transition from="SAW_LESS" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_LESS" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_LESS" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_LESS" function="emitToINDecimalBin" to="IN_DECIMAL" />
+
+		
+		<transition from="SAW_GREATER" function="greaterEqual" to="START" />
+		<transition from="SAW_GREATER" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_GREATER" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_GREATER" function="emitToStartSpace" to="START" />
+		<transition from="SAW_GREATER" function="emitToStartNewline" to="START" />
+		<transition from="SAW_GREATER" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_GREATER" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_GREATER" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_GREATER" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_GREATER" function="emitToSAWBang" to="SAW_BANG" />
+		<transition from="SAW_GREATER" function="emitToStartDot" to="START" />
+		<transition from="SAW_GREATER" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_GREATER" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_GREATER" function="emitToSAWZero" to="SAW_ZERO" />
+		<transition from="SAW_GREATER" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_GREATER" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_GREATER" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_GREATER" function="emitToINDecimalBin" to="IN_DECIMAL" />
+
+		
+		<transition from="SAW_BANG" function="bangEqual" to="START" />
+		<transition from="SAW_BANG" function="emitToINIdent" to="IN_IDENT" />
+		<transition from="SAW_BANG" function="emitToINDecimal" to="IN_DECIMAL" />
+		<transition from="SAW_BANG" function="emitToStartSpace" to="START" />
+		<transition from="SAW_BANG" function="emitToStartNewline" to="START" />
+		<transition from="SAW_BANG" function="emitToSAWSlash" to="SAW_SLASH" />
+		<transition from="SAW_BANG" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_BANG" function="emitToSAWStar" to="SAW_STAR" />
+		<transition from="SAW_BANG" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_BANG" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_BANG" function="emitToStartDot" to="START" />
+		<transition from="SAW_BANG" function="emitToStartSymbol" to="START" />
+		<transition from="SAW_BANG" function="emitToFinalEOF" to="START" />
+		<transition from="SAW_BANG" function="emitToSAWZero" to="SAW_ZERO" />
+		<transition from="SAW_BANG" function="emitToINIdentHex" to="IN_IDENT" />
+		<transition from="SAW_BANG" function="emitToINIdentB" to="IN_IDENT" />
+		<transition from="SAW_BANG" function="emitToINIdentX" to="IN_IDENT" />
+		<transition from="SAW_BANG" function="emitToINDecimalBin" to="IN_DECIMAL" />
+
+	<transition from="SAW_SLASH" function="emitToINDecimalBin" to="IN_DECIMAL" />
+		<transition from="SAW_MINUS" function="emitToSAWMinus" to="SAW_MINUS" />
+		<transition from="SAW_LESS" function="emitToSAWLess" to="SAW_LESS" />
+		<transition from="SAW_GREATER" function="emitToSAWGreater" to="SAW_GREATER" />
+		<transition from="SAW_BANG" function="emitToSAWBang" to="SAW_BANG" />
+		</transitions>
+	
+	<testinputgeneration>
+		<inputgenerator function="toINIdent">alpha.set_c("a");</inputgenerator>
+		<inputgenerator function="toINIdentHex">hexAlpha.set_c("f");</inputgenerator>
+		<inputgenerator function="toINIdentB" />
+		<inputgenerator function="toINIdentX" />
+		<inputgenerator function="toINDecimal">digit.set_c("1");</inputgenerator>
+		<inputgenerator function="toINDecimalBin">binDigit.set_c("1");</inputgenerator>
+		<inputgenerator function="toSAWZero" />
+		<inputgenerator function="toStartSpace">space.set_c(" ");</inputgenerator>
+		<inputgenerator function="toStartNewline" />
+		<inputgenerator function="toSAWSlash" />
+		<inputgenerator function="toSAWMinus" />
+		<inputgenerator function="toSAWStar" />
+		<inputgenerator function="toSAWEqual" />
+		<inputgenerator function="toSAWLess" />
+		<inputgenerator function="toSAWGreater" />
+		<inputgenerator function="toSAWBang" />
+		<inputgenerator function="toStartDot" />
+		<inputgenerator function="toStartSymbol">symbol.set_c("(");</inputgenerator>
+		<inputgenerator function="toFinalEOF" />
+
+		<inputgenerator function="emitToINIdent">alpha.set_c("b");</inputgenerator>
+		<inputgenerator function="emitToINIdentHex">hexAlpha.set_c("e");</inputgenerator>
+		<inputgenerator function="emitToINIdentB" />
+		<inputgenerator function="emitToINIdentX" />
+		<inputgenerator function="emitToINDecimal">digit.set_c("2");</inputgenerator>
+		<inputgenerator function="emitToINDecimalBin">binDigit.set_c("0");</inputgenerator>
+		<inputgenerator function="emitToSAWZero" />
+		<inputgenerator function="emitToStartSpace">space.set_c("\t");</inputgenerator>
+		<inputgenerator function="emitToStartNewline" />
+		<inputgenerator function="emitToSAWSlash" />
+		<inputgenerator function="emitToSAWMinus" />
+		<inputgenerator function="emitToSAWStar" />
+		<inputgenerator function="emitToSAWEqual" />
+		<inputgenerator function="emitToSAWLess" />
+		<inputgenerator function="emitToSAWGreater" />
+		<inputgenerator function="emitToSAWBang" />
+		<inputgenerator function="emitToStartDot" />
+		<inputgenerator function="emitToStartSymbol">symbol.set_c(")");</inputgenerator>
+		<inputgenerator function="emitToFinalEOF" />
+
+		<inputgenerator function="minusToArrow" />
+		<inputgenerator function="starToExp" />
+		<inputgenerator function="equalEqual" />
+		<inputgenerator function="lessEqual" />
+		<inputgenerator function="greaterEqual" />
+		<inputgenerator function="bangEqual" />
+		<inputgenerator function="slashToComment" />
+		
+		<inputgenerator function="zeroToBinPrefix" />
+		<inputgenerator function="zeroToHexPrefix" />
+		<inputgenerator function="toINBin">binDigit.set_c("1");</inputgenerator>
+		<inputgenerator function="toINHex">digit.set_c("a");</inputgenerator>
+		<inputgenerator function="toINHexAlpha">hexAlpha.set_c("c");</inputgenerator>
+		<inputgenerator function="toINHexB" />
+		<inputgenerator function="toStayDot" />
+		<inputgenerator function="toStaySymbol">symbol.set_c("{");</inputgenerator>
+	</testinputgeneration>
+</SXM>

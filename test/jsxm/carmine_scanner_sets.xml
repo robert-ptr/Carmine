@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sets>
+<characterization>
+	<sequence><function name="toStartSpace"/></sequence>
+	<sequence><function name="toINIdent"/></sequence>
+	<sequence><function name="toINDecimal"/></sequence>
+	<sequence><function name="toStartSymbol"/></sequence>
+</characterization>
+
+<statecover>
+	<sequence></sequence> <!-- START -->
+	<sequence><function name="toINIdent"/></sequence> <!-- IN_IDENT -->
+	<sequence><function name="toINDecimal"/></sequence> <!-- IN_DECIMAL -->
+	<sequence><function name="toSAWZero"/></sequence> <!-- SAW_ZERO -->
+	<sequence><function name="toSAWZero"/><function name="zeroToBinPrefix"/></sequence> <!-- IN_BIN_PREFIX -->
+	<sequence><function name="toSAWZero"/><function name="zeroToBinPrefix"/><function name="toINBin"/></sequence> <!-- IN_BIN -->
+	<sequence><function name="toSAWZero"/><function name="zeroToHexPrefix"/></sequence> <!-- IN_HEX_PREFIX -->
+	<sequence><function name="toSAWZero"/><function name="zeroToHexPrefix"/><function name="toINHex"/></sequence> <!-- IN_HEX -->
+	<sequence><function name="toSAWSlash"/></sequence> <!-- SAW_SLASH -->
+	<sequence><function name="toSAWSlash"/><function name="slashToComment"/></sequence> <!-- IN_COMMENT -->
+	<sequence><function name="toSAWMinus"/></sequence> <!-- SAW_MINUS -->
+	<sequence><function name="toSAWStar"/></sequence> <!-- SAW_STAR -->
+	<sequence><function name="toSAWEqual"/></sequence> <!-- SAW_EQUAL -->
+	<sequence><function name="toSAWLess"/></sequence> <!-- SAW_LESS -->
+	<sequence><function name="toSAWGreater"/></sequence> <!-- SAW_GREATER -->
+	<sequence><function name="toSAWBang"/></sequence> <!-- SAW_BANG -->
+</statecover>
+</sets>

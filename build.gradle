@@ -14,11 +14,12 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.13'
     runtimeOnly 'org.slf4j:slf4j-simple:2.0.13'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -32,11 +33,8 @@ sourceSets {
         java {
             srcDirs = ['test']
         }
-
     }
 }
-sourceSets.test.compileClasspath += sourceSets.main.output
-sourceSets.test.runtimeClasspath += sourceSets.main.output
 
 test {
     useJUnitPlatform()
