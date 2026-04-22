@@ -20,9 +20,9 @@ public class Scanner {
     static
     {
         keywords = new HashMap<>();
-        // keywords.put("and", TokenType.AND); //
-        // keywords.put("or", TokenType.OR);   //
-        // keywords.put("not", TokenType.NOT); //
+        keywords.put("and", TokenType.AND); //
+        keywords.put("or", TokenType.OR);   //
+        keywords.put("not", TokenType.NOT); //
         //keywords.put("wire", TokenType.WIRE);
         //keywords.put("def", TokenType.DEF);
         keywords.put("true", TokenType.TRUE);

@@ -96,7 +96,7 @@ public class Parser
         if (right instanceof Expr.Assignment)
             return new Expr.Module((Expr.Assignment)right);
         else if (right instanceof Expr.Identifier)
-            return new Expr.Module(null);
+            return new Expr.Module(new Expr.Assignment(previous(), null));
         else
             errorAtCurrent("Invalid module declaration.");
 
@@ -529,11 +529,11 @@ public class Parser
                 return moduleStatement(name);
             else {
                 current--;
-                Stmt varExpr = new Stmt.Expression(moduleExpression());
+                Stmt moduleExpr = new Stmt.Expression(moduleExpression());
                 if (!match(TokenType.SEMICOLON))
                     errorAtCurrent("Expected ';' at end of module declaration.");
 
-                return varExpr;
+                return moduleExpr;
             }
         }
         else if (match(TokenType.VAR)) {

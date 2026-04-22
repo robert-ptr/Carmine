@@ -116,11 +116,11 @@ public class Carmine {
 
         if (!hadError) {
             AstVisualizer visualizer = new AstVisualizer();
-            Optimizer optimizer = new Optimizer(statements);
+            //Optimizer optimizer = new Optimizer(statements);
 
-            optimizer.constantFolding();
+            //optimizer.constantFolding();
             //optimizer.constantPropagation(); // WIP
-            optimizer.constantFolding();
+            //optimizer.constantFolding();
             //optimizer.constantPropagation(); // WIP
             //optimizer.constantFolding();
 
