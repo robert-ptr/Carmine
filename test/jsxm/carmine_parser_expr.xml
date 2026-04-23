@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SXM name="CarmineParserExpr">
+	<states>
+		<state name="START" />
+		<state name="AFTER_TERM_ASSIGNABLE" />
+		<state name="AFTER_TERM_UNASSIGNABLE" />
+		<state name="AFTER_OP" />
+	</states>
+
+	<initialState state="START" />
+
+	<memory>
+		<declaration>
+			String tokenStream;
+		</declaration>
+		<initial>
+			tokenStream = "";
+		</initial>
+	</memory>
+
+	<inputs>
+		<input name="ident" />
+		<input name="lit" />
+		<input name="unary_op" />
+		<input name="bin_op" />
+		<input name="assign" />
+		<input name="semicolon" />
+	</inputs>
+
+	<outputs>
+		<output name="parseOut">
+			<result name="tokens" type="xs:string" />
+		</output>
+	</outputs>
+
+	<functions>
+		<function name="toTermAssignable" input="ident" output="parseOut">
+			<effect> tokenStream += " IDENT"; parseOut.tokens = ""; </effect>
+		</function>
+		<function name="toTermUnassignable" input="lit" output="parseOut">
+			<effect> tokenStream += " LITERAL"; parseOut.tokens = ""; </effect>
+		</function>
+
+		<function name="stayUnaryStart" input="unary_op" output="parseOut">
+			<effect> tokenStream += " UNARY"; parseOut.tokens = ""; </effect>
+		</function>
+		<function name="stayUnaryOp" input="unary_op" output="parseOut">
+			<effect> tokenStream += " UNARY"; parseOut.tokens = ""; </effect>
+		</function>
+
+		<function name="toOp" input="bin_op" output="parseOut">
+			<effect> tokenStream += " BIN_OP"; parseOut.tokens = ""; </effect>
+		</function>
+
+		<function name="toAssign" input="assign" output="parseOut">
+			<effect> tokenStream += " ASSIGN"; parseOut.tokens = ""; </effect>
+		</function>
+
+		<function name="emitStatement" input="semicolon" output="parseOut">
+			<effect> tokenStream += " SEMICOLON"; parseOut.tokens = tokenStream.trim(); tokenStream = ""; </effect>
+		</function>
+
+        <!-- Functions for AFTER_TERM_UNASSIGNABLE emit -->
+        <function name="emitStatementU" input="semicolon" output="parseOut">
+			<effect> tokenStream += " SEMICOLON"; parseOut.tokens = tokenStream.trim(); tokenStream = ""; </effect>
+		</function>
+	</functions>
+
+	<transitions>
+		<transition from="START" function="toTermAssignable" to="AFTER_TERM_ASSIGNABLE" />
+		<transition from="START" function="toTermUnassignable" to="AFTER_TERM_UNASSIGNABLE" />
+		<transition from="START" function="stayUnaryStart" to="START" />
+
+		<transition from="AFTER_TERM_ASSIGNABLE" function="toOp" to="AFTER_OP" />
+		<transition from="AFTER_TERM_ASSIGNABLE" function="toAssign" to="AFTER_OP" />
+		<transition from="AFTER_TERM_ASSIGNABLE" function="emitStatement" to="START" />
+
+		<transition from="AFTER_TERM_UNASSIGNABLE" function="toOp" to="AFTER_OP" />
+		<transition from="AFTER_TERM_UNASSIGNABLE" function="emitStatementU" to="START" />
+
+		<transition from="AFTER_OP" function="toTermAssignable" to="AFTER_TERM_ASSIGNABLE" />
+		<transition from="AFTER_OP" function="toTermUnassignable" to="AFTER_TERM_UNASSIGNABLE" />
+		<transition from="AFTER_OP" function="stayUnaryOp" to="AFTER_OP" />
+	</transitions>
+	
+	<testinputgeneration>
+		<inputgenerator function="toTermAssignable" />
+		<inputgenerator function="toTermUnassignable" />
+		<inputgenerator function="stayUnaryStart" />
+		<inputgenerator function="stayUnaryOp" />
+		<inputgenerator function="toOp" />
+		<inputgenerator function="toAssign" />
+		<inputgenerator function="emitStatement" />
+        <inputgenerator function="emitStatementU" />
+	</testinputgeneration>
+</SXM>

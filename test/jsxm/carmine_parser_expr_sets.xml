@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sets>
+<characterization>
+	<sequence><function name="toTermAssignable"/></sequence>
+	<sequence><function name="toTermUnassignable"/></sequence>
+	<sequence><function name="stayUnaryStart"/></sequence>
+	<sequence><function name="toTermAssignable"/><function name="toOp"/></sequence>
+</characterization>
+
+<statecover>
+	<sequence></sequence>
+	<sequence><function name="toTermAssignable"/></sequence>
+	<sequence><function name="toTermUnassignable"/></sequence>
+	<sequence><function name="toTermAssignable"/><function name="toOp"/></sequence>
+	<sequence><function name="toTermAssignable"/><function name="toAssign"/></sequence>
+	<sequence><function name="toTermAssignable"/><function name="emitStatement"/></sequence>
+	<sequence><function name="toTermUnassignable"/><function name="emitStatementU"/></sequence>
+	<sequence><function name="stayUnaryStart"/></sequence>
+	<sequence><function name="toTermAssignable"/><function name="toOp"/><function name="stayUnaryOp"/></sequence>
+</statecover>
+</sets>
