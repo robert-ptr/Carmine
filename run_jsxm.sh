@@ -14,8 +14,9 @@ fi
 
 mkdir -p test/jsxm/temp/types
 
-echo "Generating SXM Java specification..."
+echo "Generating SXM Java specifications..."
 java -cp $CLASSPATH ui.SXMBaseGenerator -path test/jsxm/temp -jarpath $JSXM_PATH/lib/JSXM.jar -overwrite test/jsxm/carmine_scanner.xml
+java -cp $CLASSPATH ui.SXMBaseGenerator -path test/jsxm/temp -jarpath $JSXM_PATH/lib/JSXM.jar -overwrite test/jsxm/carmine_parser_expr.xml
 java -cp $CLASSPATH ui.SXMBaseGenerator -path test/jsxm/temp -jarpath $JSXM_PATH/lib/JSXM.jar -overwrite test/jsxm/carmine_statements.xml
 
 echo "Moving generated Java to types/ directory..."
@@ -26,6 +27,7 @@ javac -cp $CLASSPATH:test/jsxm/temp test/jsxm/temp/types/*.java -d test/jsxm/tem
 
 echo "Generating test cases..."
 java -cp $CLASSPATH:test/jsxm/temp ui.SXMTestGen -k 1 -sets test/jsxm/carmine_scanner_sets.xml -o test/jsxm/carmine_scanner_test.xml types.CarmineScannerSXM
+java -cp $CLASSPATH:test/jsxm/temp ui.SXMTestGen -k 1 -sets test/jsxm/carmine_parser_expr_sets.xml -o test/jsxm/carmine_parser_expr_test.xml types.CarmineParserExprSXM
 java -cp $CLASSPATH:test/jsxm/temp ui.SXMTestGen -k 1 -sets test/jsxm/carmine_statements_sets.xml -o test/jsxm/carmine_statements_test.xml types.CarmineStatementsSXM
 
 echo "Cleaning up temp files..."
