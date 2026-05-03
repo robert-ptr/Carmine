@@ -118,20 +118,17 @@ The compiler will:
 Carmine utilizes **JSXM** (an eXtreme Machine for State Machines) for Model-Based Testing to ensure the robust handling of syntax edge cases without manually writing thousands of tests.
 
 ### 1. Generating Test Sequences
-To generate the tests from our abstract state machine models (like `carmine_statements.xml`), run the following script:
+To generate the tests from our abstract state machine models (`carmine_scanner.xml`, `carmine_parser_expr.xml`, and `carmine_statements.xml`), run the unified generation script:
 ```bash
 ./run_jsxm.sh
 ```
-This script will automatically download the required JSXM tools (without polluting your global system environment), compile the Java specifications, and output exhaustive XML test sequences (e.g., `test/jsxm/carmine_statements_test.xml`).
+This script will automatically download the required JSXM tools (without polluting your global system environment), compile the Java specifications, and output exhaustive XML test sequences for all three layers of the compiler front-end.
 
 ### 2. Running the Tests
-Once the XML sequences are generated, we use JUnit 5 to translate the abstract sequences into real `Token` streams and execute them against the Carmine parser. You can run these tests via Gradle:
+Once the XML sequences are generated, we use JUnit 5 to translate the abstract sequences into real `Token` streams and execute them against the Carmine parser. You can run all JSXM test suites alongside the manual tests via Gradle:
 ```bash
-# Run all tests
+# Run all tests (Scanner, Parser Expressions, Parser Statements, and manual unit tests)
 ./gradlew test
-
-# Or specifically run the statement parser tests
-./gradlew test --tests "carmine.compiler.passes.StatementFormalTest"
 ```
 
 ## Architecture & Key Components
