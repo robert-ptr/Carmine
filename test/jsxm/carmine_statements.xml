@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SXM name="CarmineStatements">
+    <states>
+        <state name="START" />
+        <state name="SAW_IF" />
+        <state name="SAW_ELSE" />
+        <state name="SAW_WHILE" />
+        <state name="SAW_FOR" />
+        <state name="IN_BLOCK" />
+        <state name="SAW_MODULE" />
+        <state name="SAW_VAR" />
+    </states>
+
+    <initialState state="START" />
+
+    <memory>
+        <declaration>
+            String currentStmt;
+            int blockDepth;
+        </declaration>
+        <initial>
+            currentStmt = "";
+            blockDepth = 0;
+        </initial>
+    </memory>
+
+    <inputs>
+        <input name="kw_if" />
+        <input name="kw_else" />
+        <input name="kw_while" />
+        <input name="kw_for" />
+        <input name="lbrace" />
+        <input name="rbrace" />
+        <input name="expr" />
+        <input name="semicolon" />
+        <input name="kw_module" />
+        <input name="kw_var" />
+    </inputs>
+
+    <outputs>
+        <output name="parseOut"><result name="stmtType" type="xs:string" /></output>
+    </outputs>
+
+    <functions>
+        <function name="toIf" input="kw_if" output="parseOut">
+            <effect> currentStmt = "IF"; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="toWhile" input="kw_while" output="parseOut">
+            <effect> currentStmt = "WHILE"; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="toFor" input="kw_for" output="parseOut">
+            <effect> currentStmt = "FOR"; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="toModule" input="kw_module" output="parseOut">
+            <effect> currentStmt = "MODULE"; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="toVar" input="kw_var" output="parseOut">
+            <effect> currentStmt = "VAR"; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="enterBlock" input="lbrace" output="parseOut">
+            <effect> blockDepth++; parseOut.stmtType = ""; </effect>
+        </function>
+        <function name="leaveBlock" input="rbrace" output="parseOut">
+            <effect>
+                blockDepth--;
+                if (blockDepth == 0) {
+                    parseOut.stmtType = "BLOCK_END";
+                } else {
+                    parseOut.stmtType = "";
+                }
+            </effect>
+        </function>
+        <function name="processExpr" input="expr" output="parseOut">
+            <effect> parseOut.stmtType = "EXPR"; </effect>
+        </function>
+        <function name="endStmt" input="semicolon" output="parseOut">
+            <effect> parseOut.stmtType = currentStmt + "_END"; currentStmt = ""; </effect>
+        </function>
+        <function name="toElse" input="kw_else" output="parseOut">
+            <effect> currentStmt = "ELSE"; parseOut.stmtType = ""; </effect>
+        </function>
+    </functions>
+
+    <transitions>
+        <transition from="START" function="toIf" to="SAW_IF" />
+        <transition from="START" function="toWhile" to="SAW_WHILE" />
+        <transition from="START" function="toFor" to="SAW_FOR" />
+        <transition from="START" function="toModule" to="SAW_MODULE" />
+        <transition from="START" function="toVar" to="SAW_VAR" />
+        <transition from="START" function="enterBlock" to="IN_BLOCK" />
+        <transition from="START" function="processExpr" to="START" />
+        <transition from="START" function="endStmt" to="START" />
+
+        <transition from="SAW_IF" function="processExpr" to="SAW_IF" />
+        <transition from="SAW_IF" function="enterBlock" to="IN_BLOCK" />
+
+        <transition from="SAW_WHILE" function="processExpr" to="SAW_WHILE" />
+        <transition from="SAW_WHILE" function="enterBlock" to="IN_BLOCK" />
+        
+        <transition from="SAW_FOR" function="processExpr" to="SAW_FOR" />
+        <transition from="SAW_FOR" function="enterBlock" to="IN_BLOCK" />
+
+        <transition from="SAW_MODULE" function="processExpr" to="SAW_MODULE" />
+        <transition from="SAW_MODULE" function="enterBlock" to="IN_BLOCK" />
+        <transition from="SAW_MODULE" function="endStmt" to="START" />
+
+        <transition from="SAW_VAR" function="processExpr" to="SAW_VAR" />
+        <transition from="SAW_VAR" function="enterBlock" to="IN_BLOCK" />
+        <transition from="SAW_VAR" function="endStmt" to="START" />
+
+        <transition from="IN_BLOCK" function="toIf" to="SAW_IF" />
+        <transition from="IN_BLOCK" function="toWhile" to="SAW_WHILE" />
+        <transition from="IN_BLOCK" function="toFor" to="SAW_FOR" />
+        <transition from="IN_BLOCK" function="toVar" to="SAW_VAR" />
+        <transition from="IN_BLOCK" function="processExpr" to="IN_BLOCK" />
+        <transition from="IN_BLOCK" function="endStmt" to="IN_BLOCK" />
+        <transition from="IN_BLOCK" function="enterBlock" to="IN_BLOCK" />
+        <transition from="IN_BLOCK" function="leaveBlock" to="START" />
+        
+        <transition from="START" function="toElse" to="SAW_ELSE" />
+        <transition from="SAW_ELSE" function="toIf" to="SAW_IF" />
+        <transition from="SAW_ELSE" function="enterBlock" to="IN_BLOCK" />
+    </transitions>
+
+    <testinputgeneration>
+        <inputgenerator function="toIf" />
+        <inputgenerator function="toWhile" />
+        <inputgenerator function="toFor" />
+        <inputgenerator function="toModule" />
+        <inputgenerator function="toVar" />
+        <inputgenerator function="enterBlock" />
+        <inputgenerator function="leaveBlock" />
+        <inputgenerator function="processExpr" />
+        <inputgenerator function="endStmt" />
+        <inputgenerator function="toElse" />
+    </testinputgeneration>
+</SXM>

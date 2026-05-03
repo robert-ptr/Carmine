@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sets>
+<characterization>
+    <sequence><function name="toIf"/></sequence>
+    <sequence><function name="toWhile"/></sequence>
+    <sequence><function name="enterBlock"/></sequence>
+    <sequence><function name="toModule"/></sequence>
+    <sequence><function name="toVar"/></sequence>
+</characterization>
+
+<statecover>
+    <sequence></sequence> <!-- START -->
+    <sequence><function name="toIf"/></sequence> <!-- SAW_IF -->
+    <sequence><function name="toWhile"/></sequence> <!-- SAW_WHILE -->
+    <sequence><function name="toFor"/></sequence> <!-- SAW_FOR -->
+    <sequence><function name="toModule"/></sequence> <!-- SAW_MODULE -->
+    <sequence><function name="toVar"/></sequence> <!-- SAW_VAR -->
+    <sequence><function name="enterBlock"/></sequence> <!-- IN_BLOCK -->
+    <sequence><function name="toIf"/><function name="enterBlock"/><function name="leaveBlock"/><function name="toElse"/></sequence> <!-- SAW_ELSE -->
+</statecover>
+</sets>
