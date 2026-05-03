@@ -113,6 +113,27 @@ The compiler will:
 2. Run optimization passes (e.g. constant folding).
 3. Emit a `.dot` string representation of the tree to standard output, which you can save to a `.dot` file or pipe to Graphviz to visually debug the output.
 
+## Testing
+
+Carmine utilizes **JSXM** (an eXtreme Machine for State Machines) for Model-Based Testing to ensure the robust handling of syntax edge cases without manually writing thousands of tests.
+
+### 1. Generating Test Sequences
+To generate the tests from our abstract state machine models (like `carmine_statements.xml`), run the following script:
+```bash
+./run_jsxm.sh
+```
+This script will automatically download the required JSXM tools (without polluting your global system environment), compile the Java specifications, and output exhaustive XML test sequences (e.g., `test/jsxm/carmine_statements_test.xml`).
+
+### 2. Running the Tests
+Once the XML sequences are generated, we use JUnit 5 to translate the abstract sequences into real `Token` streams and execute them against the Carmine parser. You can run these tests via Gradle:
+```bash
+# Run all tests
+./gradlew test
+
+# Or specifically run the statement parser tests
+./gradlew test --tests "carmine.compiler.passes.StatementFormalTest"
+```
+
 ## Architecture & Key Components
 
 The Carmine compiler is organized into a pipeline, primarily living within `src/carmine/compiler`. The most vital components powering the translation from source code to functional Minecraft logic are:
