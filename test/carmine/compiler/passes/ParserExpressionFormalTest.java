@@ -48,23 +48,27 @@ public class ParserExpressionFormalTest {
         NodeList calls = sequence.getElementsByTagName("call");
         List<Token> tokens = new ArrayList<>();
         boolean expectIncomplete = true;
+        boolean expectError = false;
 
         for (int i = 0; i < calls.getLength(); i++) {
             Element call = (Element) calls.item(i);
             String funcName = ((Element)call.getElementsByTagName("function").item(0)).getAttribute("name");
             
-            NodeList outputs = call.getElementsByTagName("output");
-            if (outputs.getLength() == 0) continue;
-            Element output = (Element) outputs.item(0);
-            if (output.getAttribute("name").endsWith("_Error")) {
-                // Skip invalid syntactic sequences according to the model
-                return; 
+            Element input = (Element) call.getElementsByTagName("input").item(0);
+            if (input != null) {
+                Token t = getInputValue(input);
+                if (t != null) {
+                    tokens.add(t);
+                }
             }
 
-            Element input = (Element) call.getElementsByTagName("input").item(0);
-            Token t = getInputValue(input);
-            if (t != null) {
-                tokens.add(t);
+            NodeList outputs = call.getElementsByTagName("output");
+            if (outputs.getLength() > 0) {
+                Element output = (Element) outputs.item(0);
+                if (output.getAttribute("name").endsWith("_Error")) {
+                    expectError = true;
+                    break;
+                }
             }
             
             if (i == calls.getLength() - 1) {
@@ -80,7 +84,9 @@ public class ParserExpressionFormalTest {
         Parser parser = new Parser(tokens);
         parser.parse();
 
-        if (expectIncomplete) {
+        if (expectError) {
+            org.junit.jupiter.api.Assertions.assertTrue(Carmine.hadError, "Parsing was expected to fail for invalid syntactic sequence.");
+        } else if (expectIncomplete) {
             org.junit.jupiter.api.Assertions.assertTrue(Carmine.hadError, "Parsing was expected to fail for incomplete token sequences.");
         } else {
             org.junit.jupiter.api.Assertions.assertFalse(Carmine.hadError, "Parsing produced an unexpected error for valid token sequence.");

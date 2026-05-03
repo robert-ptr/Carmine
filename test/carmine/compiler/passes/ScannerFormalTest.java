@@ -66,6 +66,7 @@ public class ScannerFormalTest {
         List<ExpectedToken> expectedTokens = new ArrayList<>();
 
         StringBuilder currentLexeme = new StringBuilder();
+        boolean expectError = false;
 
         for (int i = 0; i < calls.getLength(); i++) {
             Element call = (Element) calls.item(i);
@@ -76,34 +77,40 @@ public class ScannerFormalTest {
                 return;
             }
 
-            NodeList outputs = call.getElementsByTagName("output");
-            if (outputs.getLength() == 0) continue;
-            Element output = (Element) outputs.item(0);
-            if (output.getAttribute("name").endsWith("_Error")) {
-                // Skip invalid sequences according to the model
-                return; 
+            Element input = (Element) call.getElementsByTagName("input").item(0);
+            if (input != null) {
+                String val = getInputValue(input);
+                code.append(val);
+                currentLexeme.append(val);
             }
 
-            Element input = (Element) call.getElementsByTagName("input").item(0);
-            String val = getInputValue(input);
-            code.append(val);
-            currentLexeme.append(val);
+            NodeList outputs = call.getElementsByTagName("output");
+            if (outputs.getLength() > 0) {
+                Element output = (Element) outputs.item(0);
+                if (output.getAttribute("name").endsWith("_Error")) {
+                    expectError = true;
+                    break;
+                }
+            }
 
-            NodeList tokenNodes = output.getElementsByTagName("tokens");
-            if (tokenNodes.getLength() > 0) {
-                String tokensStr = tokenNodes.item(0).getTextContent().trim();
-                if (!tokensStr.isEmpty()) {
-                    for (String t : tokensStr.split(" ")) {
-                        TokenType type = TokenType.valueOf(t);
-                        String lexeme = currentLexeme.toString().trim();
-                        expectedTokens.add(new ExpectedToken(type, lexeme));
-                        currentLexeme.setLength(0);
+            if (outputs.getLength() > 0) {
+                Element output = (Element) outputs.item(0);
+                NodeList tokenNodes = output.getElementsByTagName("tokens");
+                if (tokenNodes.getLength() > 0) {
+                    String tokensStr = tokenNodes.item(0).getTextContent().trim();
+                    if (!tokensStr.isEmpty()) {
+                        for (String t : tokensStr.split(" ")) {
+                            TokenType type = TokenType.valueOf(t);
+                            String lexeme = currentLexeme.toString().trim();
+                            expectedTokens.add(new ExpectedToken(type, lexeme));
+                            currentLexeme.setLength(0);
+                        }
                     }
                 }
             }
 
             // Handle the case where the sequence ends without an "End" transition
-            if (i == calls.getLength() - 1 && currentLexeme.length() > 0) {
+            if (i == calls.getLength() - 1 && currentLexeme.length() > 0 && !expectError) {
                 TokenType predicted = predictToken(funcName);
                 if (predicted != null) {
                     expectedTokens.add(new ExpectedToken(predicted, currentLexeme.toString().trim()));
@@ -112,8 +119,14 @@ public class ScannerFormalTest {
             }
         }
 
+        Carmine.hadError = false;
         Scanner scanner = new Scanner(code.toString());
         List<Token> actualTokens = scanner.scanTokens();
+
+        if (expectError) {
+            org.junit.jupiter.api.Assertions.assertTrue(Carmine.hadError, "Scanning was expected to produce an error for sequence: [" + code.toString().replace("\n", "\\n") + "]");
+            return;
+        }
 
         // Filter out EOF for comparison if not expected
         List<Token> filteredActual = new ArrayList<>();

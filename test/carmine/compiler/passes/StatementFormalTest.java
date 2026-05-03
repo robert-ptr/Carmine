@@ -45,36 +45,43 @@ public class StatementFormalTest {
     private void runSingleTest(Element sequence) {
         NodeList calls = sequence.getElementsByTagName("call");
         List<Token> tokens = new ArrayList<>();
+        boolean expectError = false;
 
         for (int i = 0; i < calls.getLength(); i++) {
             Element call = (Element) calls.item(i);
             
+            Element input = (Element) call.getElementsByTagName("input").item(0);
+            if (input != null) {
+                String name = input.getAttribute("name");
+                tokens.addAll(mapInputToTokens(name));
+            }
+
             NodeList outputs = call.getElementsByTagName("output");
             if (outputs.getLength() > 0) {
                 Element output = (Element) outputs.item(0);
                 if (output.getAttribute("name").endsWith("_Error")) {
-                    return; // Skip invalid sequences
+                    expectError = true;
+                    break;
                 }
             }
-
-            Element input = (Element) call.getElementsByTagName("input").item(0);
-            if (input == null) continue;
-            
-            String name = input.getAttribute("name");
-            tokens.addAll(mapInputToTokens(name));
         }
 
         tokens.add(new Token(TokenType.EOF, "", null, 1));
         
+        Carmine.hadError = false;
         Parser parser = new Parser(tokens);
+        boolean threwError = false;
         try {
             parser.parse();
         } catch (ParseError e) {
             // ParseError is expected since our JSXM tokens map to rough structural 
             // outlines of statements that may lack exact syntactic completeness 
             // (e.g. missing parens around conditions). 
-            // We pass the test as long as Parser handles it robustly (by throwing ParseError)
-            // without crashing via NullPointerException, etc.
+            threwError = true;
+        }
+
+        if (expectError) {
+            org.junit.jupiter.api.Assertions.assertTrue(threwError || Carmine.hadError, "Parsing was expected to fail for invalid statement sequence.");
         }
     }
 
