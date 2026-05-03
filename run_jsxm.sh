@@ -2,6 +2,16 @@
 export JSXM_PATH=tools/jsxm/JSXM
 export CLASSPATH=$JSXM_PATH/lib/JSXM.jar:$JSXM_PATH/lib/jdom.jar:$JSXM_PATH/lib/jaxb-impl.jar
 
+# Download JSXM if it's not present
+if [ ! -d "$JSXM_PATH" ]; then
+    echo "JSXM not found. Downloading to $JSXM_PATH..."
+    mkdir -p tools/jsxm
+    wget -qO tools/jsxm/jsxm.zip http://jsxm.org/files/jsxm.zip
+    unzip -q tools/jsxm/jsxm.zip -d tools/jsxm/
+    rm tools/jsxm/jsxm.zip
+    echo "JSXM downloaded successfully."
+fi
+
 mkdir -p test/jsxm/temp/types
 
 echo "Generating SXM Java specification..."
