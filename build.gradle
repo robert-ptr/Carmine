@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '2.4.20-Beta2'
 }
 
 group = 'carmine'
@@ -19,7 +20,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -28,9 +29,15 @@ sourceSets {
         java {
             srcDirs = ['src']
         }
+        kotlin {
+            srcDirs = ['src']
+        }
     }
     test {
         java {
+            srcDirs = ['test']
+        }
+        kotlin {
             srcDirs = ['test']
         }
     }
