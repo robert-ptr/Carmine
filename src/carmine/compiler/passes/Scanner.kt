@@ -1,19 +1,19 @@
-package carmine.compiler.passes;
+package carmine.compiler.passes
 
-import carmine.compiler.structures.Token;
-import carmine.compiler.structures.TokenType;
-import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.helpers.LogLevel;
+import carmine.compiler.structures.Token
+import carmine.compiler.structures.TokenType
+import carmine.compiler.helpers.CarmineLogger
+import carmine.compiler.helpers.LogLevel
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.ArrayList
+import java.util.HashMap
 
 class Scanner(private val code: String) {
-    var line = 1
-    var start = 0
-    var current = 0
+    private var line = 1
+    private var start = 0
+    private var current = 0
 
-    val keywords:HashMap<String, TokenType> = hashMapOf(
+    private val keywords:HashMap<String, TokenType> = hashMapOf(
         "and" to TokenType.AND,
         "or" to TokenType.OR,
         "not" to TokenType.NOT,
@@ -32,42 +32,38 @@ class Scanner(private val code: String) {
         //"input" to TokenType.INPUT
     )
 
-    fun peek() : Char = if (!isAtEnd()) code[current] else '\u0000'
+    private fun peek() : Char = if (!isAtEnd()) code[current] else '\u0000'
 
-    fun advance() : Char = if(!isAtEnd()) code[current++] else '\u0000'
+    private fun advance() : Char = if(!isAtEnd()) code[current++] else '\u0000'
 
-    fun isAtEnd() : Boolean = current >= code.length
+    private fun isAtEnd() : Boolean = current >= code.length
 
-    fun makeToken(type : TokenType) : Token = Token(type, code.substring(start, current), null, line)
+    private fun makeToken(type : TokenType) : Token = Token(type, code.substring(start, current), null, line)
 
-    fun isAlpha(c : Char) : Boolean = (c in 'A'..'Z') || (c in 'a'..'z') || c == '_'
+    private fun isAlpha(c : Char) : Boolean = (c in 'A'..'Z') || (c in 'a'..'z') || c == '_'
 
-    fun isDecimal(c : Char) : Boolean = c in '0'..'9'
+    private fun isDecimal(c : Char) : Boolean = c in '0'..'9'
 
-    fun isHexadecimal(c : Char) : Boolean =
+    private fun isHexadecimal(c : Char) : Boolean =
         isDecimal(c) || (c >= 'a') && (c <= 'f') || (c >= 'A') && (c <= 'F')
 
-    fun isBinary(c : Char) : Boolean = c == '0' || c == '1'
+    private fun isBinary(c : Char) : Boolean = c == '0' || c == '1'
 
-    fun identifier() : Token
+    private fun identifier() : Token
     {
-        while (isAlpha(peek()) || isDecimal(peek()))
-        {
+        while (isAlpha(peek()) || isDecimal(peek())) {
             advance()
         }
 
-        if (keywords.containsKey(code.substring(start, current)))
-        {
+        if (keywords.containsKey(code.substring(start, current))) {
             return makeToken(keywords[code.substring(start, current)]!!)
         }
 
         return makeToken(TokenType.IDENTIFIER)
     }
 
-    fun number() : Token
-    {
-        while (isDecimal(peek()))
-        {
+    private fun number() : Token {
+        while (isDecimal(peek())) {
             advance()
         }
         val number = makeToken(TokenType.DECIMAL)
@@ -75,29 +71,24 @@ class Scanner(private val code: String) {
         return number
     }
 
-    fun binary() : Token
-    {
-        while (isBinary(peek()))
-        {
+    private fun binary() : Token {
+        while (isBinary(peek())) {
             advance()
         }
 
         return makeToken(TokenType.BINARY)
     }
 
-    fun hexadecimal() : Token
-    {
-        while (isHexadecimal(peek()))
-        {
+    private fun hexadecimal() : Token {
+        while (isHexadecimal(peek())) {
             advance()
         }
 
         return makeToken(TokenType.HEXADECIMAL)
     }
 
-    fun scanToken() : Token?
-    {
-        start = current;
+    private fun scanToken() : Token? {
+        start = current
         return when(val c = advance()) {
             ',' -> makeToken(TokenType.COMMA)
             ';' -> makeToken(TokenType.SEMICOLON)
@@ -108,13 +99,12 @@ class Scanner(private val code: String) {
             '[' -> makeToken(TokenType.LBRACKET)
             ']' -> makeToken(TokenType.RBRACKET)
             '\n' -> {
-                //makeToken(TokenType.ENDLINE);
-                line++;
-                return null
+                line++
+                null
             }
             '=' ->
                 if (peek() == '=') {
-                    advance();
+                    advance()
                     makeToken(TokenType.EQUAL)
                 }
                 else
@@ -143,7 +133,7 @@ class Scanner(private val code: String) {
                 else {
                     //return makeToken(TokenType.NOT)
                     CarmineLogger.log("Unknown literal: '$c' at line $line", LogLevel.ERROR)
-                    return makeToken(TokenType.ERR)
+                    makeToken(TokenType.ERR)
                 }
             '+' -> makeToken(TokenType.PLUS)
             '-' ->
@@ -154,8 +144,7 @@ class Scanner(private val code: String) {
                 else
                     makeToken(TokenType.MINUS)
             '/' ->
-                if (peek() == '/')
-                {
+                if (peek() == '/') {
                     advance()
                     while (!isAtEnd() && peek() != '\n')
                         advance()
@@ -163,7 +152,7 @@ class Scanner(private val code: String) {
                     if (peek() == '\n')
                         advance()
 
-                    return null
+                    null
                 }
                 else
                     makeToken(TokenType.DIV)
@@ -177,15 +166,13 @@ class Scanner(private val code: String) {
                     makeToken(TokenType.MUL)
             //';' -> makeToken(TokenType.SEMICOLON)
             '.' -> makeToken(TokenType.DOT)
-            ' ', '\r', '\t' -> return null;
+            ' ', '\r', '\t' -> null
             '0' ->
-                if (peek() == 'b')
-                {
+                if (peek() == 'b') {
                     advance()
                     binary()
                 }
-                else if (peek() == 'X')
-                {
+                else if (peek() == 'X') {
                     advance()
                     hexadecimal()
                 }
@@ -196,19 +183,16 @@ class Scanner(private val code: String) {
                     identifier()
                 else if (isDecimal(c))
                     number()
-                else
-                {
+                else {
                     CarmineLogger.log("Unknown literal: '$c' at line $line", LogLevel.ERROR)
                     makeToken(TokenType.ERR)
                 }
         }
     }
 
-    fun scanTokens() : MutableList<Token>
-    {
+    fun scanTokens() : ArrayList<Token> {
         val tokens = ArrayList<Token>()
-        while (!isAtEnd())
-        {
+        while (!isAtEnd()) {
             val token = scanToken()
             if (token != null)
                 tokens.add(token)

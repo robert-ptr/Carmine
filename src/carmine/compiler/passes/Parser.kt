@@ -1,554 +1,428 @@
-package carmine.compiler.passes;
+package carmine.compiler.passes
 
-import carmine.compiler.helpers.CarmineLogger;
-import carmine.compiler.helpers.LogLevel;
-import carmine.compiler.structures.*;
+import carmine.compiler.helpers.CarmineLogger
+import carmine.compiler.helpers.LogLevel
+import carmine.compiler.structures.*
+import java.util.ArrayList
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Parser
+class Parser(private val tokens : ArrayList<Token>)
 {
-    private List<Token> tokens = new ArrayList<Token>();
-    private int current = 0;
+    private var current = 0
 
-    private boolean isAtEnd()
-    {
-        return peek().getType() == TokenType.EOF;
-    }
+    private fun isAtEnd() : Boolean = peek().type == TokenType.EOF
 
-    Parser(List<Token> tokens)
-    {
-        this.tokens = tokens;
-    }
+    private fun peek() : Token = tokens[current]
 
-    private Token peek()
-    {
-        return tokens.get(current);
-    }
-
-    private Token advance()
+    private fun advance() : Token?
     {
         if (isAtEnd())
-            return null;
+            return null
 
-        return tokens.get(current++);
+        return tokens[current++]
     }
 
-    private Token previous()
+    private fun previous() : Token
     {
-        return tokens.get(current - 1);
+        return tokens[current - 1]
     }
 
-    private void errorAtCurrent(String message)
-    {
-        Carmine.hadError = true;
-        CarmineLogger.log(peek(), message, LogLevel.ERROR) ;
+    private fun errorAtCurrent(message : String) {
+        Carmine.hadError = true
+        CarmineLogger.log(peek(), message, LogLevel.ERROR)
 
-         while (peek().getType() != TokenType.EOF && peek().getType() != TokenType.SEMICOLON)
-         {
-             advance();
+         while (peek().type != TokenType.EOF && peek().type != TokenType.SEMICOLON) {
+             advance()
          }
 
-         match(TokenType.SEMICOLON);
+         match(TokenType.SEMICOLON)
 
          if (Carmine.debugMode)
-            Thread.dumpStack();
+            Thread.dumpStack()
 
-         throw new ParseError();
+         throw ParseError()
     }
 
-    private boolean check(TokenType type)
-    {
-        if (isAtEnd())
-            return false;
+    private fun check(type : TokenType) : Boolean = !isAtEnd() && peek().type == type
 
-        return peek().getType() == type;
-    }
-
-    private boolean match(TokenType... types)
-    {
-        for (TokenType type : types) {
-            if (peek().getType() == type) {
-                advance();
-                return true;
-            }
+    private fun match(type: TokenType) : Boolean {
+        if (peek().type == type) {
+            advance()
+            return true
         }
 
-        return false;
+        return false
     }
 
-    private Expr expression()
-    {
-        if (match(TokenType.MODULE)) {
-            return moduleExpression();
-        } else if (match(TokenType.VAR)) {
-            return varExpression();
+    private fun expression() : Expr? {
+        if (match(TokenType.MODULE))
+            return moduleExpression()
+        else if (match(TokenType.VAR))
+            return varExpression()
+
+        return assignment()
+    }
+
+    private fun moduleExpression() : Expr? {
+        when (val right = assignment()) {
+            is Expr.Assignment -> return Expr.Module(right)
+            is Expr.Identifier -> return Expr.Module(Expr.Assignment(previous(), null))
+            else -> errorAtCurrent("Invalid module declaration.")
         }
 
-        return assignment();
+        return null
     }
 
-    private Expr moduleExpression()
-    {
-        Expr right = assignment();
+    private fun varExpression() : Expr? {
+        when (val right = assignment()) {
+            is Expr.Assignment -> return Expr.Variable(right)
+            is Expr.Identifier -> return Expr.Variable(Expr.Assignment(previous(), null))
+            else -> errorAtCurrent("Invalid variable declaration.")
+        }
 
-        if (right instanceof Expr.Assignment)
-            return new Expr.Module((Expr.Assignment)right);
-        else if (right instanceof Expr.Identifier)
-            return new Expr.Module(new Expr.Assignment(previous(), null));
-        else
-            errorAtCurrent("Invalid module declaration.");
-
-        return null;
+        return null
     }
 
-    private Expr varExpression()
-    {
-        Expr right = assignment();
+    private fun assignment() : Expr? {
+        val left = or()
 
-        if (right instanceof Expr.Assignment)
-            return new Expr.Variable((Expr.Assignment)right);
-        else if (right instanceof Expr.Identifier)
-            return new Expr.Variable(new Expr.Assignment(previous(), null));
-        else
-            errorAtCurrent("Invalid variable declaration.");
+        while (match(TokenType.ASSIGN)) {
+            val right = expression()
 
-        return null;
-    }
-
-    private Expr assignment()
-    {
-        Expr left = or();
-
-        while (match(TokenType.ASSIGN))
-        {
-            Expr right = expression();
-
-            if (left instanceof Expr.Identifier)
-            {
-                return new Expr.Assignment(((Expr.Identifier)left).getName(), right);
+            if (left is Expr.Identifier) {
+                return Expr.Assignment(left.name, right)
             }
 
-            errorAtCurrent("Invalid assignment target.");
+            errorAtCurrent("Invalid assignment target.")
         }
 
-        return left;
+        return left
     }
 
-    private Expr or()
-    {
-        Expr expr = and();
+    private fun or() : Expr? {
+        var expr = and()
 
-        while (match(TokenType.OR))
-        {
-            Token op = previous();
-            Expr right = and();
+        while (match(TokenType.OR)) {
+            val op = previous()
+            val right = and()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr and()
-    {
-        Expr expr = equality();
+    private fun and() : Expr? {
+        var expr = equality()
 
-        while (match(TokenType.AND))
-        {
-            Token op = previous();
-            Expr right = equality();
+        while (match(TokenType.AND)) {
+            val op = previous()
+            val right = equality()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr equality()
-    {
-        Expr expr = comparison();
+    private fun equality() : Expr? {
+        var expr = comparison()
 
-        while (match(TokenType.EQUAL) || match(TokenType.NOTEQUAL))
-        {
-            Token op = previous();
-            Expr right = comparison();
+        while (match(TokenType.EQUAL) || match(TokenType.NOTEQUAL)) {
+            val op = previous()
+            val right = comparison()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr comparison()
-    {
-        Expr expr = term();
+    private fun comparison() : Expr? {
+        var expr = term()
 
-        while (match(TokenType.GREATER) || match(TokenType.LESS) || match(TokenType.GREATER_EQUAL) || match(TokenType.LESS_EQUAL))
-        {
-            Token op = previous();
-            Expr right = term();
+        while (match(TokenType.GREATER) || match(TokenType.LESS) || match(TokenType.GREATER_EQUAL) || match(TokenType.LESS_EQUAL)) {
+            val op = previous()
+            val right = term()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr term()
-    {
-        Expr expr = factor();
+    private fun term() : Expr? {
+        var expr = factor()
 
-        while (match(TokenType.MINUS) || match(TokenType.PLUS))
-        {
-            Token op = previous();
-            Expr right = factor();
+        while (match(TokenType.MINUS) || match(TokenType.PLUS)) {
+            val op = previous()
+            val right = factor()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr factor()
-    {
-        Expr expr = unary();
+    private fun factor() : Expr? {
+        var expr = unary()
 
-        while (match(TokenType.DIV) || match(TokenType.MOD) || match(TokenType.MUL))
-        {
-            Token op = previous();
-            Expr right = unary();
+        while (match(TokenType.DIV) || match(TokenType.MOD) || match(TokenType.MUL)) {
+            val op = previous()
+            val right = unary()
 
-            expr = new Expr.Binary(expr, op, right);
+            expr = Expr.Binary(expr, op, right)
         }
 
-        return expr;
+        return expr
     }
 
-    private Expr unary()
-    {
-        if (match(TokenType.NOT) || match(TokenType.MINUS))
-        {
-            Token op = previous();
-            Expr right = call();
+    private fun unary() : Expr? {
+        if (match(TokenType.NOT) || match(TokenType.MINUS)) {
+            val op = previous()
+            val right = call()
 
-            return new Expr.Unary(op, right);
+            return Expr.Unary(op, right)
         }
 
-        return call();
+        return call()
     }
 
-    private List<Expr> arguments()
-    {
-        List<Expr> args = new ArrayList<>();
+    private fun arguments() : List<Expr?> {
+        val args = ArrayList<Expr?>()
 
-        if (!match(TokenType.RPAREN))
-        {
-            do
-            {
-                args.add(expression());
-            } while (match(TokenType.COMMA));
+        if (!match(TokenType.RPAREN)) {
+            do {
+                args.add(expression())
+            } while (match(TokenType.COMMA))
 
             if (!match(TokenType.RPAREN))
-                errorAtCurrent("Expected ')'.");
+                errorAtCurrent("Expected ')'.")
         }
 
-        return args;
+        return args
     }
 
-    private Expr call()
-    {
-        Expr expr = primary();
+    private fun call() : Expr? {
+        val expr = primary()
 
-        if (match(TokenType.LPAREN))
-        {
-            List<Expr> args = arguments();
+        if (match(TokenType.LPAREN)) {
+            val args = arguments()
 
-            return new Expr.Call(peek().getLine(), expr, args);
+            return Expr.Call(peek().line, expr, args)
         }
-        else
-        {
-            return expr;
+        else {
+            return expr
         }
     }
 
-    private Expr primary()
-    {
+    private fun primary() : Expr? {
         if (match(TokenType.TRUE))
-            return new Expr.Literal(peek().getLine(),true);
+            return Expr.Literal(peek().line,true)
 
         if (match(TokenType.FALSE))
-            return new Expr.Literal(peek().getLine(), false);
+            return Expr.Literal(peek().line, false)
 
-        if (match(TokenType.LPAREN))
-        {
-            Expr expr = expression();
+        if (match(TokenType.LPAREN)) {
+            val expr = expression()
             if (!match(TokenType.RPAREN))
-                errorAtCurrent("Expected matching ')' for '('.");
+                errorAtCurrent("Expected matching ')' for '('.")
 
-            return new Expr.Group(peek().getLine(), expr);
+            return Expr.Group(peek().line, expr)
         }
 
         if (match(TokenType.DECIMAL))
-            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme()));
+            return Expr.Literal(peek().line, Integer.parseInt(previous().lexeme))
 
         if (match(TokenType.HEXADECIMAL))
-            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme(), 16));
+            return Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 16))
 
         if (match(TokenType.BINARY))
-            return new Expr.Literal(peek().getLine(), Integer.parseInt(previous().getLexeme(), 2));
+            return Expr.Literal(peek().line, Integer.parseInt(previous().lexeme, 2))
 
         if (match(TokenType.NULL))
-            return new Expr.Literal(peek().getLine(), null);
+            return Expr.Literal(peek().line, null)
 
         if (match(TokenType.IDENTIFIER))
-            return new Expr.Identifier(previous());
+            return Expr.Identifier(previous())
 
-        errorAtCurrent("Unexpected token: " + peek());
-        return null;
+        errorAtCurrent("Unexpected token: " + peek())
+        return null
     }
 
-    private Stmt expressionStmt()
-    {
-        Expr expr = expression();
-        /*
-        if (!match(TokenType.ENDLINE) && !match(TokenType.EOF))
-        {
-            hadError = true;
-            Carmine.error(peek().line + " Invalid expression.");
-        }
-         */
+    private fun expressionStmt() : Stmt {
+        val expr = expression()
 
         if (!match(TokenType.SEMICOLON))
-           errorAtCurrent("Expected ';' at end of statement.");
+           errorAtCurrent("Expected ';' at end of statement.")
 
-        return new Stmt.Expression(expr);
+        return Stmt.Expression(expr)
     }
 
-    private Stmt blockStatement()
-    {
-        List<Stmt> statements = new ArrayList<>();
-        while (!isAtEnd() && !match(TokenType.RBRACE))
-        {
+    private fun blockStatement() : Stmt {
+        val statements = ArrayList<Stmt?>()
+        while (!isAtEnd() && !match(TokenType.RBRACE)) {
             try {
-                statements.add(statement());
-            } catch (ParseError e)
-            {
-                continue;
+                statements.add(statement())
+            } catch (_ : ParseError) {
+                continue
             }
         }
         //match(TokenType.ENDLINE);
-        return new Stmt.Block(statements);
+        return Stmt.Block(statements)
     }
 
-    private Stmt moduleStatement(Token name)
-    {
-        List<Token> params = new ArrayList<>();
-        List<Token> returnValues = new ArrayList<>();
-        if (!check(TokenType.RPAREN))
-        {
-            do
-            {
-                params.add(advance());
-            } while(match(TokenType.COMMA));
+    private fun funcStatement(name : Token, isVar : Boolean) : Stmt? {
+        val params = ArrayList<Token?>()
+        val returnValues = ArrayList<Token?>()
+        if (!check(TokenType.RPAREN)) {
+            do {
+                params.add(advance())
+            } while(match(TokenType.COMMA))
         }
 
         if (!match(TokenType.RPAREN))
-            errorAtCurrent("Expected ')'.");
+            errorAtCurrent("Expected ')'.")
 
-        if (match(TokenType.ARROW)) // then it returns one or multiple values
-        {
-            do
-            {
-                returnValues.add(advance());
-            } while(match(TokenType.COMMA));
+        // then it returns one or multiple values
+        if (match(TokenType.ARROW)) {
+            do {
+                returnValues.add(advance())
+            } while(match(TokenType.COMMA))
         }
 
         if (!match(TokenType.LBRACE))
-            errorAtCurrent("Expected '{'.");
+            errorAtCurrent("Expected '{'.")
 
-        Stmt statements = blockStatement();
+        val statements = blockStatement()
 
-        if (statements instanceof Stmt.Block)
-            return new Stmt.ModuleFunction(name, params, returnValues, (Stmt.Block)statements);
+        if (isVar && statements is Stmt.Block)
+            return Stmt.VarFunction(name, params, returnValues, statements)
+        else if(statements is Stmt.Block)
+            return Stmt.ModuleFunction(name, params, returnValues, statements)
         else
-            errorAtCurrent("Expected block statement.");
+            errorAtCurrent("Expected block statement.")
 
-        return null;
+        return null
     }
 
-    private Stmt varStatement(Token name) // could either be a variable or a function
-    {
-        List<Token> params = new ArrayList<>();
-        List<Token> returnValues = new ArrayList<>();
-        if (!check(TokenType.RPAREN))
-        {
-            do
-            {
-                params.add(advance());
-            } while(match(TokenType.COMMA));
-        }
-
-        if (!match(TokenType.RPAREN))
-            errorAtCurrent("Expected ')'.");
-
-        if (match(TokenType.ARROW)) // then it returns one or multiple values
-        {
-            do
-            {
-                returnValues.add(advance());
-            } while(match(TokenType.COMMA));
-        }
-
-        if (!match(TokenType.LBRACE))
-            errorAtCurrent("Expected '{'.");
-
-        Stmt statements = blockStatement();
-
-        if (statements instanceof Stmt.Block)
-            return new Stmt.VarFunction(name, params, returnValues, (Stmt.Block)statements);
-        else
-            errorAtCurrent("Expected block statement.");
-
-        return null;
-    }
-
-    private Stmt enumStatement()
-    {
-        boolean found_brace = false;
-        Token name = null;
+    private fun enumStatement() : Stmt {
+        var foundBrace = false
+        var name : Token? = null
 
         if (match(TokenType.IDENTIFIER))
-            name = previous();
+            name = previous()
 
-       // match(TokenType.ENDLINE);
         if (!match(TokenType.LBRACE))
-             errorAtCurrent("Expected '{'.");
+             errorAtCurrent("Expected '{'.")
 
-        ArrayList<Expr.Assignment> assignments = new ArrayList<>();
+        val assignments = ArrayList<Expr.Assignment?>()
 
-        do
-        {
-           // match(TokenType.ENDLINE);
+        do {
             if (match(TokenType.RBRACE)) {
-                found_brace = true;
-                break;
+                foundBrace = true
+                break
             }
-            Expr assignment = expression();
-            if (!(assignment instanceof Expr.Assignment))
-                 errorAtCurrent("Invalid assignment.");
+            val assignment = expression()
+            if (assignment !is Expr.Assignment)
+                 errorAtCurrent("Invalid assignment.")
 
-            assignments.add((Expr.Assignment)assignment);
-        } while (match(TokenType.COMMA));
+            assignments.add(assignment as Expr.Assignment?)
+        } while (match(TokenType.COMMA))
 
-        if (!match(TokenType.RBRACE) && !found_brace)
-             errorAtCurrent("Expected '}'.");
+        if (!match(TokenType.RBRACE) && !foundBrace)
+             errorAtCurrent("Expected '}'.")
 
         if (!match(TokenType.SEMICOLON))
-            errorAtCurrent("Expected ';' at end of statement.");
+            errorAtCurrent("Expected ';' at end of statement.")
 
-        return new Stmt.Enum(name, assignments);
+        return Stmt.Enum(name, assignments)
     }
 
-    private Stmt ifStatement()
-    {
-        Expr condition = expression();
+    private fun ifStatement() : Stmt {
+        val condition = expression()
 
         if (!match(TokenType.LBRACE))
-            errorAtCurrent("Expected '{'.");
+            errorAtCurrent("Expected '{'.")
 
-        Stmt thenBranch = blockStatement();
-        if (match(TokenType.ELSE))
-        {
-            Stmt elseBranch;
-            if (match(TokenType.IF))
-            {
-                elseBranch = ifStatement();
+        val thenBranch = blockStatement()
+        if (match(TokenType.ELSE)) {
+            var elseBranch : Stmt?
+            if (match(TokenType.IF)) {
+                elseBranch = ifStatement()
             }
-            else
-            {
+            else {
                 if (!match(TokenType.LBRACE))
-                    errorAtCurrent("Expected '{'.");
-                elseBranch = blockStatement();
+                    errorAtCurrent("Expected '{'.")
+                elseBranch = blockStatement()
             }
 
-            return new Stmt.If(condition, thenBranch, elseBranch);
+            return Stmt.If(condition, thenBranch, elseBranch)
         }
 
-        return new Stmt.If(condition, thenBranch, null);
+        return Stmt.If(condition, thenBranch, null)
     }
 
-    private Stmt whileStatement()
-    {
-        Expr condition = expression();
+    private fun whileStatement() : Stmt {
+        val condition = expression()
+        val body = statement()
 
-        Stmt body = statement();
-
-        return new Stmt.While(condition, body);
+        return Stmt.While(condition, body)
     }
 
-    private Stmt forStatement() // unused right now, still unsure about for syntax
-    {
-        Token var = null;
-
+    // unused right now, still unsure about for syntax
+    private fun forStatement() : Stmt {
         if (!match(TokenType.IDENTIFIER))
-            errorAtCurrent("Unexpected token: " + peek());
+            errorAtCurrent("Unexpected token: " + peek())
 
-        var = previous();
+        val varToken = previous()
 
         if (!match(TokenType.EQUAL))
-            errorAtCurrent("Expected assignment.");
+            errorAtCurrent("Expected assignment.")
 
-        Expr minValue = expression();
+        val minValue = expression()
 
-        if (!match(TokenType.DOT)) // WTF??
-        {
-
+        if (match(TokenType.DOT) && !match(TokenType.DOT)) {
+            errorAtCurrent("Missing '..' keyword.")
         }
-        if (!match(TokenType.DOT))
-             errorAtCurrent("Missing '..' keyword.");
 
-        Expr maxValue = expression();
+        val maxValue = expression()
 
-        Stmt body = statement();
-        return new Stmt.For(var, minValue, maxValue, body);
+        val body = statement()
+        return Stmt.For(varToken, minValue, maxValue, body)
     }
 
-    private Stmt declaration() // global scope
-    {
-       // while (match(TokenType.ENDLINE)) ;
-
+    // global scope
+    private fun declaration() : Stmt? {
         if (match(TokenType.MODULE)) {
             if (!match(TokenType.IDENTIFIER))
-                errorAtCurrent("Unexpected token in moduleStatement: " + peek());
+                errorAtCurrent("Unexpected token in moduleStatement: " + peek())
 
-            Token name = previous();
+            val name = previous()
 
             if (match(TokenType.LPAREN))
-                return moduleStatement(name);
+                return funcStatement(name, false)
             else {
-                current--;
-                Stmt moduleExpr = new Stmt.Expression(moduleExpression());
+                current--
+                val moduleExpr = Stmt.Expression(moduleExpression())
                 if (!match(TokenType.SEMICOLON))
-                    errorAtCurrent("Expected ';' at end of module declaration.");
+                    errorAtCurrent("Expected ';' at end of module declaration.")
 
-                return moduleExpr;
+                return moduleExpr
             }
         }
         else if (match(TokenType.VAR)) {
             if (!match(TokenType.IDENTIFIER))
-                errorAtCurrent("Unexpected token in varStatement: " + peek());
+                errorAtCurrent("Unexpected token in varStatement: " + peek())
 
-            Token name = previous();
+            val name = previous()
 
             if (match(TokenType.LPAREN))
-                return varStatement(name);
+                return funcStatement(name, true)
             else {
-                current--;
-                Stmt varExpr = new Stmt.Expression(varExpression());
-                match(TokenType.SEMICOLON);
-                return varExpr;
+                current--
+                val varExpr = Stmt.Expression(varExpression())
+                match(TokenType.SEMICOLON)
+                return varExpr
             }
             //{
 //
@@ -561,40 +435,35 @@ public class Parser
             //    );
         }
         else if (match(TokenType.ENUM))
-            return enumStatement();
+            return enumStatement()
         else
-            return statement();
+            return statement()
     }
 
-    private Stmt statement() {
-       // while (match(TokenType.ENDLINE));
-
+    private fun statement() : Stmt {
         if (match(TokenType.LBRACE))
-            return blockStatement();
+            return blockStatement()
         else if (match(TokenType.IF))
-            return ifStatement();
+            return ifStatement()
         else if (match(TokenType.WHILE))
-            return whileStatement();
+            return whileStatement()
         else if (match(TokenType.FOR))
-            return forStatement();
+            return forStatement()
 
-        return expressionStmt();
+        return expressionStmt()
     }
 
-    public List<Stmt> parse()
-    {
-        List<Stmt> statements = new ArrayList<>();
-        while (!isAtEnd())
-        {
+    fun parse() : List<Stmt?> {
+        val statements = ArrayList<Stmt?>()
+        while (!isAtEnd()) {
             try {
-                statements.add(declaration());
-            } catch (ParseError e)
-            {
+                statements.add(declaration())
+            } catch (_ : ParseError) {
                 // nothing here for now, just using this so I don't have to add a bunch of
                 // return statements when I call errorOnCurrent()
             }
         }
 
-        return statements;
+        return statements
     }
 }
