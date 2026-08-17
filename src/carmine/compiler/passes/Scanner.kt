@@ -67,7 +67,7 @@ class Scanner(private val code: String) {
             advance()
         }
         val number = makeToken(TokenType.DECIMAL)
-        number.value = Integer.parseInt(number.lexeme)
+        number.tokenValue = Integer.parseInt(number.lexeme)
         return number
     }
 

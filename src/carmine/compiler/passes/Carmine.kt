@@ -10,160 +10,140 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.ArrayList;
+import kotlin.system.exitProcess
 
-public class Carmine {
-    static Environment variableEnvironment = new Environment(); // used for the first parse where we evaluate all arithmetic expressions
-    static Environment moduleEnvironment = new Environment(); // used to save modules
-    //static List<Stmt.Function> statements;
-    static boolean hadError = false;
-    static boolean debugMode = true;
-    static
-    {
-        variableEnvironment.put("print", new CarmineCallable() {
-            @Override
-            public int arity() {
-                return 1;
-            }
+val variableEnvironment = Environment() // used for the first parse where we evaluate all arithmetic expressions
+val moduleEnvironment = Environment() // used to save modules
+var hadError = false
 
-            @Override
-            public Object call(List<Object> arguments) {
-                System.out.println(arguments.get(0));
-                return null;
-            }
-        });
+private fun run(code : String) {
+    variableEnvironment.put("print", {
+        @Override
+        fun arity() : Int {
+            return 1
+        }
 
-        moduleEnvironment.put("and", new CarmineCallable() {
-           @Override
-           public int arity() { return 2; }
+        @Override
+        fun call( arguments : List<Any>) : Any? {
+            return null
+        }
+    })
 
-           @Override
-           public Object call(List<Object> arguments)
-           {
-               System.out.println(arguments.get(0));
-               return null;
-           }
-        });
+    moduleEnvironment.put("and",  {
+        @Override
+        fun arity() : Int {
+            return 2
+        }
 
-        moduleEnvironment.put("or", new CarmineCallable() {
-            @Override
-            public int arity() { return 2; }
+        @Override
+        fun call( arguments : List<Any>) : Any? {
+            return null
+        }
+    })
 
-            @Override
-            public Object call(List<Object> arguments)
-            {
-                System.out.println(arguments.get(0));
-                return null;
-            }
-        });
+    moduleEnvironment.put("or", {
+        @Override
+        fun arity() : Int {
+            return 2
+        }
 
-        moduleEnvironment.put("import", new CarmineCallable() {
-            @Override
-            public int arity() { return 1;}
+        @Override
+        fun call( arguments : List<Any>) : Any? {
+            return null
+        }
+    })
 
-            @Override
-            public Object call(List<Object> arguments)
-            {
-                return null;
-            }
-        });
+    moduleEnvironment.put("import", {
+        @Override
+        fun arity() : Int {
+            return 1
+        }
 
-        moduleEnvironment.put("export", new CarmineCallable() {
-            @Override
-            public int arity() { return 1;}
-
-            @Override
-            public Object call(List<Object> arguments)
-            {
-                return null;
-            }
-        });
-    }
-
-    public static Environment getVarEnv()
-    {
-        return variableEnvironment;
-    }
-
-    public static Environment getModuleEnv()
-    {
-        return moduleEnvironment;
-    }
-
-    private static void run(String code)
-    {
-        Scanner scanner = new Scanner(code);
-        List<Token> tokens = scanner.scanTokens();
-
-        for (Token token : tokens)
+        @Override
+        fun call(arguments : List<Any>) : Any?
         {
-            System.out.println(token);
+            return null
+        }
+    })
+
+    moduleEnvironment.put("export",  {
+        @Override
+        fun arity() : Int {
+            return 1
         }
 
-        Parser parser = new Parser(tokens);
-
-        System.out.println("________________\n");
-
-        List<Stmt> statements = parser.parse();
-        /*
-        for (Stmt statement : statements) {
-            //statement.print();
-            //statement.evaluate();
-            //System.out.println();
+        @Override
+        fun call(arguments : List<Any>) : Any?
+        {
+            return null
         }
-        //Debug.printEnvironments();
-         */
+    })
 
-        if (!hadError) {
-            AstVisualizer visualizer = new AstVisualizer();
-            //Optimizer optimizer = new Optimizer(statements);
+    val scanner = Scanner(code)
+    val tokens = scanner.scanTokens()
 
-            //optimizer.constantFolding();
-            //optimizer.constantPropagation(); // WIP
-            //optimizer.constantFolding();
-            //optimizer.constantPropagation(); // WIP
-            //optimizer.constantFolding();
+    for (token in tokens)
+        println(token)
 
-            //optimizer.loopUnrolling(); // WIP
-            //optimizer.deadCodeElimination(); // WIP
+    val parser = Parser(tokens)
 
-            String dotContent = visualizer.visualizeAST(statements, VisualizationMode.PRETTY_PRINT);
-            System.out.println(dotContent);
-        }
-        /*
-        try {
-            Files.writeString(
-                    Path.of("graph.dot"),
-                    dotContent,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING
-            );
-            System.out.println("Saved to graph.dot");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
+    val statements = parser.parse()
+    /*
+    for (Stmt statement : statements) {
+        //statement.print();
+        //statement.evaluate();
+        //System.out.println();
     }
+    //Debug.printEnvironments();
+     */
 
-    private static void runFile(String path) {
-        try {
-            byte[] bytes = Files.readAllBytes(Paths.get(path));
-            run(new String(bytes, Charset.defaultCharset()));
-        } catch (IOException e)
-        {
-            CarmineLogger.log("Something went wrong when trying to read program.", LogLevel.ERROR);
-        }
+    if (!hadError) {
+        val visualizer = AstVisualizer()
+        //Optimizer optimizer = new Optimizer(statements);
+
+        //optimizer.constantFolding();
+        //optimizer.constantPropagation(); // WIP
+        //optimizer.constantFolding();
+        //optimizer.constantPropagation(); // WIP
+        //optimizer.constantFolding();
+
+        //optimizer.loopUnrolling(); // WIP
+        //optimizer.deadCodeElimination(); // WIP
+
+        val dotContent = visualizer.visualizeAST(statements, VisualizationMode.PRETTY_PRINT)
+        println(dotContent)
     }
+    /*
+    try {
+        Files.writeString(
+                Path.of("graph.dot"),
+                dotContent,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        );
+        System.out.println("Saved to graph.dot");
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    */
+}
 
-    public static void main(String[] args) throws IOException {
-        if (args.length != 1)
-        {
-            System.out.println("Usage: carmine [script]");
-            System.exit(2);
-        }
-        else
-        {
-            runFile(args[0]);
-        }
+private fun runFile(path : String) {
+    try {
+        val bytes = Files.readAllBytes(Paths.get(path))
+        run(String(bytes, Charset.defaultCharset()))
+    } catch (_ : IOException) {
+        CarmineLogger.log("Something went wrong when trying to read program.", LogLevel.ERROR)
+    }
+}
+
+fun main(args : Array<String>) {
+    if (args.count() != 1) {
+        exitProcess(2)
+    }
+    else
+    {
+        runFile(args[0])
     }
 }

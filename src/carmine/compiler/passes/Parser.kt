@@ -27,7 +27,7 @@ class Parser(private val tokens : ArrayList<Token>)
     }
 
     private fun errorAtCurrent(message : String) {
-        Carmine.hadError = true
+        hadError = true
         CarmineLogger.log(peek(), message, LogLevel.ERROR)
 
          while (peek().type != TokenType.EOF && peek().type != TokenType.SEMICOLON) {
@@ -35,9 +35,6 @@ class Parser(private val tokens : ArrayList<Token>)
          }
 
          match(TokenType.SEMICOLON)
-
-         if (Carmine.debugMode)
-            Thread.dumpStack()
 
          throw ParseError()
     }

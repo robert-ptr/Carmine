@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-;
+import static carmine.compiler.passes.CarmineKt.variableEnvironment;
 
 public class AstVisualizer implements AstVisitor<Void> {
     public static List<Environment> environments = new ArrayList<Environment>();
@@ -18,7 +18,7 @@ public class AstVisualizer implements AstVisitor<Void> {
     private StringBuilder builder = new StringBuilder();
 
     public static void printEnvironments() {
-        environments.add(Carmine.getVarEnv());
+        environments.add(variableEnvironment);
 
         for (Environment variableEnvironment : environments) {
             System.out.println("environment");

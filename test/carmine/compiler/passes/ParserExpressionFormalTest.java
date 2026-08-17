@@ -46,7 +46,7 @@ public class ParserExpressionFormalTest {
 
     private void runSingleTest(Element sequence) {
         NodeList calls = sequence.getElementsByTagName("call");
-        List<Token> tokens = new ArrayList<>();
+        ArrayList<Token> tokens = new ArrayList<>();
         boolean expectIncomplete = true;
         boolean expectError = false;
 

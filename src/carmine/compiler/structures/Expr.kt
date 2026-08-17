@@ -2,274 +2,133 @@ package carmine.compiler.structures;
 
 import carmine.compiler.helpers.AstVisitor;
 
-import java.util.List;
+abstract class Expr {
+    abstract fun <T> accept(visitor : AstVisitor<T>) : T
 
-public abstract class Expr {
-    public abstract <T> T accept(AstVisitor<T> visitor);
+    abstract val line : Int
 
-    public abstract int getLine();
-
-    public static class Binary extends Expr
+    class Binary(var left : Expr?, val op : Token, var right : Expr?) : Expr()
     {
-        public Expr left;
-        public Expr right;
-        public Token operator;
-
-        public Binary(Expr left, Token operator, Expr right)
-        {
-            this.left = left;
-            this.operator = operator;
-            this.right = right;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitBinaryExpr(this)
         }
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitBinaryExpr(this);
-        }
+        override val line : Int
+            get() = op.line
 
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return operator.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return left.toString() + " " + operator.toString() + " " + right.toString();
+            return "$left $op $right"
         }
     }
 
-    public static class Unary extends Expr
+    class Unary(val op : Token, var right : Expr?) : Expr()
     {
-        public Expr right;
-        public Token operator;
-
-        public Unary(Token operator, Expr right)
-        {
-            this.operator = operator;
-            this.right = right;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitUnaryExpr(this)
         }
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitUnaryExpr(this);
-        }
+        override val line : Int
+            get() = op.line
 
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return operator.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return operator.toString() + " " + right.toString();
+            return "$op $right"
         }
     }
 
-    public static class Identifier extends Expr
+    class Identifier(val name : Token) : Expr()
     {
-        public Token name;
-
-        public Identifier(Token name)
-        {
-            this.name = name;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitIdentifierExpr(this)
         }
 
-        public Token getName()
-        {
-            return name;
-        }
+        override val line : Int
+            get() = name.line
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitIdentifierExpr(this);
-        }
-
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return name.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return name.getLexeme();
+            return name.lexeme
         }
     }
 
-    public static class Module extends Expr
+    class Module(val assignment: Assignment) : Expr()
     {
-        public Expr.Assignment assignment;
+        val name : Token
+            get() = assignment.name
 
-        public Module(Expr.Assignment assignment)
-        {
-            this.assignment = assignment;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitModuleExpr(this)
         }
 
-        public Token getName()
-        {
-            return assignment.getName();
-        }
+        override val line : Int
+            get() = name.line
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitModuleExpr(this);
-        }
-
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return assignment.getName().getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return "module " + assignment.toString();
+            return "module  + $assignment"
         }
     }
 
-    public static class Variable extends Expr
+    class Variable(val assignment : Assignment) : Expr()
     {
-        public Expr.Assignment assignment;
+        val name : Token
+            get() = assignment.name
 
-        public Variable(Expr.Assignment assignment)
-        {
-            this.assignment = assignment;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitVarExpr(this)
         }
 
-        public Token getName()
-        {
-            return assignment.getName();
-        }
+        override val line : Int
+            get() = name.line
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitVarExpr(this);
-        }
-
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return assignment.getName().getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return "variable " + assignment.toString();
+            return "variable  + $assignment"
         }
     }
 
-    public static class Assignment extends Expr
+    class Assignment(val name : Token, var right : Expr?) : Expr()
     {
-        public Token name;
-        public Expr right;
-
-        public Assignment(Token name, Expr right) {
-            this.name = name;
-            this.right = right;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitAssignmentExpr(this)
         }
 
-        public Token getName()
+        override val line : Int
+            get() = name.line
+
+        override fun toString() : String
         {
-            return name;
-        }
-
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitAssignmentExpr(this);
-        }
-
-        @Override
-        public int getLine()
-        {
-            return name.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return name.getLexeme() + " = " + right.toString();
+            return "${name.lexeme} = $right"
         }
     }
 
-    public static class Literal extends Expr
+    class Literal(override val line : Int, val objVal : Any?) : Expr()
     {
-        public Object value;
-        public int line;
-
-        public Literal(int line, Object value)
-        {
-            this.line = line;
-            this.value = value;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitLiteralExpr(this)
         }
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitLiteralExpr(this);
-        }
-
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return line;
-        }
-
-        @Override
-        public String toString()
-        {
-            return value.toString();
+            return "$objVal"
         }
     }
 
-    public static class Group extends Expr
+    class Group(override val line : Int, var expr : Expr?) : Expr()
     {
-        public Expr expr;
-        public int line;
-
-        public Group(int line, Expr expr)
-        {
-            this.line = line;
-            this.expr = expr;
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitGroupExpr(this)
         }
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitGroupExpr(this);
-        }
-
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return this.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return "(" + expr.toString() + ")";
+            return "( + $expr + )"
         }
     }
 
-    public static class Call extends Expr
+    class Call(override val line : Int, val callee : Expr?, val arguments : List<Expr?>) : Expr()
     {
-        public Expr callee; // test this
-        public List<Expr> arguments;
-
-        public int line;
-
-        public Call(int line, Expr callee, List<Expr> arguments)
-        {
-            this.line = line;
-            this.callee = callee;
-            this.arguments = arguments;
-        }
-
         /*
         @Override
         Object evaluate()
@@ -297,21 +156,13 @@ public abstract class Expr {
             return function.call(args);
         }*/
 
-        @Override
-        public <T> T accept(AstVisitor<T> visitor) {
-            return visitor.visitCallExpr(this);
+        override fun <T> accept(visitor : AstVisitor<T>) : T {
+            return visitor.visitCallExpr(this)
         }
 
-        @Override
-        public int getLine()
+        override fun toString() : String
         {
-            return this.getLine();
-        }
-
-        @Override
-        public String toString()
-        {
-            return callee.toString() + "(" + arguments.toString() + ")";
+            return "$callee ( + $arguments + )"
         }
     }
 }

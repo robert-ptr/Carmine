@@ -5,6 +5,7 @@ import carmine.compiler.structures.Stmt;
 import carmine.compiler.structures.Token;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConstantFolderTests {
@@ -13,7 +14,7 @@ public class ConstantFolderTests {
         String source = "(3 + 7 - (3 * 2)) / 4;";
 
         Scanner scanner = new Scanner(source);
-        List<Token> tokens = scanner.scanTokens();
+        ArrayList<Token> tokens = scanner.scanTokens();
 
         Parser parser = new Parser(tokens);
         List<Stmt> statements = parser.parse();

@@ -155,7 +155,7 @@ The compiler iterates via AST visitor passes (`AstVisitor.java`) to refine the c
 - **`ConstantFolder.java`** & **`ConstantPropagator.java`**: Transverse the AST to evaluate static arithmetic and logical expressions, replacing complex trees with simpler literal constants at compile-time to reduce circuit size.
 - **`LoopUnroller.java`**: Expands static loops into explicit, unrolled sequential logic. This is essential as static redstone circuits cannot natively handle dynamic recursive loops without immense complexity.
 - **`SsaConverter.java`**: (WIP) Converts the program strictly into Static Single Assignment form, enabling further advanced compiler optimizations and easier layout routing.
-- **`Optimizer.java`**: The main orchestrator that invokes these specialized passes sequentially.
+- **`Optimizer.kt`**: The main orchestrator that invokes these specialized passes sequentially.
 
 ### 4. Graph Visualization (`helpers/AstVisualizer.java`)
 Since dealing with complex data structures inside the compiler can be tricky, this component translates the generated AST into a standard `.dot` graph format. By directing the compiler's textual output into Graphviz, developers can quickly generate a flowchart to debug structural transformations.

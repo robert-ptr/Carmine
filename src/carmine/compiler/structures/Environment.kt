@@ -1,53 +1,52 @@
 package carmine.compiler.structures;
 
 import java.util.HashMap;
+class Environment {
+    private var enclosing : Environment? = null
+    private val  variables = HashMap<String, Any>()
 
-public class Environment {
-    private Environment enclosing = null;
-    private HashMap<String, Object> variables = new HashMap<>();
-
-    public void put(String name, Object value)
+    fun put(name : String, value : Any)
     {
-        variables.put(name, value);
+        variables[name] = value
     }
 
-    public boolean contains(Token token)
+    fun contains(token : Token) : Boolean
     {
-        return variables.containsKey(token.getLexeme());
+        return variables.containsKey(token.lexeme)
     }
 
-    public Object get(String name)
+    fun get(name : String) : Any?
     {
         if (variables.containsKey(name))
         {
-            return variables.get(name);
+            return variables[name]
         }
 
-        throw new RuntimeException("Unknown variable: " + name);
+        throw RuntimeException("Unknown variable: $name")
     }
 
-    public Object get(Token token)
+    fun get(token : Token) : Any?
     {
-        if (variables.containsKey(token.getLexeme()))
+        if (variables.containsKey(token.lexeme))
         {
-            return variables.get(token.getLexeme());
+            return variables[token.lexeme]
         }
 
-        throw new RuntimeException(token.getLine() + " Unknown variable: " + token.getLexeme());
+        throw RuntimeException("${token.line} Unknown variable: ${token.lexeme}")
     }
 
-    public void addEnclosing(Environment enclosing)
+    fun addEnclosing(enclosing : Environment)
     {
-        this.enclosing = enclosing;
+        this.enclosing = enclosing
     }
 
-    public Environment getEnclosing()
+    fun getEnclosing() : Environment?
     {
-        return enclosing;
+        return enclosing
     }
 
-    public HashMap<String, Object> getVariables()
+    fun getVariables() : HashMap<String, Any>
     {
-        return variables;
+        return variables
     }
 }

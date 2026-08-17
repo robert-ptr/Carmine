@@ -117,7 +117,7 @@ public class ScannerTests {
                 new Token(TokenType.SEMICOLON, ";", null, 13),
                 new Token(TokenType.EOF, "", null, 14));
 
-        assertEquals(tokens.size(), expectedTokens.size());
+        assertEquals(expectedTokens.size(), tokens.size());
 
         for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
             assertEquals(expectedTokens.get(i), tokens.get(i));
@@ -242,7 +242,7 @@ public class ScannerTests {
                 new Token(TokenType.SEMICOLON, ";", null, 10),
                 new Token(TokenType.EOF, "", null, 11));
 
-        assertEquals(tokens.size(), expectedTokens.size());
+        assertEquals(expectedTokens.size(), tokens.size());
 
         for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
             assertEquals(expectedTokens.get(i), tokens.get(i));
@@ -477,7 +477,7 @@ public class ScannerTests {
                 new Token(TokenType.RBRACE, "}", null, 31),
                 new Token(TokenType.EOF, "", null, 32));
 
-        assertEquals(tokens.size(), expectedTokens.size());
+        assertEquals(expectedTokens.size(), tokens.size());
 
         for (int i = 0; i < Math.min(tokens.size(), expectedTokens.size()); i++) {
             assertEquals(expectedTokens.get(i), tokens.get(i));

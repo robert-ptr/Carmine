@@ -2,72 +2,58 @@ package carmine.compiler.structures;
 
 import java.util.Objects;
 
-public class Token {
-    private TokenType type;
-    private String lexeme;
-    private Object value;
-    private int line;
+enum class TokenType
+{
+    LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE,
+    ENDLINE,
+    COMMA, SEMICOLON, DOT,
+    PLUS, MINUS,
+    MUL, DIV, MOD, EXP,
+    AND, OR, NOT,
+    EQUAL, NOTEQUAL, LESS, GREATER, GREATER_EQUAL, LESS_EQUAL,
+    ASSIGN,
+    IF, ELSE, WHILE, FOR,
+    IDENTIFIER, BINARY, DECIMAL, HEXADECIMAL, TRUE, FALSE, NULL,
+    ENUM,
+    ARROW, //WIRE, INPUT,
+    MODULE, VAR,
+    ERR,
+    EOF
+}
 
-    public Token(TokenType type, String lexeme, Object value, int line)
+class Token (val type: TokenType,
+             val lexeme: String,
+             var tokenValue: Any?,
+             val line: Int
+){
+    override fun toString() : String
     {
-        this.type = type;
-        this.lexeme = lexeme;
-        this.value = value;
-        this.line = line;
-    }
-
-    public TokenType getType()
-    {
-        return type;
-    }
-
-    public String getLexeme()
-    {
-        return lexeme;
-    }
-
-    public Object getValue()
-    {
-        return value;
-    }
-
-    public int getLine() {
-        return line;
-    }
-
-    public void setValue(Object value)
-    {
-        this.value = value;
-    }
-
-    @Override
-    public String toString()
-    {
-        if (value != null)
-            return type + " " + lexeme + " " + value;
+        return if (tokenValue != null)
+            "$type $lexeme $tokenValue"
         else
-            return type + " " + lexeme;
+            "$type $lexeme"
     }
 
-    @Override
-    public boolean equals(Object obj)
+    override fun equals(other: Any?): Boolean
     {
-        if (this == obj)
-            return true;
+        if (this === other)
+            return true
 
-        if (obj == null || getClass() != obj.getClass())
-            return false;
+        if (other is Token)
+            return type == other.type
+                    && Objects.equals(lexeme, other.lexeme)
+                    && Objects.equals(tokenValue, other.tokenValue)
+                    && Objects.equals(line, other.line)
 
-        Token other = (Token) obj;
-        return type == other.type
-                && Objects.equals(lexeme, other.lexeme)
-                && Objects.equals(value, other.value)
-                && Objects.equals(line, other.line);
+        return false
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(type, lexeme, value, line);
+    override fun hashCode(): Int {
+        var result = line
+        result = 31 * result + type.hashCode()
+        result = 31 * result + lexeme.hashCode()
+        result = 31 * result + tokenValue.hashCode()
+        return result
     }
 
 }
